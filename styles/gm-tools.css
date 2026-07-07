@@ -427,6 +427,10 @@
   gap: 6px;
   width: auto;
   cursor: pointer;
+  /* Foundry's faded UI panels (#players, scene nav, chat controls) set
+     pointer-events: none on their children so clicks fall through to the
+     canvas. Re-enable it here or the button can't be clicked. */
+  pointer-events: auto;
 }
 
 #gm-tools-toggle .gm-tools-toggle-label {
