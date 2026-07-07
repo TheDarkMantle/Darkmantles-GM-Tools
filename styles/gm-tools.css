@@ -1,0 +1,472 @@
+/* ---------------------------------------- */
+/*  GM Screen window                         */
+/* ---------------------------------------- */
+
+.gm-tools.gm-screen .window-content {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  overflow: hidden;
+}
+
+.gm-screen-inner {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+/* Tab bar */
+.gm-screen-nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 2px;
+  padding: 6px 8px 0;
+  border-bottom: 1px solid var(--color-border, rgba(128, 128, 128, 0.5));
+  flex: 0 0 auto;
+}
+
+.gm-tab-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: auto;
+  padding: 4px 12px;
+  border: 1px solid transparent;
+  border-bottom: none;
+  border-radius: 5px 5px 0 0;
+  background: transparent;
+  cursor: pointer;
+  line-height: 1.4;
+}
+
+.gm-tab-button:hover {
+  background: rgba(128, 128, 128, 0.12);
+}
+
+.gm-tab-button.active {
+  background: rgba(128, 128, 128, 0.2);
+  border-color: var(--color-border, rgba(128, 128, 128, 0.5));
+  font-weight: bold;
+}
+
+.gm-tab-tools {
+  display: none;
+  gap: 6px;
+  margin-left: 4px;
+  opacity: 0.65;
+}
+
+.gm-tab-button.active .gm-tab-tools,
+.gm-tab-button:hover .gm-tab-tools {
+  display: inline-flex;
+}
+
+.gm-tab-tools i:hover {
+  opacity: 1;
+  text-shadow: 0 0 6px var(--color-shadow-primary, currentcolor);
+}
+
+.gm-tab-add {
+  padding: 4px 8px;
+  opacity: 0.7;
+}
+
+.gm-tab-add:hover {
+  opacity: 1;
+}
+
+/* Tab panels */
+.gm-screen-tab {
+  display: none;
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 8px;
+}
+
+.gm-screen-tab.active {
+  display: block;
+}
+
+.gm-tab-grid.active {
+  display: grid;
+  gap: 8px;
+  overflow: hidden;
+}
+
+/* Grid cells */
+.gm-screen-cell {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+  border: 1px solid var(--color-border, rgba(128, 128, 128, 0.5));
+  border-radius: 6px;
+  overflow: hidden;
+  background: rgba(128, 128, 128, 0.06);
+}
+
+.gm-screen-cell.empty {
+  border-style: dashed;
+  align-items: center;
+  justify-content: center;
+}
+
+.gm-cell-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 12px;
+  text-align: center;
+  font-size: 0.9em;
+  opacity: 0.55;
+}
+
+.gm-cell-placeholder i {
+  font-size: 1.6em;
+}
+
+.gm-cell-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border-bottom: 1px solid rgba(128, 128, 128, 0.35);
+  background: rgba(128, 128, 128, 0.14);
+  flex: 0 0 auto;
+}
+
+.gm-cell-header img {
+  width: 24px;
+  height: 24px;
+  object-fit: cover;
+  border-radius: 4px;
+  border: none;
+  flex: none;
+}
+
+.gm-cell-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.gm-cell-clear {
+  flex: none;
+  cursor: pointer;
+  opacity: 0.6;
+}
+
+.gm-cell-clear:hover {
+  opacity: 1;
+}
+
+.gm-section-content {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 6px 10px;
+}
+
+.gm-section-content img {
+  max-width: 100%;
+  height: auto;
+}
+
+.gm-journal-page > summary {
+  font-weight: bold;
+  cursor: pointer;
+  padding: 2px 0;
+}
+
+.gm-missing,
+.gm-empty {
+  opacity: 0.6;
+  font-style: italic;
+}
+
+/* ---------------------------------------- */
+/*  Reference tab                            */
+/* ---------------------------------------- */
+
+.gm-ref-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  padding: 4px 8px;
+  border: 1px solid var(--color-border, rgba(128, 128, 128, 0.5));
+  border-radius: 5px;
+  background: rgba(128, 128, 128, 0.08);
+}
+
+.gm-ref-toolbar input.gm-ref-filter {
+  flex: 1;
+  border: none;
+  background: transparent;
+  outline: none;
+}
+
+.gm-ref-section {
+  margin-bottom: 16px;
+}
+
+.gm-ref-section > h2 {
+  border-bottom: 2px solid var(--color-border, rgba(128, 128, 128, 0.5));
+  padding-bottom: 2px;
+  margin: 8px 0;
+}
+
+.gm-ref-conditions {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 8px;
+}
+
+.gm-condition {
+  border: 1px solid rgba(128, 128, 128, 0.4);
+  border-radius: 6px;
+  padding: 6px 10px;
+  background: rgba(128, 128, 128, 0.06);
+}
+
+.gm-condition h3 {
+  margin: 0 0 4px;
+  font-size: 1.05em;
+  border-bottom: 1px solid rgba(128, 128, 128, 0.3);
+  padding-bottom: 2px;
+}
+
+.gm-condition ul {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 0.92em;
+}
+
+.gm-condition li {
+  margin-bottom: 2px;
+}
+
+.gm-ref-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.gm-ref-table th,
+.gm-ref-table td {
+  padding: 4px 8px;
+  border: 1px solid rgba(128, 128, 128, 0.35);
+  text-align: left;
+}
+
+.gm-ref-table th {
+  background: rgba(128, 128, 128, 0.16);
+}
+
+.gm-ref-table .gm-ref-name {
+  font-weight: 600;
+}
+
+.gm-ref-notes {
+  margin: 6px 0 0;
+  padding-left: 18px;
+  font-size: 0.92em;
+  opacity: 0.9;
+}
+
+/* ---------------------------------------- */
+/*  Actor card                               */
+/* ---------------------------------------- */
+
+.gm-actor-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 0.92em;
+}
+
+.gm-actor-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.gm-actor-portrait {
+  width: 44px;
+  height: 44px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid rgba(128, 128, 128, 0.5);
+  cursor: pointer;
+  flex: none;
+}
+
+.gm-actor-title {
+  min-width: 0;
+}
+
+.gm-actor-title h3 {
+  margin: 0;
+  border: none;
+  font-size: 1.15em;
+}
+
+.gm-actor-subtitle {
+  font-size: 0.9em;
+  opacity: 0.75;
+}
+
+.gm-actor-vitals {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+
+.gm-vital {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 4px 2px;
+  border: 1px solid rgba(128, 128, 128, 0.45);
+  border-radius: 6px;
+  background: rgba(128, 128, 128, 0.12);
+}
+
+.gm-vital label {
+  font-size: 0.75em;
+  font-weight: bold;
+  text-transform: uppercase;
+  opacity: 0.75;
+}
+
+.gm-vital span {
+  font-weight: bold;
+  font-size: 1.05em;
+}
+
+.gm-actor-abilities {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 4px;
+}
+
+.gm-ability {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2px;
+  border: 1px solid rgba(128, 128, 128, 0.3);
+  border-radius: 5px;
+}
+
+.gm-ability label {
+  font-size: 0.72em;
+  font-weight: bold;
+  opacity: 0.75;
+}
+
+.gm-ability-score {
+  font-weight: bold;
+}
+
+.gm-ability-mod {
+  font-size: 0.85em;
+  opacity: 0.85;
+}
+
+.gm-actor-line {
+  margin: 0;
+}
+
+.gm-actor-skills {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2px 12px;
+}
+
+.gm-skill {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 1px 4px;
+  border-bottom: 1px dotted rgba(128, 128, 128, 0.3);
+}
+
+.gm-skill.proficient .gm-skill-name {
+  font-weight: 600;
+}
+
+.gm-skill-mod {
+  font-variant-numeric: tabular-nums;
+}
+
+.gm-actor-footer {
+  margin-top: 2px;
+}
+
+.gm-actor-footer button {
+  width: 100%;
+  cursor: pointer;
+}
+
+/* ---------------------------------------- */
+/*  Toggle button                            */
+/* ---------------------------------------- */
+
+#gm-tools-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: auto;
+  cursor: pointer;
+}
+
+#gm-tools-toggle .gm-tools-toggle-label {
+  display: none;
+}
+
+/* In the players list the button reads better as a full-width labeled row */
+#players #gm-tools-toggle {
+  width: 100%;
+  justify-content: flex-start;
+  margin-bottom: 4px;
+}
+
+#players #gm-tools-toggle .gm-tools-toggle-label {
+  display: inline;
+}
+
+/* Floating fallback if no anchor element was found in the core UI */
+.gm-tools-float {
+  position: fixed;
+  z-index: 100;
+}
+
+.gm-tools-float #gm-tools-toggle {
+  padding: 8px 12px;
+  border-radius: 6px;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
+}
+
+.gm-tools-float-players {
+  left: 12px;
+  bottom: 210px;
+}
+
+.gm-tools-float-nav {
+  left: 12px;
+  top: 64px;
+}
+
+.gm-tools-float-chat {
+  right: 340px;
+  bottom: 12px;
+}

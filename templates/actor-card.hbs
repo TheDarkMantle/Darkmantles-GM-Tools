@@ -1,0 +1,62 @@
+<div class="gm-actor-card">
+  <header class="gm-actor-header">
+    <img class="gm-actor-portrait" src="{{img}}" alt="{{name}}" data-action="openDocument" data-uuid="{{uuid}}">
+    <div class="gm-actor-title">
+      <h3>{{name}}</h3>
+      {{#if subtitle}}<span class="gm-actor-subtitle">{{subtitle}}</span>{{/if}}
+    </div>
+  </header>
+
+  <div class="gm-actor-vitals">
+    <div class="gm-vital" data-tooltip="{{localize 'GMTOOLS.Actor.HitPoints'}}">
+      <label>{{localize "GMTOOLS.Actor.HP"}}</label>
+      <span>{{hp.value}}/{{hp.max}}{{#if hp.temp}} +{{hp.temp}}{{/if}}</span>
+    </div>
+    <div class="gm-vital" data-tooltip="{{localize 'GMTOOLS.Actor.ArmorClass'}}">
+      <label>{{localize "GMTOOLS.Actor.AC"}}</label>
+      <span>{{ac}}</span>
+    </div>
+    <div class="gm-vital" data-tooltip="{{localize 'GMTOOLS.Actor.PassivePerception'}}">
+      <label>{{localize "GMTOOLS.Actor.PP"}}</label>
+      <span>{{passivePerception}}</span>
+    </div>
+    <div class="gm-vital" data-tooltip="{{localize 'GMTOOLS.Actor.PassiveInsight'}}">
+      <label>{{localize "GMTOOLS.Actor.PI"}}</label>
+      <span>{{passiveInsight}}</span>
+    </div>
+  </div>
+
+  <div class="gm-actor-abilities">
+    {{#each abilities}}
+    <div class="gm-ability">
+      <label>{{this.label}}</label>
+      <span class="gm-ability-score">{{this.value}}</span>
+      <span class="gm-ability-mod">{{this.mod}}</span>
+    </div>
+    {{/each}}
+  </div>
+
+  {{#if speeds}}
+  <p class="gm-actor-line"><strong>{{localize "GMTOOLS.Actor.Speed"}}:</strong> {{speeds}}</p>
+  {{/if}}
+  {{#if senses}}
+  <p class="gm-actor-line"><strong>{{localize "GMTOOLS.Actor.Senses"}}:</strong> {{senses}}</p>
+  {{/if}}
+
+  {{#if skills.length}}
+  <div class="gm-actor-skills">
+    {{#each skills}}
+    <div class="gm-skill {{#if this.proficient}}proficient{{/if}}">
+      <span class="gm-skill-name">{{this.label}}</span>
+      <span class="gm-skill-mod">{{this.total}}</span>
+    </div>
+    {{/each}}
+  </div>
+  {{/if}}
+
+  <footer class="gm-actor-footer">
+    <button type="button" data-action="openDocument" data-uuid="{{uuid}}">
+      <i class="fa-solid fa-arrow-up-right-from-square"></i> {{localize "GMTOOLS.Actor.OpenSheet"}}
+    </button>
+  </footer>
+</div>
