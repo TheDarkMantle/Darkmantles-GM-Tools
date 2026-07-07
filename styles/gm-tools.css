@@ -426,26 +426,17 @@
   justify-content: center;
   gap: 6px;
   width: auto;
+  white-space: nowrap;
+  align-self: flex-start;
   cursor: pointer;
-  /* Foundry's faded UI panels (#players, scene nav, chat controls) set
-     pointer-events: none on their children so clicks fall through to the
-     canvas. Re-enable it here or the button can't be clicked. */
+  /* Foundry's faded UI treatment sets pointer-events: none so clicks fall
+     through to the canvas. Re-enable it here or the button can't be clicked. */
   pointer-events: auto;
 }
 
-#gm-tools-toggle .gm-tools-toggle-label {
-  display: none;
-}
-
-/* In the players list the button reads better as a full-width labeled row */
-#players #gm-tools-toggle {
-  width: 100%;
-  justify-content: flex-start;
-  margin-bottom: 4px;
-}
-
-#players #gm-tools-toggle .gm-tools-toggle-label {
-  display: inline;
+/* Above the chat panel (bottom right) the button should hug the right edge */
+#gm-tools-toggle.gm-tools-toggle-chat {
+  align-self: flex-end;
 }
 
 /* Floating fallback if no anchor element was found in the core UI */

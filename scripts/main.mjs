@@ -56,21 +56,25 @@ for (const hook of ["renderPlayers", "renderSceneNavigation", "renderChatLog"]) 
  * Anchor candidates per configured location. The first selector present in the
  * DOM wins; if none match (core UI drift between versions), a floating button
  * pinned to the matching screen corner is used instead.
+ *
+ * The button is always inserted as a SIBLING of the core faded-ui panels
+ * (#players, #scene-navigation, #chat-notifications), never inside them:
+ * hovering a child of a faded-ui panel triggers that panel's expand-on-hover.
  */
 const ANCHORS = {
   players: [
-    { selector: "#players", how: "prepend" },
-    { selector: "#ui-left-column-2", how: "append" },
-    { selector: "#ui-left", how: "append" }
+    { selector: "#players", how: "before" },
+    { selector: "#ui-left-column-1", how: "append" }
   ],
   nav: [
-    { selector: "#scene-navigation", how: "append" },
-    { selector: "#navigation", how: "append" }
+    { selector: "#scene-navigation", how: "before" },
+    { selector: "#navigation", how: "before" },
+    { selector: "#ui-left-column-2", how: "prepend" }
   ],
   chat: [
-    { selector: "#chat-controls", how: "prepend" },
+    { selector: "#chat-notifications", how: "before" },
     { selector: "#chat-message", how: "before" },
-    { selector: "#chat-notifications", how: "prepend" }
+    { selector: "#ui-right-column-1", how: "append" }
   ]
 };
 
@@ -85,7 +89,7 @@ function injectButton() {
   const btn = document.createElement("button");
   btn.id = "gm-tools-toggle";
   btn.type = "button";
-  btn.className = `gm-tools-toggle gm-tools-toggle-${location}`;
+  btn.className = `gm-tools-toggle gm-tools-toggle-${location} faded-ui`;
   btn.innerHTML = `<i class="fa-solid fa-book-open-reader"></i><span class="gm-tools-toggle-label">${label}</span>`;
   btn.dataset.tooltip = label;
   btn.setAttribute("aria-label", label);
