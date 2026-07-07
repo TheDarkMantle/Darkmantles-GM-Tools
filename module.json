@@ -2,7 +2,7 @@
   "id": "gm-tools",
   "title": "GM Tools",
   "description": "A suite of tools for Game Masters. Includes a tabbed GM Screen with a rules reference and customizable drag-and-drop layout tabs for characters, monsters, journals, spells, and more.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "authors": [
     {
       "name": "Shawn Rudolph"
