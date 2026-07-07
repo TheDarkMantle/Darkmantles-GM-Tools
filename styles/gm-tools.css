@@ -27,49 +27,69 @@
   flex: 0 0 auto;
 }
 
-.gm-tab-button {
+.gm-tab {
+  display: inline-flex;
+  align-items: stretch;
+  border: 1px solid transparent;
+  border-bottom: none;
+  border-radius: 5px 5px 0 0;
+}
+
+.gm-tab:hover {
+  background: rgba(128, 128, 128, 0.12);
+}
+
+.gm-tab.active {
+  background: rgba(128, 128, 128, 0.2);
+  border-color: var(--color-border, rgba(128, 128, 128, 0.5));
+}
+
+.gm-tab .gm-tab-button {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   width: auto;
   padding: 4px 12px;
-  border: 1px solid transparent;
-  border-bottom: none;
-  border-radius: 5px 5px 0 0;
+  border: none;
   background: transparent;
   cursor: pointer;
   line-height: 1.4;
+  white-space: nowrap;
 }
 
-.gm-tab-button:hover {
-  background: rgba(128, 128, 128, 0.12);
-}
-
-.gm-tab-button.active {
-  background: rgba(128, 128, 128, 0.2);
-  border-color: var(--color-border, rgba(128, 128, 128, 0.5));
+.gm-tab.active .gm-tab-button {
   font-weight: bold;
 }
 
-.gm-tab-tools {
+.gm-tab-tool {
   display: none;
-  gap: 6px;
-  margin-left: 4px;
+  align-items: center;
+  width: auto;
+  padding: 4px 6px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
   opacity: 0.65;
 }
 
-.gm-tab-button.active .gm-tab-tools,
-.gm-tab-button:hover .gm-tab-tools {
+.gm-tab.active .gm-tab-tool,
+.gm-tab:hover .gm-tab-tool {
   display: inline-flex;
 }
 
-.gm-tab-tools i:hover {
+.gm-tab-tool:hover {
   opacity: 1;
   text-shadow: 0 0 6px var(--color-shadow-primary, currentcolor);
 }
 
 .gm-tab-add {
-  padding: 4px 8px;
+  display: inline-flex;
+  align-items: center;
+  width: auto;
+  padding: 4px 10px;
+  border: 1px solid transparent;
+  background: transparent;
+  cursor: pointer;
   opacity: 0.7;
 }
 
@@ -340,15 +360,41 @@
 }
 
 .gm-vital label {
-  font-size: 0.75em;
+  font-size: 0.68em;
   font-weight: bold;
   text-transform: uppercase;
+  text-align: center;
+  line-height: 1.15;
   opacity: 0.75;
 }
 
 .gm-vital span {
   font-weight: bold;
   font-size: 1.05em;
+}
+
+.gm-actor-conditions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.gm-condition-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 1px 8px 1px 2px;
+  border: 1px solid rgba(128, 128, 128, 0.45);
+  border-radius: 10px;
+  background: rgba(128, 128, 128, 0.12);
+  font-size: 0.85em;
+}
+
+.gm-condition-chip img {
+  width: 16px;
+  height: 16px;
+  border: none;
+  border-radius: 50%;
 }
 
 .gm-actor-abilities {
@@ -434,9 +480,10 @@
   pointer-events: auto;
 }
 
-/* Above the chat panel (bottom right) the button should hug the right edge */
-#gm-tools-toggle.gm-tools-toggle-chat {
-  align-self: flex-end;
+/* Beside the scene selector: sits in #ui-left (flexrow) after the nav column */
+#gm-tools-toggle.gm-tools-toggle-nav {
+  align-self: flex-start;
+  margin-left: 6px;
 }
 
 /* Floating fallback if no anchor element was found in the core UI */
@@ -461,7 +508,7 @@
   top: 64px;
 }
 
-.gm-tools-float-chat {
-  right: 340px;
-  bottom: 12px;
+.gm-tools-float-controls {
+  left: 60px;
+  top: 40%;
 }

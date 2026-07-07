@@ -137,6 +137,11 @@ async function renderActorCard(actor) {
     .map(k => `${k.capitalize()} ${senseData[k]} ${senseUnits}`)
     .join(", ");
 
+  // Active conditions & status effects (dnd5e models conditions as ActiveEffects)
+  const conditions = actor.effects
+    .filter(e => !e.disabled && !(e.isSuppressed ?? false))
+    .map(e => ({ name: e.name, img: e.img ?? e.icon }));
+
   const skills = Object.entries(sys.skills ?? {})
     .map(([key, skill]) => ({
       label: CONFIG.DND5E?.skills?.[key]?.label ?? key,
@@ -166,6 +171,7 @@ async function renderActorCard(actor) {
     ac,
     passivePerception: sys.skills?.prc?.passive ?? "—",
     passiveInsight: sys.skills?.ins?.passive ?? "—",
+    conditions,
     abilities,
     speeds,
     senses,

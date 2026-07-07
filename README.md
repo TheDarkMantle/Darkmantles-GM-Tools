@@ -13,12 +13,12 @@ A tabbed, resizable, pop-out–capable window for keeping reference material and
   - **Travel pace** — distance per minute / hour / day at fast, normal, and slow pace, plus forced-march and terrain notes.
   - **Light sources** — bright/dim radii and duration for candles, torches, lanterns, and light spells.
   - A filter box to quickly find any entry.
-- **Custom tabs** — add your own tabs, each split into a grid of up to 4×4 sections. Drag any document into a section:
-  - **Actors** (PCs & monsters) render as a **compact stat card**: portrait, HP, AC, passive Perception & Insight up top, then ability scores, speeds, senses, and the full skill list — with a link to the full sheet.
+- **Custom tabs** — add your own tabs (rename or resize them any time via the tab's edit button), each split into a grid of up to 4×4 sections. Drag any document into a section:
+  - **Actors** (PCs & monsters) render as a **compact stat card**: portrait, HP, AC, passive Perception & Insight up top, active **conditions and status effects**, then ability scores, speeds, senses, and the full skill list — with a link to the full sheet. Cards refresh live as HP and conditions change.
   - **Spells, feats, and items** render as rich embeds.
   - **Journal entries & pages** render inline.
   - Anything else drops in as a content link.
-- **Toggle button** — placed near the players list, the chat box, or the scene navigation (your choice in settings). Falls back to a floating button if the anchor isn't found.
+- **Toggle button** — above the players list, beside the scene selector, or in the scene controls toolbar (your choice in settings). Falls back to a floating button if the anchor isn't found.
 
 ## Installation
 
@@ -34,7 +34,7 @@ Then enable **GM Tools** in your world's **Manage Modules**.
 
 | Setting | Scope | Description |
 | --- | --- | --- |
-| GM Screen Button Location | Per-client | Where the toggle button appears (players list / chat / scene nav). |
+| GM Screen Button Location | Per-client | Where the toggle button appears (above the players list / beside the scene selector / with the scene controls). |
 | D&D Rules Version | Per-world | Whether the Reference tab shows 2014 or 2024 rules text. |
 
 ## Compatibility

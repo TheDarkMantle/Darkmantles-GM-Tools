@@ -16,15 +16,23 @@
       <label>{{localize "GMTOOLS.Actor.AC"}}</label>
       <span>{{ac}}</span>
     </div>
-    <div class="gm-vital" data-tooltip="{{localize 'GMTOOLS.Actor.PassivePerception'}}">
-      <label>{{localize "GMTOOLS.Actor.PP"}}</label>
+    <div class="gm-vital">
+      <label>{{localize "GMTOOLS.Actor.PassivePerception"}}</label>
       <span>{{passivePerception}}</span>
     </div>
-    <div class="gm-vital" data-tooltip="{{localize 'GMTOOLS.Actor.PassiveInsight'}}">
-      <label>{{localize "GMTOOLS.Actor.PI"}}</label>
+    <div class="gm-vital">
+      <label>{{localize "GMTOOLS.Actor.PassiveInsight"}}</label>
       <span>{{passiveInsight}}</span>
     </div>
   </div>
+
+  {{#if conditions.length}}
+  <div class="gm-actor-conditions">
+    {{#each conditions}}
+    <span class="gm-condition-chip"><img src="{{this.img}}" alt="">{{this.name}}</span>
+    {{/each}}
+  </div>
+  {{/if}}
 
   <div class="gm-actor-abilities">
     {{#each abilities}}

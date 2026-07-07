@@ -37,8 +37,6 @@
     "Actor": {
       "HP": "HP",
       "AC": "AC",
-      "PP": "PP",
-      "PI": "PI",
       "HitPoints": "Hit Points",
       "ArmorClass": "Armor Class",
       "PassivePerception": "Passive Perception",
@@ -51,9 +49,9 @@
       "ButtonLocation": {
         "Name": "GM Screen Button Location",
         "Hint": "Where the GM Screen toggle button appears in the interface.",
-        "Players": "Near the players list (bottom left)",
-        "Chat": "Near the chat field (bottom right)",
-        "Nav": "Near the scene navigation (top left)"
+        "Players": "Above the players list (bottom left)",
+        "Nav": "Beside the scene selector (top left)",
+        "Controls": "With the scene controls (left toolbar)"
       },
       "RulesVersion": {
         "Name": "D&D Rules Version",

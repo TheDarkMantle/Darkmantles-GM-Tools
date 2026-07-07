@@ -4,6 +4,12 @@ import { renderSection } from "../section-renderers.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin, DialogV2 } = foundry.applications.api;
 
+function esc(value) {
+  const div = document.createElement("div");
+  div.textContent = String(value ?? "");
+  return div.innerHTML;
+}
+
 export class GMScreenApp extends HandlebarsApplicationMixin(ApplicationV2) {
   /** Singleton instance toggled by the UI button. */
   static instance = null;
@@ -123,7 +129,7 @@ export class GMScreenApp extends HandlebarsApplicationMixin(ApplicationV2) {
     const tab = target.dataset.tab;
     if (!tab || tab === this.tabGroups.primary) return;
     this.tabGroups.primary = tab;
-    for (const el of this.element.querySelectorAll(".gm-screen-tab, .gm-tab-button")) {
+    for (const el of this.element.querySelectorAll(".gm-screen-tab, .gm-tab")) {
       el.classList.toggle("active", el.dataset.tab === tab);
     }
   }
@@ -196,7 +202,7 @@ export class GMScreenApp extends HandlebarsApplicationMixin(ApplicationV2) {
   /* -------------------------------------------- */
 
   async #tabDialog(initial = null) {
-    const escName = initial?.name ? Handlebars.escapeExpression(initial.name) : "";
+    const escName = initial?.name ? esc(initial.name) : "";
     const content = `
       <div class="form-group">
         <label>${game.i18n.localize("GMTOOLS.Screen.TabName")}</label>

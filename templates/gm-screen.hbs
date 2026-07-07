@@ -1,19 +1,25 @@
 <div class="gm-screen-inner">
   <nav class="gm-screen-nav">
-    <button type="button" class="gm-tab-button {{#if referenceActive}}active{{/if}}" data-action="selectTab" data-tab="reference">
-      <i class="fa-solid fa-book"></i>
-      <span>{{localize "GMTOOLS.Screen.ReferenceTab"}}</span>
-    </button>
+    <div class="gm-tab {{#if referenceActive}}active{{/if}}" data-tab="reference">
+      <button type="button" class="gm-tab-button" data-action="selectTab" data-tab="reference">
+        <i class="fa-solid fa-book"></i>
+        <span>{{localize "GMTOOLS.Screen.ReferenceTab"}}</span>
+      </button>
+    </div>
     {{#each tabs}}
-    <button type="button" class="gm-tab-button {{#if this.active}}active{{/if}}" data-action="selectTab" data-tab="{{this.id}}">
-      <span>{{this.name}}</span>
-      <span class="gm-tab-tools">
-        <i class="fa-solid fa-pen-to-square" data-action="editTab" data-tab-id="{{this.id}}" data-tooltip="{{localize 'GMTOOLS.Screen.EditTab'}}"></i>
-        <i class="fa-solid fa-trash" data-action="deleteTab" data-tab-id="{{this.id}}" data-tooltip="{{localize 'GMTOOLS.Screen.DeleteTab'}}"></i>
-      </span>
-    </button>
+    <div class="gm-tab {{#if this.active}}active{{/if}}" data-tab="{{this.id}}">
+      <button type="button" class="gm-tab-button" data-action="selectTab" data-tab="{{this.id}}">
+        <span>{{this.name}}</span>
+      </button>
+      <button type="button" class="gm-tab-tool" data-action="editTab" data-tab-id="{{this.id}}" data-tooltip="{{localize 'GMTOOLS.Screen.EditTab'}}" aria-label="{{localize 'GMTOOLS.Screen.EditTab'}}">
+        <i class="fa-solid fa-pen-to-square"></i>
+      </button>
+      <button type="button" class="gm-tab-tool" data-action="deleteTab" data-tab-id="{{this.id}}" data-tooltip="{{localize 'GMTOOLS.Screen.DeleteTab'}}" aria-label="{{localize 'GMTOOLS.Screen.DeleteTab'}}">
+        <i class="fa-solid fa-trash"></i>
+      </button>
+    </div>
     {{/each}}
-    <button type="button" class="gm-tab-button gm-tab-add" data-action="addTab" data-tooltip="{{localize 'GMTOOLS.Screen.AddTab'}}">
+    <button type="button" class="gm-tab-add" data-action="addTab" data-tooltip="{{localize 'GMTOOLS.Screen.AddTab'}}" aria-label="{{localize 'GMTOOLS.Screen.AddTab'}}">
       <i class="fa-solid fa-plus"></i>
     </button>
   </nav>
