@@ -1,0 +1,47 @@
+# Darkmantle's GM Tools
+
+A suite of Game Master tools for [Foundry VTT](https://foundryvtt.com/) (v13–v14), built for the D&D 5e system.
+
+## Features
+
+### GM Screen
+
+A tabbed, resizable, pop-out–capable window for keeping reference material and your prep at your fingertips.
+
+- **Reference tab** (static) — quick-reference cards for:
+  - **Conditions** — every D&D condition (Blinded → Unconscious), with rules text for either the **2014** or **2024** ruleset, selectable in module settings.
+  - **Travel pace** — distance per minute / hour / day at fast, normal, and slow pace, plus forced-march and terrain notes.
+  - **Light sources** — bright/dim radii and duration for candles, torches, lanterns, and light spells.
+  - A filter box to quickly find any entry.
+- **Custom tabs** — add your own tabs, each split into a grid of up to 4×4 sections. Drag any document into a section:
+  - **Actors** (PCs & monsters) render as a **compact stat card**: portrait, HP, AC, passive Perception & Insight up top, then ability scores, speeds, senses, and the full skill list — with a link to the full sheet.
+  - **Spells, feats, and items** render as rich embeds.
+  - **Journal entries & pages** render inline.
+  - Anything else drops in as a content link.
+- **Toggle button** — placed near the players list, the chat box, or the scene navigation (your choice in settings). Falls back to a floating button if the anchor isn't found.
+
+## Installation
+
+In Foundry, go to **Add-on Modules → Install Module** and paste this manifest URL:
+
+```
+https://raw.githubusercontent.com/TheDarkMantle/Darkmantles-GM-Tools/main/module.json
+```
+
+Then enable **GM Tools** in your world's **Manage Modules**.
+
+## Settings
+
+| Setting | Scope | Description |
+| --- | --- | --- |
+| GM Screen Button Location | Per-client | Where the toggle button appears (players list / chat / scene nav). |
+| D&D Rules Version | Per-world | Whether the Reference tab shows 2014 or 2024 rules text. |
+
+## Compatibility
+
+- **Foundry VTT:** v13 minimum, verified on v14.364.
+- **System:** D&D 5e (actor stat cards use dnd5e data paths; other document types are system-agnostic).
+
+## License
+
+See repository.

@@ -1,0 +1,66 @@
+{
+  "GMTOOLS": {
+    "Save": "Save",
+    "Create": "Create",
+    "Screen": {
+      "Title": "GM Screen",
+      "ReferenceTab": "Reference",
+      "AddTab": "Add Tab",
+      "EditTab": "Edit Tab",
+      "DeleteTab": "Delete Tab",
+      "DeleteTabConfirm": "Delete the tab \"{name}\"? Its layout will be lost. The documents shown on it are not affected.",
+      "NewTab": "New Tab",
+      "TabName": "Tab Name",
+      "TabRows": "Rows",
+      "TabCols": "Columns",
+      "DropHint": "Drop a character, monster, journal, spell, or item here",
+      "ClearSection": "Remove from screen",
+      "MissingDocument": "Missing Document",
+      "MissingDocumentHint": "This document could not be found. It may have been deleted.",
+      "EmptyJournal": "This journal has no pages."
+    },
+    "Reference": {
+      "Filter": "Filter reference…",
+      "Conditions": "Conditions",
+      "Travel": "Travel Pace",
+      "Light": "Light Sources",
+      "Pace": "Pace",
+      "PerMinute": "Per Minute",
+      "PerHour": "Per Hour",
+      "PerDay": "Per Day",
+      "Effect": "Effect",
+      "Source": "Source",
+      "Bright": "Bright Light",
+      "Dim": "Dim Light",
+      "Duration": "Duration"
+    },
+    "Actor": {
+      "HP": "HP",
+      "AC": "AC",
+      "PP": "PP",
+      "PI": "PI",
+      "HitPoints": "Hit Points",
+      "ArmorClass": "Armor Class",
+      "PassivePerception": "Passive Perception",
+      "PassiveInsight": "Passive Insight",
+      "Speed": "Speed",
+      "Senses": "Senses",
+      "OpenSheet": "Open Full Sheet"
+    },
+    "Settings": {
+      "ButtonLocation": {
+        "Name": "GM Screen Button Location",
+        "Hint": "Where the GM Screen toggle button appears in the interface.",
+        "Players": "Near the players list (bottom left)",
+        "Chat": "Near the chat field (bottom right)",
+        "Nav": "Near the scene navigation (top left)"
+      },
+      "RulesVersion": {
+        "Name": "D&D Rules Version",
+        "Hint": "Which rules text the Reference tab displays for conditions and other rules reminders.",
+        "2024": "2024 (revised) rules",
+        "2014": "2014 (legacy) rules"
+      }
+    }
+  }
+}

@@ -1,0 +1,47 @@
+<div class="gm-screen-inner">
+  <nav class="gm-screen-nav">
+    <button type="button" class="gm-tab-button {{#if referenceActive}}active{{/if}}" data-action="selectTab" data-tab="reference">
+      <i class="fa-solid fa-book"></i>
+      <span>{{localize "GMTOOLS.Screen.ReferenceTab"}}</span>
+    </button>
+    {{#each tabs}}
+    <button type="button" class="gm-tab-button {{#if this.active}}active{{/if}}" data-action="selectTab" data-tab="{{this.id}}">
+      <span>{{this.name}}</span>
+      <span class="gm-tab-tools">
+        <i class="fa-solid fa-pen-to-square" data-action="editTab" data-tab-id="{{this.id}}" data-tooltip="{{localize 'GMTOOLS.Screen.EditTab'}}"></i>
+        <i class="fa-solid fa-trash" data-action="deleteTab" data-tab-id="{{this.id}}" data-tooltip="{{localize 'GMTOOLS.Screen.DeleteTab'}}"></i>
+      </span>
+    </button>
+    {{/each}}
+    <button type="button" class="gm-tab-button gm-tab-add" data-action="addTab" data-tooltip="{{localize 'GMTOOLS.Screen.AddTab'}}">
+      <i class="fa-solid fa-plus"></i>
+    </button>
+  </nav>
+
+  <section class="gm-screen-tab gm-tab-reference {{#if referenceActive}}active{{/if}}" data-tab="reference">
+    {{> "modules/gm-tools/templates/reference-tab.hbs" reference}}
+  </section>
+
+  {{#each tabs}}
+  <section class="gm-screen-tab gm-tab-grid {{#if this.active}}active{{/if}}" data-tab="{{this.id}}"
+           style="grid-template-columns: repeat({{this.cols}}, minmax(0, 1fr)); grid-template-rows: repeat({{this.rows}}, minmax(0, 1fr));">
+    {{#each this.cells}}
+    <div class="gm-screen-cell {{#if this.empty}}empty{{/if}}" data-tab-id="{{this.tabId}}" data-cell="{{this.index}}">
+      {{#if this.empty}}
+      <div class="gm-cell-placeholder">
+        <i class="fa-solid fa-square-plus"></i>
+        <span>{{localize "GMTOOLS.Screen.DropHint"}}</span>
+      </div>
+      {{else}}
+      <header class="gm-cell-header">
+        <img src="{{this.img}}" alt="">
+        <a class="gm-cell-title" data-action="openDocument" data-uuid="{{this.uuid}}">{{this.name}}</a>
+        <i class="fa-solid fa-xmark gm-cell-clear" data-action="clearSection" data-tooltip="{{localize 'GMTOOLS.Screen.ClearSection'}}"></i>
+      </header>
+      <div class="gm-section-content">{{{this.html}}}</div>
+      {{/if}}
+    </div>
+    {{/each}}
+  </section>
+  {{/each}}
+</div>

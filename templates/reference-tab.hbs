@@ -1,0 +1,73 @@
+<div class="gm-reference">
+  <div class="gm-ref-toolbar">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <input type="search" class="gm-ref-filter" placeholder="{{localize 'GMTOOLS.Reference.Filter'}}">
+  </div>
+
+  <section class="gm-ref-section">
+    <h2><i class="fa-solid fa-heart-crack"></i> {{localize "GMTOOLS.Reference.Conditions"}}</h2>
+    <div class="gm-ref-conditions">
+      {{#each conditions}}
+      <div class="gm-ref-entry gm-condition">
+        <h3><i class="{{this.icon}}"></i> {{this.name}}</h3>
+        <ul>
+          {{#each this.effects}}<li>{{this}}</li>{{/each}}
+        </ul>
+      </div>
+      {{/each}}
+    </div>
+  </section>
+
+  <section class="gm-ref-section">
+    <h2><i class="fa-solid fa-route"></i> {{localize "GMTOOLS.Reference.Travel"}}</h2>
+    <table class="gm-ref-table">
+      <thead>
+        <tr>
+          <th>{{localize "GMTOOLS.Reference.Pace"}}</th>
+          <th>{{localize "GMTOOLS.Reference.PerMinute"}}</th>
+          <th>{{localize "GMTOOLS.Reference.PerHour"}}</th>
+          <th>{{localize "GMTOOLS.Reference.PerDay"}}</th>
+          <th>{{localize "GMTOOLS.Reference.Effect"}}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each travel.paces}}
+        <tr class="gm-ref-entry">
+          <td class="gm-ref-name">{{this.pace}}</td>
+          <td>{{this.minute}}</td>
+          <td>{{this.hour}}</td>
+          <td>{{this.day}}</td>
+          <td>{{this.effect}}</td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+    <ul class="gm-ref-notes">
+      {{#each travel.notes}}<li class="gm-ref-entry">{{this}}</li>{{/each}}
+    </ul>
+  </section>
+
+  <section class="gm-ref-section">
+    <h2><i class="fa-solid fa-fire"></i> {{localize "GMTOOLS.Reference.Light"}}</h2>
+    <table class="gm-ref-table">
+      <thead>
+        <tr>
+          <th>{{localize "GMTOOLS.Reference.Source"}}</th>
+          <th>{{localize "GMTOOLS.Reference.Bright"}}</th>
+          <th>{{localize "GMTOOLS.Reference.Dim"}}</th>
+          <th>{{localize "GMTOOLS.Reference.Duration"}}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each light}}
+        <tr class="gm-ref-entry">
+          <td class="gm-ref-name">{{this.source}}</td>
+          <td>{{this.bright}}</td>
+          <td>{{this.dim}}</td>
+          <td>{{this.duration}}</td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  </section>
+</div>
