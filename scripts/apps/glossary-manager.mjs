@@ -174,7 +174,9 @@ export class GlossaryManagerApp extends HandlebarsApplicationMixin(ApplicationV2
         },
         content,
         rejectClose: false,
-        modal: true,
+        // Non-modal: a modal dialog makes the sidebar inert, which blocks
+        // dragging an actor/journal onto the link drop zone.
+        modal: false,
         ok: {
           label: initial ? "GMTOOLS.Save" : "GMTOOLS.Create",
           icon: "fa-solid fa-check",
