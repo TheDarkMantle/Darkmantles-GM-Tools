@@ -839,6 +839,21 @@
   opacity: 0.85;
 }
 
+/* Drag an entry row into a folder */
+.gm-glossary-row[draggable="true"] {
+  cursor: grab;
+}
+
+.gm-glossary-row.dragging {
+  opacity: 0.4;
+}
+
+.gm-folder.drag-over > .gm-folder-header {
+  outline: 2px solid var(--color-text-hyperlink, #7b8fd6);
+  outline-offset: -2px;
+  background: rgba(123, 143, 214, 0.18);
+}
+
 .gm-glossary-row {
   display: flex;
   align-items: flex-start;

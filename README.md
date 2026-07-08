@@ -29,7 +29,9 @@ Central, reusable hover reminders for names and terms — write a tip once, and 
 - **One place to edit** — the **Glossary Manager** (button in the journal sidebar or the GM Screen tab bar): searchable list, add/edit/delete. Editing a tip updates every open journal instantly.
 - **Folders** — organize entries into nestable folders (like compendium-pack sorting). Each entry picks its folder in the editor; create folders and subfolders, rename or delete them (deleting a folder moves its contents up to the parent — nothing is lost).
 - **Link to full details** — optionally drag a journal entry or actor onto an entry; the highlighted term becomes clickable and opens that full write-up or statblock. Click-through respects Foundry permissions.
-- **Import / Export** — back up or share your glossary as a JSON file. Import merges by term (adds new, updates existing), creating any referenced folders. A **Load Defaults** button seeds a **Rules** folder with all status conditions (player-visible) plus empty **NPCs** and **Places** folders.
+- **Import / Export** — back up or share your glossary as a JSON file. Import merges by term (adds new, updates existing), creating any referenced folders.
+- **Move by drag-and-drop** — drag an entry row onto a folder (or Uncategorized) to refile it.
+- **Condition libraries (module settings)** — GM Tools' settings have **Add Default Status Conditions** (seeds a Rules folder with the core conditions, plus empty NPCs/Places folders). If you own **Monsters of Drakkenheim**, an **Add Drakkenheim Conditions** button also appears and imports that module's conditions — read from the module you own at runtime, so nothing paid ships with GM Tools and the button is hidden if the module isn't installed. Both merge idempotently (no duplicates).
 - **Explicit syntax** — type `@tip[term]` in any journal editor to force a tip where auto-matching can't reach.
 
 ## Installation

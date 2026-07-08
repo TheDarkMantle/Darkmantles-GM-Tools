@@ -14,14 +14,11 @@
     <button type="button" class="gm-glossary-tool" data-action="exportGlossary" data-tooltip="{{localize 'GMTOOLS.Glossary.Export'}}" aria-label="{{localize 'GMTOOLS.Glossary.Export'}}">
       <i class="fa-solid fa-file-export"></i>
     </button>
-    <button type="button" class="gm-glossary-tool" data-action="loadDefaults" data-tooltip="{{localize 'GMTOOLS.Glossary.LoadDefaults'}}" aria-label="{{localize 'GMTOOLS.Glossary.LoadDefaults'}}">
-      <i class="fa-solid fa-wand-magic-sparkles"></i>
-    </button>
   </div>
 
   {{! Recursive folder node }}
   {{#*inline "entryRow"}}
-  <li class="gm-glossary-row" data-entry-id="{{this.id}}">
+  <li class="gm-glossary-row" data-entry-id="{{this.id}}" draggable="true">
     <div class="gm-glossary-term-col">
       <span class="gm-glossary-term">{{this.term}}</span>
       {{#if this.hasPlayerTip}}

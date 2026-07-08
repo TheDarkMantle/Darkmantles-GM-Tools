@@ -1,7 +1,8 @@
 import { MODULE_ID, TEMPLATES } from "./constants.mjs";
 import { GMScreenApp } from "./apps/gm-screen.mjs";
 import { GlossaryManagerApp } from "./apps/glossary-manager.mjs";
-import { applyGlossary, rebuildMatcher, registerEnricher, refreshJournalWindows, isGlossaryEnabled } from "./glossary.mjs";
+import { GlossaryDefaultsMenu, GlossaryDrakkenheimMenu } from "./apps/glossary-import-menu.mjs";
+import { applyGlossary, rebuildMatcher, registerEnricher, refreshJournalWindows, isGlossaryEnabled, hasDrakkenheimModule } from "./glossary.mjs";
 
 const BUTTON_LOCATIONS = ["players", "nav", "controls"];
 
@@ -56,6 +57,29 @@ Hooks.once("init", () => {
       if (GMScreenApp.instance?.rendered) GMScreenApp.instance.render();
     }
   });
+
+  // GM-only button: seed the glossary with the default status conditions.
+  game.settings.registerMenu(MODULE_ID, "loadConditions", {
+    name: "GMTOOLS.Settings.LoadConditions.Name",
+    label: "GMTOOLS.Settings.LoadConditions.Label",
+    hint: "GMTOOLS.Settings.LoadConditions.Hint",
+    icon: "fa-solid fa-notes-medical",
+    type: GlossaryDefaultsMenu,
+    restricted: true
+  });
+
+  // GM-only button to import the paid module's conditions — only shown when that
+  // module is installed, so nothing is exposed to users who don't own it.
+  if (hasDrakkenheimModule()) {
+    game.settings.registerMenu(MODULE_ID, "loadDrakkenheim", {
+      name: "GMTOOLS.Settings.LoadDrakkenheim.Name",
+      label: "GMTOOLS.Settings.LoadDrakkenheim.Label",
+      hint: "GMTOOLS.Settings.LoadDrakkenheim.Hint",
+      icon: "fa-solid fa-skull",
+      type: GlossaryDrakkenheimMenu,
+      restricted: true
+    });
+  }
 
   // Per-user opt-out: hides all glossary buttons and stops tooltips from loading.
   game.settings.register(MODULE_ID, "glossaryEnabled", {
