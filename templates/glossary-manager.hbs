@@ -13,16 +13,26 @@
   <ol class="gm-glossary-list">
     {{#each entries}}
     <li class="gm-glossary-row" data-entry-id="{{this.id}}">
-      <div class="gm-glossary-text">
-        <div class="gm-glossary-term">
-          {{this.term}}
-          {{#if this.aliases}}<span class="gm-glossary-aliases">({{this.aliases}})</span>{{/if}}
-          {{#if this.hasPlayerTip}}
-          <i class="fa-solid fa-users gm-glossary-shared" data-tooltip="{{localize 'GMTOOLS.Glossary.SharedIndicator'}}"></i>
-          {{/if}}
-        </div>
-        <div class="gm-glossary-tip">{{this.gmTip}}</div>
+      <div class="gm-glossary-term-col">
+        <span class="gm-glossary-term">{{this.term}}</span>
         {{#if this.hasPlayerTip}}
+        <span class="gm-glossary-shared" data-tooltip="{{#if this.mirrorGM}}{{localize 'GMTOOLS.Glossary.MirrorIndicator'}}{{else}}{{localize 'GMTOOLS.Glossary.SharedIndicator'}}{{/if}}">
+          <i class="fa-solid fa-users"></i>{{#if this.mirrorGM}}<i class="fa-solid fa-star gm-glossary-mirror-star"></i>{{/if}}
+        </span>
+        {{/if}}
+        {{#if this.hasLink}}
+        <i class="fa-solid fa-link gm-glossary-linked" data-tooltip="{{localize 'GMTOOLS.Glossary.LinkedTo'}} {{this.linkName}}"></i>
+        {{/if}}
+      </div>
+      <div class="gm-glossary-text">
+        {{#if this.aliases}}
+        <div class="gm-glossary-alias-line">
+          <span class="gm-glossary-alias-label">{{localize "GMTOOLS.Glossary.AliasLabel"}}</span>
+          <span class="gm-glossary-aliases">{{this.aliases}}</span>
+        </div>
+        {{/if}}
+        <div class="gm-glossary-tip">{{this.gmTip}}</div>
+        {{#if this.showPlayerTip}}
         <div class="gm-glossary-tip player">{{this.playerTip}}</div>
         {{/if}}
       </div>

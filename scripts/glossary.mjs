@@ -10,6 +10,11 @@ function escapeRegExp(str) {
   return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
+/** Per-user toggle for the whole glossary feature (buttons + tooltips). */
+export function isGlossaryEnabled() {
+  return game.settings.get(MODULE_ID, "glossaryEnabled") ?? true;
+}
+
 export function getEntries() {
   return foundry.utils.deepClone(game.settings.get(MODULE_ID, "glossary")?.entries ?? []);
 }
@@ -83,7 +88,7 @@ export function applyGlossary(root) {
     old.replaceWith(document.createTextNode(old.textContent));
   }
   root.normalize();
-  if (!matcher) return;
+  if (!matcher || !isGlossaryEnabled()) return;
 
   const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
     acceptNode(node) {
@@ -112,6 +117,10 @@ export function applyGlossary(root) {
       const span = document.createElement("span");
       span.className = "gm-tools-tip";
       span.dataset.tooltip = esc(tip);
+      if (entry.link) {
+        span.classList.add("gm-tools-tip-link");
+        span.dataset.uuid = entry.link;
+      }
       span.textContent = match[0];
       frag.append(span);
       last = match.index + match[0].length;
@@ -132,13 +141,17 @@ export function registerEnricher() {
     pattern: /@tip\[([^\]]+)\]/gi,
     enricher: async match => {
       const term = match[1];
-      const entry = findEntry(term);
+      const entry = isGlossaryEnabled() ? findEntry(term) : null;
       const span = document.createElement("span");
       span.textContent = term;
       const tip = entry ? tipFor(entry) : null;
       if (tip) {
         span.className = "gm-tools-tip";
         span.dataset.tooltip = esc(tip);
+        if (entry.link) {
+          span.classList.add("gm-tools-tip-link");
+          span.dataset.uuid = entry.link;
+        }
       }
       return span;
     }

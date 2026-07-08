@@ -1,7 +1,7 @@
 import { MODULE_ID, TEMPLATES } from "./constants.mjs";
 import { GMScreenApp } from "./apps/gm-screen.mjs";
 import { GlossaryManagerApp } from "./apps/glossary-manager.mjs";
-import { applyGlossary, rebuildMatcher, registerEnricher, refreshJournalWindows } from "./glossary.mjs";
+import { applyGlossary, rebuildMatcher, registerEnricher, refreshJournalWindows, isGlossaryEnabled } from "./glossary.mjs";
 
 const BUTTON_LOCATIONS = ["players", "nav", "controls"];
 
@@ -57,6 +57,23 @@ Hooks.once("init", () => {
     }
   });
 
+  // Per-user opt-out: hides all glossary buttons and stops tooltips from loading.
+  game.settings.register(MODULE_ID, "glossaryEnabled", {
+    name: "GMTOOLS.Settings.GlossaryEnabled.Name",
+    hint: "GMTOOLS.Settings.GlossaryEnabled.Hint",
+    scope: "client",
+    config: true,
+    type: Boolean,
+    default: true,
+    onChange: enabled => {
+      if (!game.ready) return;
+      if (!enabled && GlossaryManagerApp.instance?.rendered) GlossaryManagerApp.instance.close();
+      ui.journal?.render();                                    // add/remove the sidebar button
+      refreshJournalWindows();                                 // apply or strip tips in open journals
+      if (GMScreenApp.instance?.rendered) GMScreenApp.instance.render(); // tab-bar button + section tips
+    }
+  });
+
   registerEnricher();
 
   foundry.applications.handlebars.loadTemplates([TEMPLATES.reference, TEMPLATES.actorCard]);
@@ -65,6 +82,16 @@ Hooks.once("init", () => {
 Hooks.once("ready", () => {
   rebuildMatcher();
   injectButton();
+
+  // One delegated handler for every clickable glossary tip (journals, GM Screen, chat).
+  document.addEventListener("click", async event => {
+    const link = event.target.closest?.(".gm-tools-tip-link[data-uuid]");
+    if (!link) return;
+    event.preventDefault();
+    const doc = await fromUuid(link.dataset.uuid);
+    if (doc?.sheet) doc.sheet.render(true);
+    else ui.notifications.warn(game.i18n.localize("GMTOOLS.Glossary.LinkMissing"));
+  });
 });
 
 // Auto-match glossary terms in rendered journal pages (fires for every page
@@ -75,7 +102,7 @@ Hooks.on("renderJournalEntryPageSheet", (app, element) => {
 
 // GM-only "Glossary" button in the journal sidebar header
 Hooks.on("renderJournalDirectory", (app, element) => {
-  if (!game.user?.isGM) return;
+  if (!game.user?.isGM || !isGlossaryEnabled()) return;
   const root = element instanceof HTMLElement ? element : element?.[0];
   if (!root || root.querySelector(".gm-glossary-directory-button")) return;
   const btn = document.createElement("button");

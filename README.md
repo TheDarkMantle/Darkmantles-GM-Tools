@@ -27,6 +27,7 @@ Central, reusable hover reminders for names and terms — write a tip once, and 
 - **Auto-matching** — any glossary term (or alias) appearing in a journal page or GM Screen section is subtly underlined; hovering shows your reminder (e.g. hover "Kalindra" → *"The blacksmith in Thornreach"*). No markup needed, works retroactively in existing journals.
 - **Two descriptions per entry** — a **GM description** only you see, and an optional **player description** shown to players instead ("Secretly the cult leader" for you, "Local blacksmith" for them). Leave the player description empty and players see nothing at all — not even the underline.
 - **One place to edit** — the **Glossary Manager** (button in the journal sidebar or the GM Screen tab bar): searchable list, add/edit/delete. Editing a tip updates every open journal instantly.
+- **Link to full details** — optionally drag a journal entry or actor onto an entry; the highlighted term becomes clickable and opens that full write-up or statblock. Click-through respects Foundry permissions.
 - **Explicit syntax** — type `@tip[term]` in any journal editor to force a tip where auto-matching can't reach.
 
 ## Installation
@@ -45,6 +46,7 @@ Then enable **GM Tools** in your world's **Manage Modules**.
 | --- | --- | --- |
 | GM Screen Button Location | Per-client | Where the toggle button appears (above the players list / beside the scene selector / with the scene controls). |
 | D&D Rules Version | Per-world | Whether the Reference tab shows 2014 or 2024 rules text. |
+| Enable Glossary Hover Tips | Per-client | Personal on/off switch for the glossary. When off, glossary buttons are hidden and hover tips stop appearing — just for you. |
 
 ## Compatibility
 
