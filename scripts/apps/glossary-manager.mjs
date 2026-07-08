@@ -1,5 +1,8 @@
 import { MODULE_ID, TEMPLATES } from "../constants.mjs";
-import { getEntries, saveEntries } from "../glossary.mjs";
+import {
+  getGlossary, getFolders, saveFolders, deleteFolder,
+  importGlossary, exportGlossary
+} from "../glossary.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin, DialogV2 } = foundry.applications.api;
 
@@ -9,12 +12,49 @@ function esc(value) {
   return div.innerHTML;
 }
 
+/** Folders as a nested tree, sorted by name. */
+function folderTree(folders, parent = null) {
+  return folders
+    .filter(f => (f.parent ?? null) === parent)
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .map(f => ({ ...f, children: folderTree(folders, f.id) }));
+}
+
+/** A folder id plus all of its descendants (for cycle-safe parent pickers). */
+function subtreeIds(folders, id) {
+  if (!id) return new Set();
+  const ids = new Set([id]);
+  for (let changed = true; changed;) {
+    changed = false;
+    for (const f of folders) {
+      if (f.parent && ids.has(f.parent) && !ids.has(f.id)) { ids.add(f.id); changed = true; }
+    }
+  }
+  return ids;
+}
+
+/** Indented <option> list of folders for a parent/folder <select>. */
+function folderOptionsHTML(selectedId, { noneLabel = "— None —", excludeId = null } = {}) {
+  const folders = getFolders();
+  const excluded = subtreeIds(folders, excludeId);
+  const walk = (nodes, depth) => nodes.flatMap(n => excluded.has(n.id) ? [] : [
+    `<option value="${n.id}" ${n.id === selectedId ? "selected" : ""}>${"  ".repeat(depth)}${esc(n.name)}</option>`,
+    ...walk(n.children, depth + 1)
+  ]);
+  const none = `<option value="" ${!selectedId ? "selected" : ""}>${esc(noneLabel)}</option>`;
+  return none + walk(folderTree(folders), 0).join("");
+}
+
 /**
- * GM-only editor for the central glossary: term + aliases, a GM description,
- * and an optional player-facing description.
+ * GM-only glossary manager: a foldered tree of entries, each with a term,
+ * aliases, GM + player descriptions, an optional document link and folder.
+ * Supports import/export and loading bundled defaults.
  */
 export class GlossaryManagerApp extends HandlebarsApplicationMixin(ApplicationV2) {
   static instance = null;
+
+  /** Folder ids the user has collapsed (kept across re-renders). */
+  #collapsed = new Set();
 
   static open() {
     this.instance ??= new this();
@@ -29,11 +69,18 @@ export class GlossaryManagerApp extends HandlebarsApplicationMixin(ApplicationV2
       icon: "fa-solid fa-tags",
       resizable: true
     },
-    position: { width: 520, height: 600 },
+    position: { width: 560, height: 640 },
     actions: {
       addEntry: GlossaryManagerApp.#onAddEntry,
       editEntry: GlossaryManagerApp.#onEditEntry,
-      deleteEntry: GlossaryManagerApp.#onDeleteEntry
+      deleteEntry: GlossaryManagerApp.#onDeleteEntry,
+      newFolder: GlossaryManagerApp.#onNewFolder,
+      renameFolder: GlossaryManagerApp.#onRenameFolder,
+      deleteFolder: GlossaryManagerApp.#onDeleteFolder,
+      toggleFolder: GlossaryManagerApp.#onToggleFolder,
+      importGlossary: GlossaryManagerApp.#onImport,
+      exportGlossary: GlossaryManagerApp.#onExport,
+      loadDefaults: GlossaryManagerApp.#onLoadDefaults
     }
   };
 
@@ -41,64 +88,105 @@ export class GlossaryManagerApp extends HandlebarsApplicationMixin(ApplicationV2
     body: { template: TEMPLATES.glossaryManager }
   };
 
+  #entryVM(e) {
+    const linked = e.link ? fromUuidSync(e.link) : null;
+    return {
+      id: e.id,
+      term: e.term,
+      aliases: (e.aliases ?? []).join(", "),
+      gmTip: e.gmTip ?? "",
+      playerTip: e.playerTip ?? "",
+      hasPlayerTip: !!e.playerTip,
+      mirrorGM: !!e.mirrorGM,
+      showPlayerTip: !!e.playerTip && !e.mirrorGM,
+      hasLink: !!e.link,
+      linkName: e.link ? (linked?.name ?? game.i18n.localize("GMTOOLS.Screen.MissingDocument")) : ""
+    };
+  }
+
   async _prepareContext() {
-    const entries = getEntries()
-      .map(e => {
-        const linked = e.link ? fromUuidSync(e.link) : null;
+    const { folders, entries } = getGlossary();
+    const sorted = [...entries].sort((a, b) => a.term.localeCompare(b.term));
+
+    const byFolder = new Map();
+    const uncategorized = [];
+    for (const e of sorted) {
+      const inFolder = e.folder && folders.some(f => f.id === e.folder);
+      if (inFolder) (byFolder.get(e.folder) ?? byFolder.set(e.folder, []).get(e.folder)).push(this.#entryVM(e));
+      else uncategorized.push(this.#entryVM(e));
+    }
+
+    const build = (parent, depth) => folders
+      .filter(f => (f.parent ?? null) === parent)
+      .sort((a, b) => a.name.localeCompare(b.name))
+      .map(f => {
+        const children = build(f.id, depth + 1);
+        const ents = byFolder.get(f.id) ?? [];
         return {
-          id: e.id,
-          term: e.term,
-          aliases: (e.aliases ?? []).join(", "),
-          gmTip: e.gmTip ?? "",
-          playerTip: e.playerTip ?? "",
-          hasPlayerTip: !!e.playerTip,
-          mirrorGM: !!e.mirrorGM,
-          showPlayerTip: !!e.playerTip && !e.mirrorGM,
-          hasLink: !!e.link,
-          linkName: e.link ? (linked?.name ?? game.i18n.localize("GMTOOLS.Screen.MissingDocument")) : ""
+          id: f.id, name: f.name, depth,
+          collapsed: this.#collapsed.has(f.id),
+          entries: ents, children,
+          count: ents.length + children.reduce((s, c) => s + c.count, 0)
         };
-      })
-      .sort((a, b) => a.term.localeCompare(b.term));
-    return { entries, empty: !entries.length };
+      });
+
+    return {
+      tree: build(null, 0),
+      uncategorized,
+      hasUncategorized: uncategorized.length > 0,
+      empty: !entries.length && !folders.length
+    };
   }
 
   _onRender() {
+    const list = this.element.querySelector(".gm-glossary-list");
     const filter = this.element.querySelector(".gm-glossary-filter");
     filter?.addEventListener("input", ev => {
-      const q = ev.currentTarget.value.toLowerCase();
-      for (const row of this.element.querySelectorAll(".gm-glossary-row")) {
-        row.style.display = row.textContent.toLowerCase().includes(q) ? "" : "none";
+      const q = ev.currentTarget.value.trim().toLowerCase();
+      for (const row of list.querySelectorAll(".gm-glossary-row")) {
+        row.style.display = !q || row.textContent.toLowerCase().includes(q) ? "" : "none";
+      }
+      for (const folder of list.querySelectorAll(".gm-folder[data-folder-id]")) {
+        const hasVisible = [...folder.querySelectorAll(".gm-glossary-row")].some(r => r.style.display !== "none");
+        folder.style.display = !q || hasVisible ? "" : "none";
+        // Expand while searching; restore saved collapse state when cleared.
+        if (q) folder.classList.toggle("collapsed", !hasVisible);
+        else folder.classList.toggle("collapsed", this.#collapsed.has(folder.dataset.folderId));
       }
     });
   }
 
-  async #save(entries) {
-    await saveEntries(entries);
+  /* -------------------------------------------- */
+  /*  Entry actions                                */
+  /* -------------------------------------------- */
+
+  async #saveEntries(entries) {
+    await game.settings.set(MODULE_ID, "glossary", { folders: getFolders(), entries });
     this.render();
   }
 
   static async #onAddEntry() {
     const data = await this.#entryDialog();
     if (!data) return;
-    const entries = getEntries();
+    const { entries } = getGlossary();
     entries.push({ id: foundry.utils.randomID(8), ...data });
-    await this.#save(entries);
+    await this.#saveEntries(entries);
   }
 
   static async #onEditEntry(event, target) {
     const id = target.closest("[data-entry-id]")?.dataset.entryId;
-    const entries = getEntries();
+    const { entries } = getGlossary();
     const entry = entries.find(e => e.id === id);
     if (!entry) return;
     const data = await this.#entryDialog(entry);
     if (!data) return;
     Object.assign(entry, data);
-    await this.#save(entries);
+    await this.#saveEntries(entries);
   }
 
   static async #onDeleteEntry(event, target) {
     const id = target.closest("[data-entry-id]")?.dataset.entryId;
-    const entries = getEntries();
+    const { entries } = getGlossary();
     const entry = entries.find(e => e.id === id);
     if (!entry) return;
     const confirmed = await DialogV2.confirm({
@@ -108,8 +196,135 @@ export class GlossaryManagerApp extends HandlebarsApplicationMixin(ApplicationV2
       modal: true
     });
     if (!confirmed) return;
-    await this.#save(entries.filter(e => e.id !== id));
+    await this.#saveEntries(entries.filter(e => e.id !== id));
   }
+
+  /* -------------------------------------------- */
+  /*  Folder actions                               */
+  /* -------------------------------------------- */
+
+  static async #onNewFolder(event, target) {
+    const data = await this.#folderDialog(null, target?.dataset?.parent || "");
+    if (!data) return;
+    const folders = getFolders();
+    folders.push({ id: foundry.utils.randomID(8), name: data.name, parent: data.parent });
+    await saveFolders(folders);
+    this.render();
+  }
+
+  static async #onRenameFolder(event, target) {
+    const id = target.closest("[data-folder-id]")?.dataset.folderId;
+    const folders = getFolders();
+    const folder = folders.find(f => f.id === id);
+    if (!folder) return;
+    const data = await this.#folderDialog(folder);
+    if (!data) return;
+    folder.name = data.name;
+    folder.parent = data.parent;
+    await saveFolders(folders);
+    this.render();
+  }
+
+  static async #onDeleteFolder(event, target) {
+    const id = target.closest("[data-folder-id]")?.dataset.folderId;
+    const folder = getFolders().find(f => f.id === id);
+    if (!folder) return;
+    const confirmed = await DialogV2.confirm({
+      window: { title: game.i18n.localize("GMTOOLS.Glossary.DeleteFolder") },
+      content: `<p>${game.i18n.format("GMTOOLS.Glossary.DeleteFolderConfirm", { name: esc(folder.name) })}</p>`,
+      rejectClose: false,
+      modal: true
+    });
+    if (!confirmed) return;
+    await deleteFolder(id);
+    this.render();
+  }
+
+  static #onToggleFolder(event, target) {
+    const el = target.closest("[data-folder-id]");
+    const id = el?.dataset.folderId;
+    if (!id) return;
+    if (this.#collapsed.has(id)) this.#collapsed.delete(id);
+    else this.#collapsed.add(id);
+    el.classList.toggle("collapsed");
+  }
+
+  async #folderDialog(initial = null, presetParent = "") {
+    const i18n = key => game.i18n.localize(`GMTOOLS.Glossary.${key}`);
+    const parentValue = initial ? (initial.parent ?? "") : presetParent;
+    const content = `
+      <div class="form-group">
+        <label>${i18n("FolderName")}</label>
+        <input type="text" name="name" value="${esc(initial?.name ?? "")}" required autofocus>
+      </div>
+      <div class="form-group">
+        <label>${i18n("ParentFolder")}</label>
+        <select name="parent">${folderOptionsHTML(parentValue, { noneLabel: i18n("TopLevel"), excludeId: initial?.id ?? null })}</select>
+      </div>`;
+    const result = await DialogV2.prompt({
+      window: {
+        title: game.i18n.localize(initial ? "GMTOOLS.Glossary.RenameFolder" : "GMTOOLS.Glossary.NewFolder"),
+        icon: "fa-solid fa-folder"
+      },
+      content,
+      rejectClose: false,
+      modal: true,
+      ok: {
+        label: initial ? "GMTOOLS.Save" : "GMTOOLS.Create",
+        icon: "fa-solid fa-check",
+        callback: (e, button) => new foundry.applications.ux.FormDataExtended(button.form).object
+      }
+    });
+    if (!result) return null;
+    const name = String(result.name ?? "").trim();
+    if (!name) return null;
+    return { name, parent: result.parent || null };
+  }
+
+  /* -------------------------------------------- */
+  /*  Import / Export                              */
+  /* -------------------------------------------- */
+
+  static async #onImport() {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "application/json,.json";
+    input.addEventListener("change", async () => {
+      const file = input.files?.[0];
+      if (!file) return;
+      try {
+        const data = JSON.parse(await foundry.utils.readTextFromFile(file));
+        const res = await importGlossary(data, "merge");
+        ui.notifications.info(game.i18n.format("GMTOOLS.Glossary.ImportResult", res));
+        this.render();
+      } catch (err) {
+        console.error(`${MODULE_ID} | Glossary import failed`, err);
+        ui.notifications.error(game.i18n.localize("GMTOOLS.Glossary.ImportError"));
+      }
+    });
+    input.click();
+  }
+
+  static #onExport() {
+    exportGlossary();
+  }
+
+  static async #onLoadDefaults() {
+    try {
+      const resp = await fetch(`modules/${MODULE_ID}/data/glossary-defaults.json`);
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      const res = await importGlossary(await resp.json(), "merge");
+      ui.notifications.info(game.i18n.format("GMTOOLS.Glossary.ImportResult", res));
+      this.render();
+    } catch (err) {
+      console.error(`${MODULE_ID} | Loading glossary defaults failed`, err);
+      ui.notifications.error(game.i18n.localize("GMTOOLS.Glossary.ImportError"));
+    }
+  }
+
+  /* -------------------------------------------- */
+  /*  Entry editor dialog                          */
+  /* -------------------------------------------- */
 
   async #entryDialog(initial = null) {
     const i18n = key => game.i18n.localize(`GMTOOLS.Glossary.${key}`);
@@ -126,6 +341,10 @@ export class GlossaryManagerApp extends HandlebarsApplicationMixin(ApplicationV2
         <label>${i18n("Aliases")}</label>
         <input type="text" name="aliases" value="${esc((initial?.aliases ?? []).join(", "))}"
                placeholder="${i18n("AliasesHint")}">
+      </div>
+      <div class="form-group">
+        <label>${i18n("Folder")}</label>
+        <select name="folder">${folderOptionsHTML(initial?.folder ?? "", { noneLabel: i18n("Uncategorized") })}</select>
       </div>
       <div class="form-group stacked">
         <label>${i18n("GMTip")}</label>
@@ -203,7 +422,8 @@ export class GlossaryManagerApp extends HandlebarsApplicationMixin(ApplicationV2
       // matcher needs no special-casing, and flag it so the manager shows the star.
       playerTip: mirrorGM ? gmTip : String(result.playerTip ?? "").trim(),
       mirrorGM,
-      link: String(result.link ?? "").trim()
+      link: String(result.link ?? "").trim(),
+      folder: result.folder || null
     };
   }
 

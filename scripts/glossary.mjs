@@ -15,12 +15,127 @@ export function isGlossaryEnabled() {
   return game.settings.get(MODULE_ID, "glossaryEnabled") ?? true;
 }
 
-export function getEntries() {
-  return foundry.utils.deepClone(game.settings.get(MODULE_ID, "glossary")?.entries ?? []);
+/** The full stored glossary: folders + entries, with safe defaults for old data. */
+export function getGlossary() {
+  const data = game.settings.get(MODULE_ID, "glossary") ?? {};
+  return {
+    folders: foundry.utils.deepClone(data.folders ?? []),
+    entries: foundry.utils.deepClone(data.entries ?? [])
+  };
 }
 
+export async function saveGlossary({ folders, entries }) {
+  await game.settings.set(MODULE_ID, "glossary", { folders: folders ?? [], entries: entries ?? [] });
+}
+
+export function getEntries() {
+  return getGlossary().entries;
+}
+
+/** Persist entries while preserving the folder tree. */
 export async function saveEntries(entries) {
-  await game.settings.set(MODULE_ID, "glossary", { entries });
+  await saveGlossary({ folders: getGlossary().folders, entries });
+}
+
+export function getFolders() {
+  return getGlossary().folders;
+}
+
+export async function saveFolders(folders) {
+  await saveGlossary({ folders, entries: getGlossary().entries });
+}
+
+/** Delete a folder; its subfolders and entries fall back to its parent. */
+export async function deleteFolder(folderId) {
+  const { folders, entries } = getGlossary();
+  const target = folders.find(f => f.id === folderId);
+  if (!target) return;
+  const newParent = target.parent ?? null;
+  for (const f of folders) if (f.parent === folderId) f.parent = newParent;
+  for (const e of entries) if (e.folder === folderId) e.folder = newParent;
+  await saveGlossary({ folders: folders.filter(f => f.id !== folderId), entries });
+}
+
+/**
+ * Merge a portable glossary object into the stored one. Folders are referenced
+ * by name (created as needed); entries are matched by term (case-insensitive).
+ * mode: "merge" (add + update), "add" (skip existing), "replace" (wipe first).
+ */
+export async function importGlossary(data, mode = "merge") {
+  const base = mode === "replace" ? { folders: [], entries: [] } : getGlossary();
+  const folders = base.folders;
+  const entries = base.entries;
+  const result = { added: 0, updated: 0, skipped: 0, foldersCreated: 0 };
+
+  const ensureFolder = (name, parentName = null) => {
+    if (!name) return null;
+    const parentId = parentName ? ensureFolder(parentName) : null;
+    let f = folders.find(x =>
+      x.name.toLowerCase() === String(name).toLowerCase() && (x.parent ?? null) === (parentId ?? null));
+    if (!f) {
+      f = { id: foundry.utils.randomID(8), name: String(name), parent: parentId ?? null };
+      folders.push(f);
+      result.foldersCreated++;
+    }
+    return f.id;
+  };
+
+  for (const f of data.folders ?? []) ensureFolder(f.name, f.parent ?? null);
+
+  for (const raw of data.entries ?? []) {
+    const term = String(raw.term ?? "").trim();
+    if (!term) continue;
+    const gmTip = String(raw.gmTip ?? "").trim();
+    const mirrorGM = !!raw.mirrorGM;
+    const norm = {
+      term,
+      aliases: Array.isArray(raw.aliases)
+        ? raw.aliases.map(a => String(a).trim()).filter(Boolean)
+        : String(raw.aliases ?? "").split(",").map(a => a.trim()).filter(Boolean),
+      gmTip,
+      playerTip: mirrorGM ? gmTip : String(raw.playerTip ?? "").trim(),
+      mirrorGM,
+      link: String(raw.link ?? "").trim(),
+      folder: raw.folder ? ensureFolder(raw.folder) : null
+    };
+    const existing = entries.find(e => e.term?.trim().toLowerCase() === term.toLowerCase());
+    if (existing) {
+      if (mode === "add") { result.skipped++; continue; }
+      Object.assign(existing, norm, { id: existing.id });
+      result.updated++;
+    } else {
+      entries.push({ id: foundry.utils.randomID(8), ...norm });
+      result.added++;
+    }
+  }
+
+  await saveGlossary({ folders, entries });
+  return result;
+}
+
+/** A portable, name-based snapshot of the glossary for download/sharing. */
+export function toPortable() {
+  const { folders, entries } = getGlossary();
+  const nameById = new Map(folders.map(f => [f.id, f.name]));
+  return {
+    folders: folders.map(f => ({ name: f.name, parent: f.parent ? (nameById.get(f.parent) ?? null) : null })),
+    entries: entries.map(e => ({
+      term: e.term,
+      aliases: e.aliases ?? [],
+      gmTip: e.gmTip ?? "",
+      playerTip: e.playerTip ?? "",
+      mirrorGM: !!e.mirrorGM,
+      link: e.link ?? "",
+      folder: e.folder ? (nameById.get(e.folder) ?? null) : null
+    }))
+  };
+}
+
+/** Trigger a download of the current glossary as a portable JSON file. */
+export function exportGlossary() {
+  const stamp = new Date().toISOString().slice(0, 10);
+  foundry.utils.saveDataToFile(
+    JSON.stringify(toPortable(), null, 2), "application/json", `gm-tools-glossary-${stamp}.json`);
 }
 
 /** The tip the current user should see for an entry (null = nothing, no highlight). */

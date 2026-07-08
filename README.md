@@ -27,7 +27,9 @@ Central, reusable hover reminders for names and terms — write a tip once, and 
 - **Auto-matching** — any glossary term (or alias) appearing in a journal page or GM Screen section is subtly underlined; hovering shows your reminder (e.g. hover "Kalindra" → *"The blacksmith in Thornreach"*). No markup needed, works retroactively in existing journals.
 - **Two descriptions per entry** — a **GM description** only you see, and an optional **player description** shown to players instead ("Secretly the cult leader" for you, "Local blacksmith" for them). Leave the player description empty and players see nothing at all — not even the underline.
 - **One place to edit** — the **Glossary Manager** (button in the journal sidebar or the GM Screen tab bar): searchable list, add/edit/delete. Editing a tip updates every open journal instantly.
+- **Folders** — organize entries into nestable folders (like compendium-pack sorting). Each entry picks its folder in the editor; create folders and subfolders, rename or delete them (deleting a folder moves its contents up to the parent — nothing is lost).
 - **Link to full details** — optionally drag a journal entry or actor onto an entry; the highlighted term becomes clickable and opens that full write-up or statblock. Click-through respects Foundry permissions.
+- **Import / Export** — back up or share your glossary as a JSON file. Import merges by term (adds new, updates existing), creating any referenced folders. A **Load Defaults** button seeds a **Rules** folder with all status conditions (player-visible) plus empty **NPCs** and **Places** folders.
 - **Explicit syntax** — type `@tip[term]` in any journal editor to force a tip where auto-matching can't reach.
 
 ## Installation
