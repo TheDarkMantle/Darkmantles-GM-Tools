@@ -267,9 +267,78 @@ export const LIGHT_SOURCES = [
 ];
 
 /**
+ * Jumping and other tactical movement. Jump distances are unchanged between the
+ * 2014 and 2024 rules, so this content is shared across both versions.
+ */
+export const MOVEMENT = {
+  jumps: [
+    {
+      type: "Long Jump",
+      running: "Distance in feet = your Strength score",
+      standing: "Half your Strength score"
+    },
+    {
+      type: "High Jump",
+      running: "3 + your Strength modifier (feet)",
+      standing: "Half that distance"
+    }
+  ],
+  notes: [
+    "A running start needs at least 10 feet of movement on foot beforehand; without it, the jump is a standing jump (half distance).",
+    "You can't jump farther than your remaining movement allows.",
+    "High jump: you can extend your reach upward by 1½ times your height at the peak of the jump.",
+    "Long jump: you can clear a low obstacle no taller than a quarter of the jump's length.",
+    "Climbing, swimming, and crawling each cost 1 extra foot per foot moved (2 ft total) — unless you have a climb or swim speed.",
+    "The GM may call for an Athletics (Strength) check to climb a slippery or hold-poor surface, or to swim in rough water.",
+    "Dropping Prone is free; standing up from Prone costs half your speed."
+  ]
+};
+
+/**
+ * Standard combat actions. Several actions were renamed, added, or reworked in
+ * the 2024 rules, so each ruleset has its own list. The Study table is 2024-only.
+ */
+export const ACTIONS = {
+  2014: [
+    { name: "Attack", desc: "Make one melee or ranged attack (more with Extra Attack). Grapple and Shove are attack options." },
+    { name: "Cast a Spell", desc: "Cast a spell with a casting time of 1 action." },
+    { name: "Dash", desc: "Gain extra movement equal to your speed for the turn." },
+    { name: "Disengage", desc: "Your movement doesn't provoke opportunity attacks this turn." },
+    { name: "Dodge", desc: "Attackers have Disadvantage; you make Dexterity saves with Advantage until your next turn." },
+    { name: "Help", desc: "Give an ally Advantage on an ability check, or on their next attack against a creature within 5 ft of you." },
+    { name: "Hide", desc: "Make a Dexterity (Stealth) check to become hidden." },
+    { name: "Ready", desc: "Prepare an action to trigger on a chosen circumstance (uses your reaction)." },
+    { name: "Search", desc: "Devote your attention to finding something — usually a Wisdom (Perception) or Intelligence (Investigation) check." },
+    { name: "Use an Object", desc: "Interact with a second object, or use an object that requires an action." }
+  ],
+  2024: [
+    { name: "Attack", desc: "Make one attack (more with Extra Attack). Grapple and Shove are unarmed-strike options." },
+    { name: "Dash", desc: "Gain extra movement equal to your speed for the turn." },
+    { name: "Disengage", desc: "Your movement doesn't provoke opportunity attacks this turn." },
+    { name: "Dodge", desc: "Attackers have Disadvantage; you make Dexterity saves with Advantage. Lost if you're Incapacitated or your speed is 0." },
+    { name: "Help", desc: "Aid a task you're proficient in (ally gains Advantage), or give Advantage on an attack against a creature within 5 ft." },
+    { name: "Hide", desc: "Make a DC 15 Dexterity (Stealth) check; on a success you gain the Invisible condition." },
+    { name: "Influence", desc: "Persuade, deceive, or intimidate a creature. GM sets the check; default DC 15 or the creature's Intelligence, whichever is higher." },
+    { name: "Magic", desc: "Cast a spell with a casting time of an action, or use a magic item / feature that requires a Magic action." },
+    { name: "Ready", desc: "Prepare an action or spell to trigger on a chosen circumstance (uses your reaction)." },
+    { name: "Search", desc: "Make a Wisdom check to find something hidden or discern something — Insight, Medicine, Perception, or Survival." },
+    { name: "Study", desc: "Make an Intelligence check to recall or deduce information — see the Study table below." },
+    { name: "Utilize", desc: "Use an object (e.g., drink a potion, pull a lever) that requires an action." }
+  ],
+  studyTable: [
+    { skill: "Arcana", use: "Magic items, spells, eldritch symbols, the planes; aberrations, constructs, elementals, fey, monstrosities." },
+    { skill: "History", use: "Ancient civilizations, historic events, past wars; giants and humanoids." },
+    { skill: "Investigation", use: "Riddles, ciphers, traps, and clues to piece together." },
+    { skill: "Nature", use: "Terrain, weather, natural hazards, flora; beasts, dragons, oozes, plants." },
+    { skill: "Religion", use: "Deities, holy rites, cults, holy symbols; celestials, fiends, undead." }
+  ]
+};
+
+/**
  * Assemble the Reference tab data for the requested rules version ("2014" or "2024").
  */
 export function getReferenceData(rulesVersion) {
+  const version = ACTIONS[rulesVersion] ? rulesVersion : "2024";
   return {
     conditions: CONDITIONS.map(c => ({
       name: c.name,
@@ -277,6 +346,11 @@ export function getReferenceData(rulesVersion) {
       effects: c.rules[rulesVersion] ?? c.rules["2024"]
     })),
     travel: TRAVEL,
+    movement: MOVEMENT,
+    actions: {
+      list: ACTIONS[version],
+      studyTable: version === "2024" ? ACTIONS.studyTable : null
+    },
     light: LIGHT_SOURCES
   };
 }

@@ -1,7 +1,7 @@
 import { MODULE_ID, TEMPLATES } from "../constants.mjs";
 import { getReferenceData } from "../reference-data.mjs";
 import { renderSection } from "../section-renderers.mjs";
-import { applyGlossary } from "../glossary.mjs";
+import { applyGlossary, isGlossaryEnabled } from "../glossary.mjs";
 import { GlossaryManagerApp } from "./glossary-manager.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin, DialogV2 } = foundry.applications.api;
@@ -83,7 +83,8 @@ export class GMScreenApp extends HandlebarsApplicationMixin(ApplicationV2) {
     return Object.assign(context, {
       referenceActive: this.tabGroups.primary === "reference",
       reference: getReferenceData(game.settings.get(MODULE_ID, "rulesVersion")),
-      tabs
+      tabs,
+      glossaryEnabled: isGlossaryEnabled()
     });
   }
 

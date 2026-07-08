@@ -301,6 +301,38 @@
   opacity: 0.9;
 }
 
+.gm-ref-subhead {
+  margin: 10px 0 4px;
+  font-size: 1em;
+  opacity: 0.85;
+}
+
+.gm-ref-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.gm-ref-action {
+  padding: 2px 4px;
+  border-bottom: 1px dotted rgba(128, 128, 128, 0.25);
+}
+
+.gm-ref-action .gm-ref-name {
+  font-weight: 600;
+}
+
+.gm-ref-action .gm-ref-name::after {
+  content: " — ";
+  font-weight: normal;
+  opacity: 0.6;
+}
+
+.gm-ref-action-desc {
+  font-size: 0.95em;
+  opacity: 0.9;
+}
+
 /* ---------------------------------------- */
 /*  Actor card                               */
 /* ---------------------------------------- */
@@ -594,6 +626,61 @@
   cursor: help;
 }
 
+/* Linked tips: solid underline in the theme link color, click to open the doc */
+.gm-tools-tip-link {
+  border-bottom-style: solid;
+  color: var(--color-text-hyperlink, #7b8fd6);
+  cursor: pointer;
+}
+
+/* Drag-drop link zone in the entry dialog */
+.gm-link-drop {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  border: 1px dashed var(--color-border, rgba(128, 128, 128, 0.6));
+  border-radius: 4px;
+  min-height: 32px;
+}
+
+.gm-link-drop.has-link {
+  border-style: solid;
+}
+
+.gm-link-drop .gm-link-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  opacity: 0.75;
+}
+
+.gm-link-drop.has-link .gm-link-name {
+  opacity: 1;
+}
+
+.gm-link-drop .gm-link-clear {
+  flex: 0 0 auto;
+  width: auto;
+  padding: 2px 6px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  opacity: 0.6;
+}
+
+.gm-link-drop .gm-link-clear:hover {
+  opacity: 1;
+}
+
+.gm-glossary-linked {
+  margin-left: 4px;
+  opacity: 0.6;
+  font-size: 0.85em;
+}
+
 /* ---------------------------------------------- */
 /*  Glossary Manager                               */
 /* ---------------------------------------------- */
@@ -646,13 +733,27 @@
   border-bottom: 1px dotted rgba(128, 128, 128, 0.35);
 }
 
+.gm-glossary-term-col {
+  flex: 0 0 34%;
+  max-width: 170px;
+  min-width: 0;
+  font-weight: 600;
+  overflow-wrap: break-word;
+}
+
 .gm-glossary-text {
   flex: 1;
   min-width: 0;
 }
 
-.gm-glossary-term {
+.gm-glossary-alias-line {
+  margin-bottom: 4px;
+}
+
+.gm-glossary-alias-label {
+  opacity: 0.85;
   font-weight: 600;
+  font-size: 0.9em;
 }
 
 .gm-glossary-aliases {
@@ -673,8 +774,21 @@
 }
 
 .gm-glossary-tip.player {
+  margin-top: 4px;
   opacity: 0.6;
   font-style: italic;
+}
+
+.gm-glossary-mirror-star {
+  margin-left: 1px;
+  font-size: 0.6em;
+  vertical-align: super;
+  opacity: 0.8;
+}
+
+/* Entry dialog: dim the player-description field when mirroring the GM text */
+.gm-player-tip-group.gm-disabled {
+  opacity: 0.5;
 }
 
 .gm-glossary-tip.player::before {

@@ -48,6 +48,62 @@
   </section>
 
   <section class="gm-ref-section">
+    <h2><i class="fa-solid fa-person-running"></i> {{localize "GMTOOLS.Reference.Movement"}}</h2>
+    <table class="gm-ref-table">
+      <thead>
+        <tr>
+          <th>{{localize "GMTOOLS.Reference.Jump"}}</th>
+          <th>{{localize "GMTOOLS.Reference.RunningStart"}}</th>
+          <th>{{localize "GMTOOLS.Reference.Standing"}}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each movement.jumps}}
+        <tr class="gm-ref-entry">
+          <td class="gm-ref-name">{{this.type}}</td>
+          <td>{{this.running}}</td>
+          <td>{{this.standing}}</td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+    <ul class="gm-ref-notes">
+      {{#each movement.notes}}<li class="gm-ref-entry">{{this}}</li>{{/each}}
+    </ul>
+  </section>
+
+  <section class="gm-ref-section">
+    <h2><i class="fa-solid fa-hand-fist"></i> {{localize "GMTOOLS.Reference.Actions"}}</h2>
+    <div class="gm-ref-actions">
+      {{#each actions.list}}
+      <div class="gm-ref-entry gm-ref-action">
+        <span class="gm-ref-name">{{this.name}}</span>
+        <span class="gm-ref-action-desc">{{this.desc}}</span>
+      </div>
+      {{/each}}
+    </div>
+    {{#if actions.studyTable}}
+    <h3 class="gm-ref-subhead">{{localize "GMTOOLS.Reference.StudyTable"}}</h3>
+    <table class="gm-ref-table">
+      <thead>
+        <tr>
+          <th>{{localize "GMTOOLS.Reference.Skill"}}</th>
+          <th>{{localize "GMTOOLS.Reference.UsedFor"}}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each actions.studyTable}}
+        <tr class="gm-ref-entry">
+          <td class="gm-ref-name">{{this.skill}}</td>
+          <td>{{this.use}}</td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+    {{/if}}
+  </section>
+
+  <section class="gm-ref-section">
     <h2><i class="fa-solid fa-fire"></i> {{localize "GMTOOLS.Reference.Light"}}</h2>
     <table class="gm-ref-table">
       <thead>

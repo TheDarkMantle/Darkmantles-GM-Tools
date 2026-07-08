@@ -32,7 +32,15 @@
       "Source": "Source",
       "Bright": "Bright Light",
       "Dim": "Dim Light",
-      "Duration": "Duration"
+      "Duration": "Duration",
+      "Movement": "Movement, Jumping & Climbing",
+      "Jump": "Jump",
+      "RunningStart": "With 10-ft Running Start",
+      "Standing": "Standing (No Run-up)",
+      "Actions": "Actions in Combat",
+      "StudyTable": "Study — Which Skill Applies",
+      "Skill": "Skill",
+      "UsedFor": "Used For"
     },
     "Actor": {
       "HP": "HP",
@@ -61,7 +69,16 @@
       "GMTip": "GM Description",
       "PlayerTip": "Player Description",
       "PlayerTipHint": "Optional. Leave empty and players see nothing at all for this term.",
-      "SharedIndicator": "Has a player-visible description"
+      "SharedIndicator": "Has a player-visible description",
+      "MirrorGM": "Use DM description for players",
+      "MirrorIndicator": "Players see the same description as the GM",
+      "AliasLabel": "Alias:",
+      "Link": "Linked Document",
+      "LinkHint": "Drag a journal entry or actor here for full details",
+      "LinkClear": "Clear link",
+      "LinkedTo": "Links to:",
+      "LinkTypeWarning": "Only journal entries, journal pages, and actors can be linked.",
+      "LinkMissing": "The linked document could not be found — it may have been deleted."
     },
     "Settings": {
       "ButtonLocation": {
@@ -76,6 +93,10 @@
         "Hint": "Which rules text the Reference tab displays for conditions and other rules reminders.",
         "2024": "2024 (revised) rules",
         "2014": "2014 (legacy) rules"
+      },
+      "GlossaryEnabled": {
+        "Name": "Enable Glossary Hover Tips",
+        "Hint": "Turn the glossary feature on or off for yourself. When off, glossary buttons are hidden and hover tips no longer appear. This is a personal choice and does not affect other players."
       }
     }
   }
