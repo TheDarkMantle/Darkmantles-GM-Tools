@@ -142,13 +142,40 @@ async function renderActorCard(actor) {
     .filter(e => !e.disabled && !(e.isSuppressed ?? false))
     .map(e => ({ name: e.name, img: e.img ?? e.icon }));
 
-  const skills = Object.entries(sys.skills ?? {})
-    .map(([key, skill]) => ({
-      label: CONFIG.DND5E?.skills?.[key]?.label ?? key,
-      total: formatMod(skill?.total ?? skill?.mod),
-      proficient: (skill?.proficient ?? skill?.value ?? 0) > 0
-    }))
-    .sort((a, b) => a.label.localeCompare(b.label));
+  // NPCs show attacks + special abilities in place of the skill list.
+  const isNPC = actor.type === "npc";
+  let skills = [];
+  let attacks = [];
+  let features = [];
+
+  if (isNPC) {
+    const items = [...actor.items].sort((a, b) => (a.sort ?? 0) - (b.sort ?? 0));
+    for (const item of items) {
+      const hasAttack = (item.labels?.attacks?.length ?? 0) > 0;
+      if (item.type === "weapon" || hasAttack) {
+        const meta = [item.labels?.reach, item.labels?.range].filter(Boolean).join(", ");
+        attacks.push({
+          name: item.name,
+          toHit: item.labels?.attacks?.[0]?.toHit ?? null,
+          damage: (item.labels?.damages ?? []).map(d => d.label).filter(Boolean).join(", ") || item.labels?.damage || "",
+          meta
+        });
+      } else if (item.type === "feat") {
+        features.push({
+          name: item.name,
+          description: await enrich(item.system?.description?.value, actor)
+        });
+      }
+    }
+  } else {
+    skills = Object.entries(sys.skills ?? {})
+      .map(([key, skill]) => ({
+        label: CONFIG.DND5E?.skills?.[key]?.label ?? key,
+        total: formatMod(skill?.total ?? skill?.mod),
+        proficient: (skill?.proficient ?? skill?.value ?? 0) > 0
+      }))
+      .sort((a, b) => a.label.localeCompare(b.label));
+  }
 
   let subtitle = "";
   if (actor.type === "npc") {
@@ -175,6 +202,8 @@ async function renderActorCard(actor) {
     abilities,
     speeds,
     senses,
-    skills
+    skills,
+    attacks,
+    features
   });
 }
