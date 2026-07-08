@@ -92,7 +92,6 @@
       "TopLevel": "— Top level —",
       "Import": "Import glossary (JSON)",
       "Export": "Export glossary (JSON)",
-      "LoadDefaults": "Load default conditions & folders",
       "ImportResult": "Glossary import: {added} added, {updated} updated, {skipped} skipped, {foldersCreated} folders created.",
       "ImportError": "Could not import the glossary file — check that it is valid JSON."
     },
@@ -113,6 +112,19 @@
       "GlossaryEnabled": {
         "Name": "Enable Glossary Hover Tips",
         "Hint": "Turn the glossary feature on or off for yourself. When off, glossary buttons are hidden and hover tips no longer appear. This is a personal choice and does not affect other players."
+      },
+      "LoadConditions": {
+        "Name": "Default Status Conditions",
+        "Label": "Add Default Status Conditions",
+        "Hint": "Adds all standard D&D status conditions to your glossary in a \"Rules\" folder (player-visible), plus empty \"NPCs\" and \"Places\" folders. Existing entries of the same name are updated, never duplicated.",
+        "Confirm": "Add the default status conditions and the Rules / NPCs / Places folders to your glossary? Entries with the same name are updated — nothing is duplicated."
+      },
+      "LoadDrakkenheim": {
+        "Name": "Drakkenheim Conditions",
+        "Label": "Add Drakkenheim Conditions",
+        "Hint": "Reads the new conditions from your installed Monsters of Drakkenheim module and adds them to your glossary in a \"Drakkenheim Conditions\" folder (player-visible). This button only appears when that module is installed; no content ships with GM Tools.",
+        "Confirm": "Add the Monsters of Drakkenheim conditions to your glossary (in a \"Drakkenheim Conditions\" folder)? Entries with the same name are updated — nothing is duplicated.",
+        "NotFound": "Couldn't find the Drakkenheim conditions. Make sure the Monsters of Drakkenheim module is installed and enabled."
       }
     }
   }

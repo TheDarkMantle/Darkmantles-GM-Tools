@@ -79,8 +79,7 @@ export class GlossaryManagerApp extends HandlebarsApplicationMixin(ApplicationV2
       deleteFolder: GlossaryManagerApp.#onDeleteFolder,
       toggleFolder: GlossaryManagerApp.#onToggleFolder,
       importGlossary: GlossaryManagerApp.#onImport,
-      exportGlossary: GlossaryManagerApp.#onExport,
-      loadDefaults: GlossaryManagerApp.#onLoadDefaults
+      exportGlossary: GlossaryManagerApp.#onExport
     }
   };
 
@@ -153,6 +152,48 @@ export class GlossaryManagerApp extends HandlebarsApplicationMixin(ApplicationV2
         if (q) folder.classList.toggle("collapsed", !hasVisible);
         else folder.classList.toggle("collapsed", this.#collapsed.has(folder.dataset.folderId));
       }
+    });
+
+    this.#bindEntryDragDrop(list);
+  }
+
+  /** Drag an entry row onto a folder (or Uncategorized) to move it there. */
+  #bindEntryDragDrop(list) {
+    const clear = () => list.querySelectorAll(".drag-over").forEach(e => e.classList.remove("drag-over"));
+
+    list.addEventListener("dragstart", ev => {
+      const row = ev.target.closest(".gm-glossary-row");
+      if (!row) return;
+      ev.dataTransfer.setData("text/plain", row.dataset.entryId);
+      ev.dataTransfer.effectAllowed = "move";
+      row.classList.add("dragging");
+    });
+
+    list.addEventListener("dragend", ev => {
+      ev.target.closest(".gm-glossary-row")?.classList.remove("dragging");
+      clear();
+    });
+
+    list.addEventListener("dragover", ev => {
+      const folder = ev.target.closest(".gm-folder");
+      if (!folder) { clear(); return; }
+      ev.preventDefault();
+      ev.dataTransfer.dropEffect = "move";
+      if (!folder.classList.contains("drag-over")) { clear(); folder.classList.add("drag-over"); }
+    });
+
+    list.addEventListener("drop", async ev => {
+      const folder = ev.target.closest(".gm-folder");
+      clear();
+      if (!folder) return;
+      ev.preventDefault();
+      const id = ev.dataTransfer.getData("text/plain");
+      const folderId = folder.dataset.folderId || null;  // Uncategorized has no id
+      const { entries } = getGlossary();
+      const entry = entries.find(e => e.id === id);
+      if (!entry || (entry.folder ?? null) === folderId) return;
+      entry.folder = folderId;
+      await this.#saveEntries(entries);
     });
   }
 
@@ -307,19 +348,6 @@ export class GlossaryManagerApp extends HandlebarsApplicationMixin(ApplicationV2
 
   static #onExport() {
     exportGlossary();
-  }
-
-  static async #onLoadDefaults() {
-    try {
-      const resp = await fetch(`modules/${MODULE_ID}/data/glossary-defaults.json`);
-      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-      const res = await importGlossary(await resp.json(), "merge");
-      ui.notifications.info(game.i18n.format("GMTOOLS.Glossary.ImportResult", res));
-      this.render();
-    } catch (err) {
-      console.error(`${MODULE_ID} | Loading glossary defaults failed`, err);
-      ui.notifications.error(game.i18n.localize("GMTOOLS.Glossary.ImportError"));
-    }
   }
 
   /* -------------------------------------------- */

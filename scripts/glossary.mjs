@@ -113,6 +113,80 @@ export async function importGlossary(data, mode = "merge") {
   return result;
 }
 
+/** Fetch the bundled defaults JSON and merge it into the glossary. */
+export async function loadDefaultConditions(mode = "merge") {
+  const resp = await fetch(`modules/${MODULE_ID}/data/glossary-defaults.json`);
+  if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+  return importGlossary(await resp.json(), mode);
+}
+
+const DRAKKENHEIM = {
+  module: "drakkenheim-monsters",
+  pack: "drakkenheim-monsters.guide",
+  entry: "Appendix C: Contamination, Delerium & new Conditions",
+  page: "New Conditions",
+  folder: "Drakkenheim Conditions"
+};
+
+/** True when the paid Monsters of Drakkenheim module is installed and active. */
+export function hasDrakkenheimModule() {
+  return game.modules.get(DRAKKENHEIM.module)?.active ?? false;
+}
+
+/**
+ * Read the "new conditions" from the installed Monsters of Drakkenheim compendium
+ * and merge them into the glossary. Nothing paid ships with this module — the
+ * content is read at runtime from the module the user owns.
+ */
+export async function loadDrakkenheimConditions(mode = "merge") {
+  const notFound = () => new Error(game.i18n.localize("GMTOOLS.Settings.LoadDrakkenheim.NotFound"));
+  const pack = game.packs.get(DRAKKENHEIM.pack);
+  if (!pack) throw notFound();
+  const idx = [...(await pack.getIndex())].find(e => e.name === DRAKKENHEIM.entry);
+  const doc = idx ? await pack.getDocument(idx._id) : null;
+  const page = doc ? [...doc.pages].find(p => p.name === DRAKKENHEIM.page) : null;
+  if (!page?.text?.content) throw notFound();
+
+  const TE = foundry.applications.ux.TextEditor.implementation ?? foundry.applications.ux.TextEditor;
+  const enriched = await TE.enrichHTML(page.text.content, { relativeTo: page, secrets: false });
+  const div = document.createElement("div");
+  div.innerHTML = enriched;
+
+  // Extract readable text, inserting breaks at block boundaries so paragraphs
+  // pulled in via @Embed don't run together ("wound.Ongoing" -> "wound. Ongoing").
+  const blockText = el => {
+    const clone = el.cloneNode(true);
+    clone.querySelectorAll("p, div, li, br, section, tr, h1, h2, h3, h4, h5, h6")
+      .forEach(b => b.append(document.createTextNode(" \n ")));
+    return clone.textContent;
+  };
+
+  // Each condition is an <h2>; its description follows until the next h1/h2.
+  const entries = [];
+  for (const h of div.querySelectorAll("h2")) {
+    const term = h.textContent.trim().replace(/\s*\[[^\]]*\]\s*$/, "").trim(); // "Bleeding [X]" -> "Bleeding"
+    if (!term) continue;
+    const parts = [];
+    for (let n = h.nextElementSibling; n && !/^H[12]$/.test(n.tagName); n = n.nextElementSibling) {
+      const t = blockText(n).replace(/\s+/g, " ").trim();
+      if (t) parts.push(t);
+    }
+    const tip = parts.join(" ").replace(/\s+/g, " ").trim();
+    if (!tip) continue;
+    entries.push({ term, aliases: [], gmTip: tip, playerTip: tip, mirrorGM: true, folder: DRAKKENHEIM.folder });
+  }
+  if (!entries.length) throw notFound();
+
+  return importGlossary({ folders: [{ name: DRAKKENHEIM.folder, parent: null }], entries }, mode);
+}
+
+/** Re-render an open Glossary Manager (e.g. after an external import). */
+export function refreshGlossaryManager() {
+  for (const app of foundry.applications.instances.values()) {
+    if (app.id === "gm-tools-glossary" && app.rendered) app.render();
+  }
+}
+
 /** A portable, name-based snapshot of the glossary for download/sharing. */
 export function toPortable() {
   const { folders, entries } = getGlossary();
