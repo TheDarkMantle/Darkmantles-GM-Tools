@@ -1,0 +1,153 @@
+{
+  "folders": [
+    {
+      "name": "Rules",
+      "parent": null
+    },
+    {
+      "name": "NPCs",
+      "parent": null
+    },
+    {
+      "name": "Places",
+      "parent": null
+    }
+  ],
+  "entries": [
+    {
+      "term": "Blinded",
+      "aliases": [],
+      "gmTip": "Can't see; automatically fails any ability check that requires sight. • Attack rolls against the creature have Advantage; its attack rolls have Disadvantage.",
+      "playerTip": "Can't see; automatically fails any ability check that requires sight. • Attack rolls against the creature have Advantage; its attack rolls have Disadvantage.",
+      "mirrorGM": true,
+      "link": "",
+      "folder": "Rules"
+    },
+    {
+      "term": "Charmed",
+      "aliases": [],
+      "gmTip": "Can't attack the charmer or target them with harmful abilities or magical effects. • The charmer has Advantage on ability checks to interact socially with the creature.",
+      "playerTip": "Can't attack the charmer or target them with harmful abilities or magical effects. • The charmer has Advantage on ability checks to interact socially with the creature.",
+      "mirrorGM": true,
+      "link": "",
+      "folder": "Rules"
+    },
+    {
+      "term": "Deafened",
+      "aliases": [],
+      "gmTip": "Can't hear; automatically fails any ability check that requires hearing.",
+      "playerTip": "Can't hear; automatically fails any ability check that requires hearing.",
+      "mirrorGM": true,
+      "link": "",
+      "folder": "Rules"
+    },
+    {
+      "term": "Exhaustion",
+      "aliases": [],
+      "gmTip": "−2 to all d20 Tests (attack rolls, ability checks, saving throws) per level. • Speed reduced by 5 feet per level. • At level 6, the creature dies. • Finishing a long rest removes 1 level.",
+      "playerTip": "−2 to all d20 Tests (attack rolls, ability checks, saving throws) per level. • Speed reduced by 5 feet per level. • At level 6, the creature dies. • Finishing a long rest removes 1 level.",
+      "mirrorGM": true,
+      "link": "",
+      "folder": "Rules"
+    },
+    {
+      "term": "Frightened",
+      "aliases": [],
+      "gmTip": "Disadvantage on ability checks and attack rolls while the source of fear is within line of sight. • Can't willingly move closer to the source of its fear.",
+      "playerTip": "Disadvantage on ability checks and attack rolls while the source of fear is within line of sight. • Can't willingly move closer to the source of its fear.",
+      "mirrorGM": true,
+      "link": "",
+      "folder": "Rules"
+    },
+    {
+      "term": "Grappled",
+      "aliases": [],
+      "gmTip": "Speed is 0 and it can't benefit from bonuses to speed. • Disadvantage on attack rolls against any target other than the grappler. • The grappler can drag or carry the creature when it moves, at half speed unless the creature is Tiny or two or more sizes smaller. • Ends if the grappler is Incapacitated, or if the creature is removed from the grappler's reach.",
+      "playerTip": "Speed is 0 and it can't benefit from bonuses to speed. • Disadvantage on attack rolls against any target other than the grappler. • The grappler can drag or carry the creature when it moves, at half speed unless the creature is Tiny or two or more sizes smaller. • Ends if the grappler is Incapacitated, or if the creature is removed from the grappler's reach.",
+      "mirrorGM": true,
+      "link": "",
+      "folder": "Rules"
+    },
+    {
+      "term": "Incapacitated",
+      "aliases": [],
+      "gmTip": "Can't take any action, Bonus Action, or Reaction. • Concentration is broken. • Can't speak. • If Incapacitated when rolling Initiative, has Disadvantage on the roll.",
+      "playerTip": "Can't take any action, Bonus Action, or Reaction. • Concentration is broken. • Can't speak. • If Incapacitated when rolling Initiative, has Disadvantage on the roll.",
+      "mirrorGM": true,
+      "link": "",
+      "folder": "Rules"
+    },
+    {
+      "term": "Invisible",
+      "aliases": [],
+      "gmTip": "Surprise: if Invisible when rolling Initiative, has Advantage on the roll. • Concealed: unaffected by any effect that requires its target to be seen. • Attack rolls against the creature have Disadvantage; its attack rolls have Advantage — unless the attacker can somehow see it.",
+      "playerTip": "Surprise: if Invisible when rolling Initiative, has Advantage on the roll. • Concealed: unaffected by any effect that requires its target to be seen. • Attack rolls against the creature have Disadvantage; its attack rolls have Advantage — unless the attacker can somehow see it.",
+      "mirrorGM": true,
+      "link": "",
+      "folder": "Rules"
+    },
+    {
+      "term": "Paralyzed",
+      "aliases": [],
+      "gmTip": "Incapacitated; Speed is 0 and can't change. • Automatically fails Strength and Dexterity saving throws. • Attack rolls against the creature have Advantage. • Any hit from an attacker within 5 feet is a critical hit.",
+      "playerTip": "Incapacitated; Speed is 0 and can't change. • Automatically fails Strength and Dexterity saving throws. • Attack rolls against the creature have Advantage. • Any hit from an attacker within 5 feet is a critical hit.",
+      "mirrorGM": true,
+      "link": "",
+      "folder": "Rules"
+    },
+    {
+      "term": "Petrified",
+      "aliases": [],
+      "gmTip": "Transformed into a solid inanimate substance; Incapacitated, can't move or speak, unaware of its surroundings. • Weight increases tenfold; ceases aging. • Attack rolls against it have Advantage; automatically fails Strength and Dexterity saving throws. • Resistance to all damage; immune to the Poisoned condition.",
+      "playerTip": "Transformed into a solid inanimate substance; Incapacitated, can't move or speak, unaware of its surroundings. • Weight increases tenfold; ceases aging. • Attack rolls against it have Advantage; automatically fails Strength and Dexterity saving throws. • Resistance to all damage; immune to the Poisoned condition.",
+      "mirrorGM": true,
+      "link": "",
+      "folder": "Rules"
+    },
+    {
+      "term": "Poisoned",
+      "aliases": [],
+      "gmTip": "Disadvantage on attack rolls and ability checks.",
+      "playerTip": "Disadvantage on attack rolls and ability checks.",
+      "mirrorGM": true,
+      "link": "",
+      "folder": "Rules"
+    },
+    {
+      "term": "Prone",
+      "aliases": [],
+      "gmTip": "Only movement options are to crawl (each foot costs 1 extra foot) or spend movement to stand. • Disadvantage on attack rolls. • Attacks against it have Advantage if the attacker is within 5 feet, otherwise Disadvantage. • Standing up costs half of its movement speed.",
+      "playerTip": "Only movement options are to crawl (each foot costs 1 extra foot) or spend movement to stand. • Disadvantage on attack rolls. • Attacks against it have Advantage if the attacker is within 5 feet, otherwise Disadvantage. • Standing up costs half of its movement speed.",
+      "mirrorGM": true,
+      "link": "",
+      "folder": "Rules"
+    },
+    {
+      "term": "Restrained",
+      "aliases": [],
+      "gmTip": "Speed is 0 and it can't benefit from bonuses to speed. • Attack rolls against the creature have Advantage; its attack rolls have Disadvantage. • Disadvantage on Dexterity saving throws.",
+      "playerTip": "Speed is 0 and it can't benefit from bonuses to speed. • Attack rolls against the creature have Advantage; its attack rolls have Disadvantage. • Disadvantage on Dexterity saving throws.",
+      "mirrorGM": true,
+      "link": "",
+      "folder": "Rules"
+    },
+    {
+      "term": "Stunned",
+      "aliases": [],
+      "gmTip": "Incapacitated (no actions, no speech, concentration broken). • Automatically fails Strength and Dexterity saving throws. • Attack rolls against the creature have Advantage. • Movement is not prevented (unlike the 2014 rules).",
+      "playerTip": "Incapacitated (no actions, no speech, concentration broken). • Automatically fails Strength and Dexterity saving throws. • Attack rolls against the creature have Advantage. • Movement is not prevented (unlike the 2014 rules).",
+      "mirrorGM": true,
+      "link": "",
+      "folder": "Rules"
+    },
+    {
+      "term": "Unconscious",
+      "aliases": [],
+      "gmTip": "Has the Incapacitated and Prone conditions; drops whatever it's holding. • Speed is 0; unaware of its surroundings. • Automatically fails Strength and Dexterity saving throws. • Attack rolls against the creature have Advantage. • Any hit from an attacker within 5 feet is a critical hit.",
+      "playerTip": "Has the Incapacitated and Prone conditions; drops whatever it's holding. • Speed is 0; unaware of its surroundings. • Automatically fails Strength and Dexterity saving throws. • Attack rolls against the creature have Advantage. • Any hit from an attacker within 5 feet is a critical hit.",
+      "mirrorGM": true,
+      "link": "",
+      "folder": "Rules"
+    }
+  ]
+}

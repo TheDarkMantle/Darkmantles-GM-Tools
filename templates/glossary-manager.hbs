@@ -2,48 +2,97 @@
   <div class="gm-glossary-toolbar">
     <i class="fa-solid fa-magnifying-glass"></i>
     <input type="search" class="gm-glossary-filter" placeholder="{{localize 'GMTOOLS.Glossary.Filter'}}">
-    <button type="button" class="gm-glossary-add" data-action="addEntry">
+    <button type="button" class="gm-glossary-add" data-action="addEntry" data-tooltip="{{localize 'GMTOOLS.Glossary.AddEntry'}}">
       <i class="fa-solid fa-plus"></i> {{localize "GMTOOLS.Glossary.AddEntry"}}
+    </button>
+    <button type="button" class="gm-glossary-tool" data-action="newFolder" data-tooltip="{{localize 'GMTOOLS.Glossary.NewFolder'}}" aria-label="{{localize 'GMTOOLS.Glossary.NewFolder'}}">
+      <i class="fa-solid fa-folder-plus"></i>
+    </button>
+    <button type="button" class="gm-glossary-tool" data-action="importGlossary" data-tooltip="{{localize 'GMTOOLS.Glossary.Import'}}" aria-label="{{localize 'GMTOOLS.Glossary.Import'}}">
+      <i class="fa-solid fa-file-import"></i>
+    </button>
+    <button type="button" class="gm-glossary-tool" data-action="exportGlossary" data-tooltip="{{localize 'GMTOOLS.Glossary.Export'}}" aria-label="{{localize 'GMTOOLS.Glossary.Export'}}">
+      <i class="fa-solid fa-file-export"></i>
+    </button>
+    <button type="button" class="gm-glossary-tool" data-action="loadDefaults" data-tooltip="{{localize 'GMTOOLS.Glossary.LoadDefaults'}}" aria-label="{{localize 'GMTOOLS.Glossary.LoadDefaults'}}">
+      <i class="fa-solid fa-wand-magic-sparkles"></i>
     </button>
   </div>
 
+  {{! Recursive folder node }}
+  {{#*inline "entryRow"}}
+  <li class="gm-glossary-row" data-entry-id="{{this.id}}">
+    <div class="gm-glossary-term-col">
+      <span class="gm-glossary-term">{{this.term}}</span>
+      {{#if this.hasPlayerTip}}
+      <span class="gm-glossary-shared" data-tooltip="{{#if this.mirrorGM}}{{localize 'GMTOOLS.Glossary.MirrorIndicator'}}{{else}}{{localize 'GMTOOLS.Glossary.SharedIndicator'}}{{/if}}">
+        <i class="fa-solid fa-users"></i>{{#if this.mirrorGM}}<i class="fa-solid fa-star gm-glossary-mirror-star"></i>{{/if}}
+      </span>
+      {{/if}}
+      {{#if this.hasLink}}
+      <i class="fa-solid fa-link gm-glossary-linked" data-tooltip="{{localize 'GMTOOLS.Glossary.LinkedTo'}} {{this.linkName}}"></i>
+      {{/if}}
+    </div>
+    <div class="gm-glossary-text">
+      {{#if this.aliases}}
+      <div class="gm-glossary-alias-line">
+        <span class="gm-glossary-alias-label">{{localize "GMTOOLS.Glossary.AliasLabel"}}</span>
+        <span class="gm-glossary-aliases">{{this.aliases}}</span>
+      </div>
+      {{/if}}
+      <div class="gm-glossary-tip">{{this.gmTip}}</div>
+      {{#if this.showPlayerTip}}
+      <div class="gm-glossary-tip player">{{this.playerTip}}</div>
+      {{/if}}
+    </div>
+    <button type="button" class="gm-glossary-tool" data-action="editEntry" data-tooltip="{{localize 'GMTOOLS.Glossary.EditEntry'}}" aria-label="{{localize 'GMTOOLS.Glossary.EditEntry'}}">
+      <i class="fa-solid fa-pen-to-square"></i>
+    </button>
+    <button type="button" class="gm-glossary-tool" data-action="deleteEntry" data-tooltip="{{localize 'GMTOOLS.Glossary.DeleteEntry'}}" aria-label="{{localize 'GMTOOLS.Glossary.DeleteEntry'}}">
+      <i class="fa-solid fa-trash"></i>
+    </button>
+  </li>
+  {{/inline}}
+
+  {{#*inline "folderNode"}}
+  <li class="gm-folder {{#if this.collapsed}}collapsed{{/if}}" data-folder-id="{{this.id}}" style="--depth: {{this.depth}}">
+    <div class="gm-folder-header">
+      <button type="button" class="gm-folder-toggle" data-action="toggleFolder" aria-label="{{localize 'GMTOOLS.Glossary.ToggleFolder'}}">
+        <i class="fa-solid fa-caret-down"></i>
+      </button>
+      <i class="fa-solid fa-folder gm-folder-icon"></i>
+      <span class="gm-folder-name">{{this.name}}</span>
+      <span class="gm-folder-count">{{this.count}}</span>
+      <span class="gm-folder-tools">
+        <button type="button" class="gm-glossary-tool" data-action="newFolder" data-parent="{{this.id}}" data-tooltip="{{localize 'GMTOOLS.Glossary.NewSubfolder'}}" aria-label="{{localize 'GMTOOLS.Glossary.NewSubfolder'}}"><i class="fa-solid fa-folder-plus"></i></button>
+        <button type="button" class="gm-glossary-tool" data-action="renameFolder" data-tooltip="{{localize 'GMTOOLS.Glossary.RenameFolder'}}" aria-label="{{localize 'GMTOOLS.Glossary.RenameFolder'}}"><i class="fa-solid fa-pen-to-square"></i></button>
+        <button type="button" class="gm-glossary-tool" data-action="deleteFolder" data-tooltip="{{localize 'GMTOOLS.Glossary.DeleteFolder'}}" aria-label="{{localize 'GMTOOLS.Glossary.DeleteFolder'}}"><i class="fa-solid fa-trash"></i></button>
+      </span>
+    </div>
+    <ol class="gm-folder-body">
+      {{#each this.children}}{{> folderNode}}{{/each}}
+      {{#each this.entries}}{{> entryRow}}{{/each}}
+    </ol>
+  </li>
+  {{/inline}}
+
   {{#if empty}}
   <p class="gm-empty">{{localize "GMTOOLS.Glossary.Empty"}}</p>
-  {{else}}
-  <ol class="gm-glossary-list">
-    {{#each entries}}
-    <li class="gm-glossary-row" data-entry-id="{{this.id}}">
-      <div class="gm-glossary-term-col">
-        <span class="gm-glossary-term">{{this.term}}</span>
-        {{#if this.hasPlayerTip}}
-        <span class="gm-glossary-shared" data-tooltip="{{#if this.mirrorGM}}{{localize 'GMTOOLS.Glossary.MirrorIndicator'}}{{else}}{{localize 'GMTOOLS.Glossary.SharedIndicator'}}{{/if}}">
-          <i class="fa-solid fa-users"></i>{{#if this.mirrorGM}}<i class="fa-solid fa-star gm-glossary-mirror-star"></i>{{/if}}
-        </span>
-        {{/if}}
-        {{#if this.hasLink}}
-        <i class="fa-solid fa-link gm-glossary-linked" data-tooltip="{{localize 'GMTOOLS.Glossary.LinkedTo'}} {{this.linkName}}"></i>
-        {{/if}}
-      </div>
-      <div class="gm-glossary-text">
-        {{#if this.aliases}}
-        <div class="gm-glossary-alias-line">
-          <span class="gm-glossary-alias-label">{{localize "GMTOOLS.Glossary.AliasLabel"}}</span>
-          <span class="gm-glossary-aliases">{{this.aliases}}</span>
-        </div>
-        {{/if}}
-        <div class="gm-glossary-tip">{{this.gmTip}}</div>
-        {{#if this.showPlayerTip}}
-        <div class="gm-glossary-tip player">{{this.playerTip}}</div>
-        {{/if}}
-      </div>
-      <button type="button" class="gm-glossary-tool" data-action="editEntry" data-tooltip="{{localize 'GMTOOLS.Glossary.EditEntry'}}" aria-label="{{localize 'GMTOOLS.Glossary.EditEntry'}}">
-        <i class="fa-solid fa-pen-to-square"></i>
-      </button>
-      <button type="button" class="gm-glossary-tool" data-action="deleteEntry" data-tooltip="{{localize 'GMTOOLS.Glossary.DeleteEntry'}}" aria-label="{{localize 'GMTOOLS.Glossary.DeleteEntry'}}">
-        <i class="fa-solid fa-trash"></i>
-      </button>
-    </li>
-    {{/each}}
-  </ol>
   {{/if}}
+
+  <ol class="gm-glossary-list">
+    {{#each tree}}{{> folderNode}}{{/each}}
+    {{#if hasUncategorized}}
+    <li class="gm-folder gm-uncategorized" style="--depth: 0">
+      <div class="gm-folder-header">
+        <i class="fa-solid fa-inbox gm-folder-icon"></i>
+        <span class="gm-folder-name">{{localize "GMTOOLS.Glossary.Uncategorized"}}</span>
+        <span class="gm-folder-count">{{uncategorized.length}}</span>
+      </div>
+      <ol class="gm-folder-body">
+        {{#each uncategorized}}{{> entryRow}}{{/each}}
+      </ol>
+    </li>
+    {{/if}}
+  </ol>
 </div>

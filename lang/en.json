@@ -78,7 +78,23 @@
       "LinkClear": "Clear link",
       "LinkedTo": "Links to:",
       "LinkTypeWarning": "Only journal entries, journal pages, and actors can be linked.",
-      "LinkMissing": "The linked document could not be found — it may have been deleted."
+      "LinkMissing": "The linked document could not be found — it may have been deleted.",
+      "Folder": "Folder",
+      "Uncategorized": "Uncategorized",
+      "NewFolder": "New Folder",
+      "NewSubfolder": "New Subfolder",
+      "RenameFolder": "Rename Folder",
+      "DeleteFolder": "Delete Folder",
+      "DeleteFolderConfirm": "Delete the folder \"{name}\"? Its entries and any subfolders move up to the parent folder; nothing is deleted.",
+      "ToggleFolder": "Expand or collapse folder",
+      "FolderName": "Folder Name",
+      "ParentFolder": "Parent Folder",
+      "TopLevel": "— Top level —",
+      "Import": "Import glossary (JSON)",
+      "Export": "Export glossary (JSON)",
+      "LoadDefaults": "Load default conditions & folders",
+      "ImportResult": "Glossary import: {added} added, {updated} updated, {skipped} skipped, {foldersCreated} folders created.",
+      "ImportError": "Could not import the glossary file — check that it is valid JSON."
     },
     "Settings": {
       "ButtonLocation": {

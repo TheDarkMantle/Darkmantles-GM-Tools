@@ -726,13 +726,117 @@
   white-space: nowrap;
 }
 
+.gm-glossary-toolbar .gm-glossary-tool {
+  flex: 0 0 auto;
+  width: auto;
+  padding: 4px 7px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  opacity: 0.7;
+}
+
+.gm-glossary-toolbar .gm-glossary-tool:hover {
+  opacity: 1;
+}
+
+.gm-glossary-list,
+.gm-folder-body {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
 .gm-glossary-list {
   flex: 1;
   overflow-y: auto;
   min-height: 0;
-  margin: 0;
-  padding: 0;
-  list-style: none;
+}
+
+/* Folder tree */
+.gm-folder {
+  --indent: calc(var(--depth, 0) * 14px);
+}
+
+.gm-folder-header {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 4px 4px calc(4px + var(--indent));
+  background: rgba(128, 128, 128, 0.1);
+  border-bottom: 1px solid rgba(128, 128, 128, 0.25);
+}
+
+.gm-folder-toggle {
+  flex: 0 0 auto;
+  width: auto;
+  padding: 0 2px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.gm-folder-toggle i {
+  transition: transform 0.1s ease;
+}
+
+.gm-folder.collapsed .gm-folder-toggle i {
+  transform: rotate(-90deg);
+}
+
+.gm-folder.collapsed > .gm-folder-body {
+  display: none;
+}
+
+.gm-folder-icon {
+  opacity: 0.7;
+}
+
+.gm-folder-name {
+  font-weight: 600;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.gm-folder-count {
+  opacity: 0.55;
+  font-size: 0.85em;
+  font-variant-numeric: tabular-nums;
+}
+
+.gm-folder-tools {
+  display: inline-flex;
+  gap: 2px;
+  opacity: 0;
+}
+
+.gm-folder-header:hover .gm-folder-tools {
+  opacity: 1;
+}
+
+.gm-folder-tools .gm-glossary-tool {
+  width: auto;
+  padding: 2px 5px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  opacity: 0.7;
+}
+
+.gm-folder-tools .gm-glossary-tool:hover {
+  opacity: 1;
+}
+
+/* Indent entry rows to match their folder depth */
+.gm-folder > .gm-folder-body > .gm-glossary-row {
+  padding-left: calc(4px + var(--indent) + 18px);
+}
+
+.gm-uncategorized > .gm-folder-header {
+  opacity: 0.85;
 }
 
 .gm-glossary-row {
