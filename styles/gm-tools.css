@@ -204,6 +204,16 @@
   font-weight: bold;
   cursor: pointer;
   padding: 2px 0;
+  /* Raise the summary above the page body: some injected journal content
+     (e.g. foundry-mcp's .mcp-journal) overlaps upward and would otherwise
+     intercept clicks, making the page impossible to collapse. */
+  position: relative;
+  z-index: 1;
+}
+
+.gm-journal-page-body {
+  position: relative;
+  z-index: 0;
 }
 
 .gm-missing,

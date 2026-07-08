@@ -98,17 +98,53 @@ export class GMScreenApp extends HandlebarsApplicationMixin(ApplicationV2) {
     }).bind(this.element);
 
     const filter = this.element.querySelector(".gm-ref-filter");
-    filter?.addEventListener("input", event => {
-      const query = event.currentTarget.value.trim().toLowerCase();
-      for (const entry of this.element.querySelectorAll(".gm-ref-entry")) {
-        entry.style.display = !query || entry.textContent.toLowerCase().includes(query) ? "" : "none";
-      }
-    });
+    filter?.addEventListener("input", event => this.#filterReference(event.currentTarget.value));
 
     // Glossary hover tips inside screen sections (not the reference tab's own tables)
     for (const content of this.element.querySelectorAll(".gm-section-content")) {
       applyGlossary(content);
     }
+  }
+
+  /**
+   * Filter the reference tab. An entry matches on its own text, its section
+   * heading, OR the nearest sub-heading above it — so typing "Study" reveals the
+   * Study skill table even though its rows read Arcana/History/etc. Sections and
+   * sub-blocks left with no visible rows are hidden so no empty headers linger.
+   */
+  #filterReference(rawQuery) {
+    const query = rawQuery.trim().toLowerCase();
+    for (const section of this.element.querySelectorAll(".gm-ref-section")) {
+      const h2 = section.querySelector("h2")?.textContent.toLowerCase() ?? "";
+      let sectionHasMatch = false;
+      for (const entry of section.querySelectorAll(".gm-ref-entry")) {
+        const hay = `${entry.textContent} ${h2} ${this.#subheadFor(entry, section)}`.toLowerCase();
+        const show = !query || hay.includes(query);
+        entry.style.display = show ? "" : "none";
+        if (show) sectionHasMatch = true;
+      }
+      section.style.display = !query || sectionHasMatch ? "" : "none";
+      // Hide any sub-heading (and its block) that has no visible rows left.
+      for (const subhead of section.querySelectorAll(".gm-ref-subhead")) {
+        const block = subhead.nextElementSibling;
+        const blockHasMatch = !!block
+          && [...block.querySelectorAll(".gm-ref-entry")].some(e => e.style.display !== "none");
+        const show = !query || blockHasMatch;
+        subhead.style.display = show ? "" : "none";
+        if (block) block.style.display = show ? "" : "none";
+      }
+    }
+  }
+
+  /** Text of the nearest `.gm-ref-subhead` above an entry's top-level block. */
+  #subheadFor(entry, section) {
+    let block = entry;
+    while (block.parentElement && block.parentElement !== section) block = block.parentElement;
+    for (let sib = block.previousElementSibling; sib; sib = sib.previousElementSibling) {
+      if (sib.classList?.contains("gm-ref-subhead")) return sib.textContent;
+      if (sib.tagName === "H2") break;
+    }
+    return "";
   }
 
   /* -------------------------------------------- */
