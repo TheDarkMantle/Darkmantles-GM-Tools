@@ -62,6 +62,34 @@
   </div>
   {{/if}}
 
+  {{#if attacks.length}}
+  <div class="gm-actor-block">
+    <h4 class="gm-actor-block-title">{{localize "GMTOOLS.Actor.Attacks"}}</h4>
+    {{#each attacks}}
+    <div class="gm-attack">
+      <span class="gm-attack-name">{{this.name}}</span>
+      <span class="gm-attack-stats">
+        {{#if this.toHit}}<span class="gm-attack-tohit">{{this.toHit}}</span>{{/if}}
+        {{#if this.damage}}<span class="gm-attack-damage">{{this.damage}}</span>{{/if}}
+      </span>
+      {{#if this.meta}}<span class="gm-attack-meta">{{this.meta}}</span>{{/if}}
+    </div>
+    {{/each}}
+  </div>
+  {{/if}}
+
+  {{#if features.length}}
+  <div class="gm-actor-block">
+    <h4 class="gm-actor-block-title">{{localize "GMTOOLS.Actor.SpecialAbilities"}}</h4>
+    {{#each features}}
+    <details class="gm-feature">
+      <summary class="gm-feature-name">{{this.name}}</summary>
+      <div class="gm-feature-desc">{{{this.description}}}</div>
+    </details>
+    {{/each}}
+  </div>
+  {{/if}}
+
   <footer class="gm-actor-footer">
     <button type="button" data-action="openDocument" data-uuid="{{uuid}}">
       <i class="fa-solid fa-arrow-up-right-from-square"></i> {{localize "GMTOOLS.Actor.OpenSheet"}}

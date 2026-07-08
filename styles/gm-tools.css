@@ -453,6 +453,76 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* NPC attacks & special abilities (replace the skill list on monster cards) */
+.gm-actor-block {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.gm-actor-block-title {
+  margin: 4px 0 0;
+  padding-bottom: 2px;
+  border-bottom: 1px solid var(--color-border, rgba(128, 128, 128, 0.5));
+  font-size: 0.95em;
+  font-variant: small-caps;
+  letter-spacing: 0.03em;
+}
+
+.gm-attack {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: baseline;
+  column-gap: 8px;
+  padding: 1px 4px;
+  border-bottom: 1px dotted rgba(128, 128, 128, 0.3);
+}
+
+.gm-attack-name {
+  font-weight: 600;
+}
+
+.gm-attack-stats {
+  display: inline-flex;
+  gap: 8px;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.gm-attack-tohit {
+  opacity: 0.85;
+}
+
+.gm-attack-meta {
+  grid-column: 1 / -1;
+  font-size: 0.85em;
+  opacity: 0.7;
+}
+
+.gm-feature {
+  padding: 1px 4px;
+  border-bottom: 1px dotted rgba(128, 128, 128, 0.3);
+}
+
+.gm-feature-name {
+  font-weight: 600;
+  cursor: pointer;
+  list-style-position: inside;
+}
+
+.gm-feature-desc {
+  padding: 2px 0 4px 8px;
+  font-size: 0.95em;
+}
+
+.gm-feature-desc :is(p):first-child {
+  margin-top: 2px;
+}
+
+.gm-feature-desc :is(p):last-child {
+  margin-bottom: 0;
+}
+
 .gm-actor-footer {
   margin-top: 2px;
 }
@@ -484,6 +554,8 @@
 #gm-tools-toggle.gm-tools-toggle-nav {
   align-self: flex-start;
   margin-left: 6px;
+  max-width: 120px;
+  overflow: hidden;
 }
 
 /* Floating fallback if no anchor element was found in the core UI */
