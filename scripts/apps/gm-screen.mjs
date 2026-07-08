@@ -1,6 +1,8 @@
 import { MODULE_ID, TEMPLATES } from "../constants.mjs";
 import { getReferenceData } from "../reference-data.mjs";
 import { renderSection } from "../section-renderers.mjs";
+import { applyGlossary } from "../glossary.mjs";
+import { GlossaryManagerApp } from "./glossary-manager.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin, DialogV2 } = foundry.applications.api;
 
@@ -35,7 +37,8 @@ export class GMScreenApp extends HandlebarsApplicationMixin(ApplicationV2) {
       editTab: GMScreenApp.#onEditTab,
       deleteTab: GMScreenApp.#onDeleteTab,
       clearSection: GMScreenApp.#onClearSection,
-      openDocument: GMScreenApp.#onOpenDocument
+      openDocument: GMScreenApp.#onOpenDocument,
+      openGlossary: GMScreenApp.#onOpenGlossary
     }
   };
 
@@ -100,6 +103,11 @@ export class GMScreenApp extends HandlebarsApplicationMixin(ApplicationV2) {
         entry.style.display = !query || entry.textContent.toLowerCase().includes(query) ? "" : "none";
       }
     });
+
+    // Glossary hover tips inside screen sections (not the reference tab's own tables)
+    for (const content of this.element.querySelectorAll(".gm-section-content")) {
+      applyGlossary(content);
+    }
   }
 
   /* -------------------------------------------- */
@@ -195,6 +203,10 @@ export class GMScreenApp extends HandlebarsApplicationMixin(ApplicationV2) {
     if (!uuid) return;
     const doc = await fromUuid(uuid);
     doc?.sheet?.render(true);
+  }
+
+  static #onOpenGlossary() {
+    GlossaryManagerApp.open();
   }
 
   /* -------------------------------------------- */

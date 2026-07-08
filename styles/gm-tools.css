@@ -584,3 +584,130 @@
   left: 60px;
   top: 40%;
 }
+
+/* ---------------------------------------------- */
+/*  Glossary hover tips                            */
+/* ---------------------------------------------- */
+
+.gm-tools-tip {
+  border-bottom: 1px dotted currentcolor;
+  cursor: help;
+}
+
+/* ---------------------------------------------- */
+/*  Glossary Manager                               */
+/* ---------------------------------------------- */
+
+.gm-glossary .window-content {
+  display: flex;
+  flex-direction: column;
+  padding: 8px;
+  overflow: hidden;
+}
+
+.gm-glossary-inner {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  gap: 8px;
+}
+
+.gm-glossary-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+}
+
+.gm-glossary-toolbar .gm-glossary-filter {
+  flex: 1;
+}
+
+.gm-glossary-toolbar .gm-glossary-add {
+  width: auto;
+  white-space: nowrap;
+}
+
+.gm-glossary-list {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.gm-glossary-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 6px 4px;
+  border-bottom: 1px dotted rgba(128, 128, 128, 0.35);
+}
+
+.gm-glossary-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.gm-glossary-term {
+  font-weight: 600;
+}
+
+.gm-glossary-aliases {
+  font-weight: normal;
+  opacity: 0.65;
+  font-size: 0.9em;
+}
+
+.gm-glossary-shared {
+  margin-left: 4px;
+  opacity: 0.6;
+  font-size: 0.85em;
+}
+
+.gm-glossary-tip {
+  font-size: 0.9em;
+  opacity: 0.85;
+}
+
+.gm-glossary-tip.player {
+  opacity: 0.6;
+  font-style: italic;
+}
+
+.gm-glossary-tip.player::before {
+  content: "\f500\00a0";
+  font-family: var(--font-awesome, "Font Awesome 6 Pro");
+  font-weight: 900;
+  font-style: normal;
+  font-size: 0.85em;
+}
+
+.gm-glossary-tool {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  width: auto;
+  padding: 4px 6px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  opacity: 0.65;
+}
+
+.gm-glossary-tool:hover {
+  opacity: 1;
+}
+
+.gm-glossary-directory-button {
+  width: auto;
+  white-space: nowrap;
+}
+
+/* Stacked form groups in the entry dialog (label above textarea) */
+.gm-tools-entry-dialog .form-group.stacked {
+  flex-direction: column;
+  align-items: stretch;
+}
