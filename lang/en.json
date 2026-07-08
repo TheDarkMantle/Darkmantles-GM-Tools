@@ -47,6 +47,22 @@
       "SpecialAbilities": "Special Abilities",
       "OpenSheet": "Open Full Sheet"
     },
+    "Glossary": {
+      "Title": "Glossary",
+      "AddEntry": "Add Entry",
+      "EditEntry": "Edit Entry",
+      "DeleteEntry": "Delete Entry",
+      "DeleteConfirm": "Delete the glossary entry \"{term}\"? Its hover tips will disappear everywhere.",
+      "Filter": "Filter glossary…",
+      "Empty": "No glossary entries yet. Add a term and hovering it in any journal will show your reminder.",
+      "Term": "Term",
+      "Aliases": "Aliases",
+      "AliasesHint": "Other names, comma-separated (e.g. 1st Mate Kalindra, the Blacksmith)",
+      "GMTip": "GM Description",
+      "PlayerTip": "Player Description",
+      "PlayerTipHint": "Optional. Leave empty and players see nothing at all for this term.",
+      "SharedIndicator": "Has a player-visible description"
+    },
     "Settings": {
       "ButtonLocation": {
         "Name": "GM Screen Button Location",

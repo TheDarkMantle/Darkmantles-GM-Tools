@@ -20,6 +20,15 @@ A tabbed, resizable, pop-out–capable window for keeping reference material and
   - Anything else drops in as a content link.
 - **Toggle button** — above the players list, beside the scene selector, or in the scene controls toolbar (your choice in settings). Falls back to a floating button if the anchor isn't found.
 
+### Glossary hover tips
+
+Central, reusable hover reminders for names and terms — write a tip once, and it appears everywhere the term does.
+
+- **Auto-matching** — any glossary term (or alias) appearing in a journal page or GM Screen section is subtly underlined; hovering shows your reminder (e.g. hover "Kalindra" → *"The blacksmith in Thornreach"*). No markup needed, works retroactively in existing journals.
+- **Two descriptions per entry** — a **GM description** only you see, and an optional **player description** shown to players instead ("Secretly the cult leader" for you, "Local blacksmith" for them). Leave the player description empty and players see nothing at all — not even the underline.
+- **One place to edit** — the **Glossary Manager** (button in the journal sidebar or the GM Screen tab bar): searchable list, add/edit/delete. Editing a tip updates every open journal instantly.
+- **Explicit syntax** — type `@tip[term]` in any journal editor to force a tip where auto-matching can't reach.
+
 ## Installation
 
 In Foundry, go to **Add-on Modules → Install Module** and paste this manifest URL:

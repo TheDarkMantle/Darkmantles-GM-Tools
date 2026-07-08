@@ -1,5 +1,7 @@
 import { MODULE_ID, TEMPLATES } from "./constants.mjs";
 import { GMScreenApp } from "./apps/gm-screen.mjs";
+import { GlossaryManagerApp } from "./apps/glossary-manager.mjs";
+import { applyGlossary, rebuildMatcher, registerEnricher, refreshJournalWindows } from "./glossary.mjs";
 
 const BUTTON_LOCATIONS = ["players", "nav", "controls"];
 
@@ -42,10 +44,49 @@ Hooks.once("init", () => {
     default: { tabs: [] }
   });
 
+  game.settings.register(MODULE_ID, "glossary", {
+    scope: "world",
+    config: false,
+    type: Object,
+    default: { entries: [] },
+    onChange: () => {
+      if (!game.ready) return;
+      rebuildMatcher();
+      refreshJournalWindows();
+      if (GMScreenApp.instance?.rendered) GMScreenApp.instance.render();
+    }
+  });
+
+  registerEnricher();
+
   foundry.applications.handlebars.loadTemplates([TEMPLATES.reference, TEMPLATES.actorCard]);
 });
 
-Hooks.once("ready", () => injectButton());
+Hooks.once("ready", () => {
+  rebuildMatcher();
+  injectButton();
+});
+
+// Auto-match glossary terms in rendered journal pages (fires for every page
+// sheet subclass — core text/ProseMirror sheets, dnd5e, importer sheets, etc.)
+Hooks.on("renderJournalEntryPageSheet", (app, element) => {
+  if (game.ready) applyGlossary(element);
+});
+
+// GM-only "Glossary" button in the journal sidebar header
+Hooks.on("renderJournalDirectory", (app, element) => {
+  if (!game.user?.isGM) return;
+  const root = element instanceof HTMLElement ? element : element?.[0];
+  if (!root || root.querySelector(".gm-glossary-directory-button")) return;
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.className = "gm-glossary-directory-button";
+  btn.innerHTML = `<i class="fa-solid fa-tags"></i> ${game.i18n.localize("GMTOOLS.Glossary.Title")}`;
+  btn.addEventListener("click", () => GlossaryManagerApp.open());
+  const header = root.querySelector(".header-actions, .directory-header");
+  if (header) header.append(btn);
+  else root.prepend(btn);
+});
 
 // Core UI apps re-render on various triggers and replace their DOM; re-inject our button.
 for (const hook of ["renderPlayers", "renderSceneNavigation", "renderSceneControls"]) {

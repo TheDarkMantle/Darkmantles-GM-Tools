@@ -1,0 +1,39 @@
+<div class="gm-glossary-inner">
+  <div class="gm-glossary-toolbar">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <input type="search" class="gm-glossary-filter" placeholder="{{localize 'GMTOOLS.Glossary.Filter'}}">
+    <button type="button" class="gm-glossary-add" data-action="addEntry">
+      <i class="fa-solid fa-plus"></i> {{localize "GMTOOLS.Glossary.AddEntry"}}
+    </button>
+  </div>
+
+  {{#if empty}}
+  <p class="gm-empty">{{localize "GMTOOLS.Glossary.Empty"}}</p>
+  {{else}}
+  <ol class="gm-glossary-list">
+    {{#each entries}}
+    <li class="gm-glossary-row" data-entry-id="{{this.id}}">
+      <div class="gm-glossary-text">
+        <div class="gm-glossary-term">
+          {{this.term}}
+          {{#if this.aliases}}<span class="gm-glossary-aliases">({{this.aliases}})</span>{{/if}}
+          {{#if this.hasPlayerTip}}
+          <i class="fa-solid fa-users gm-glossary-shared" data-tooltip="{{localize 'GMTOOLS.Glossary.SharedIndicator'}}"></i>
+          {{/if}}
+        </div>
+        <div class="gm-glossary-tip">{{this.gmTip}}</div>
+        {{#if this.hasPlayerTip}}
+        <div class="gm-glossary-tip player">{{this.playerTip}}</div>
+        {{/if}}
+      </div>
+      <button type="button" class="gm-glossary-tool" data-action="editEntry" data-tooltip="{{localize 'GMTOOLS.Glossary.EditEntry'}}" aria-label="{{localize 'GMTOOLS.Glossary.EditEntry'}}">
+        <i class="fa-solid fa-pen-to-square"></i>
+      </button>
+      <button type="button" class="gm-glossary-tool" data-action="deleteEntry" data-tooltip="{{localize 'GMTOOLS.Glossary.DeleteEntry'}}" aria-label="{{localize 'GMTOOLS.Glossary.DeleteEntry'}}">
+        <i class="fa-solid fa-trash"></i>
+      </button>
+    </li>
+    {{/each}}
+  </ol>
+  {{/if}}
+</div>
