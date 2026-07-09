@@ -16,6 +16,13 @@
       "TabCols": "Columns",
       "DropHint": "Drop a character, monster, journal, spell, or item here",
       "ClearSection": "Remove from screen",
+      "CellMenu": "More…",
+      "ShowPlayers": "Show to Players",
+      "SharedWithPlayers": "Shared \"{name}\" with players.",
+      "ShowPlayersFailed": "Couldn't share that with players.",
+      "Roll": "Roll",
+      "RollShowTable": "Show table ({count})",
+      "RollNoResult": "No result — check the table.",
       "MissingDocument": "Missing Document",
       "MissingDocumentHint": "This document could not be found. It may have been deleted.",
       "EmptyJournal": "This journal has no pages."

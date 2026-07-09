@@ -188,6 +188,58 @@
   opacity: 1;
 }
 
+/* Cell ⋮ menu (Show to Players, …) — drops down over the content (cell clips) */
+.gm-cell-menu {
+  position: relative;
+  flex: none;
+}
+
+.gm-cell-menu > summary {
+  list-style: none;
+  cursor: pointer;
+  opacity: 0.6;
+  padding: 0 3px;
+}
+
+.gm-cell-menu > summary::-webkit-details-marker {
+  display: none;
+}
+
+.gm-cell-menu[open] > summary,
+.gm-cell-menu > summary:hover {
+  opacity: 1;
+}
+
+.gm-cell-menu-items {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 10;
+  min-width: 150px;
+  margin-top: 2px;
+  padding: 3px;
+  border: 1px solid var(--color-border, rgba(128, 128, 128, 0.6));
+  border-radius: 4px;
+  background: var(--color-bg, #17171d);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.5);
+}
+
+.gm-cell-menu-items button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 4px 8px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.gm-cell-menu-items button:hover {
+  background: rgba(128, 128, 128, 0.2);
+}
+
 .gm-section-content {
   flex: 1;
   min-height: 0;
@@ -220,6 +272,56 @@
 .gm-empty {
   opacity: 0.6;
   font-style: italic;
+}
+
+/* Rollable RollTable cell */
+.gm-rolltable {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.gm-roll-btn {
+  width: auto;
+  align-self: flex-start;
+  padding: 4px 12px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.gm-roll-formula {
+  opacity: 0.75;
+  font-weight: normal;
+  font-variant-numeric: tabular-nums;
+}
+
+.gm-roll-result:not(:empty) {
+  padding: 6px 8px;
+  border: 1px solid var(--color-border, rgba(128, 128, 128, 0.5));
+  border-radius: 4px;
+  background: rgba(128, 128, 128, 0.12);
+}
+
+.gm-roll-rows > summary {
+  cursor: pointer;
+  opacity: 0.8;
+  font-size: 0.9em;
+}
+
+.gm-roll-rows ol {
+  margin: 4px 0 0;
+  padding-left: 20px;
+  font-size: 0.9em;
+}
+
+.gm-roll-rows li {
+  margin: 2px 0;
+}
+
+.gm-roll-range {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.7;
 }
 
 /* ---------------------------------------- */
