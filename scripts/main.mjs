@@ -45,6 +45,44 @@ Hooks.once("init", () => {
     default: { tabs: [] }
   });
 
+  // Session Notes: a persistent GM notepad shown as a GM Screen tab.
+  game.settings.register(MODULE_ID, "sessionNotesEnabled", {
+    name: "GMTOOLS.Settings.SessionNotesEnabled.Name",
+    hint: "GMTOOLS.Settings.SessionNotesEnabled.Hint",
+    scope: "client",
+    config: true,
+    type: Boolean,
+    default: false,
+    onChange: () => {
+      if (GMScreenApp.instance?.rendered) GMScreenApp.instance.render();
+    }
+  });
+
+  game.settings.register(MODULE_ID, "sessionNotesBar", {
+    name: "GMTOOLS.Settings.SessionNotesBar.Name",
+    hint: "GMTOOLS.Settings.SessionNotesBar.Hint",
+    scope: "client",
+    config: true,
+    type: Boolean,
+    default: false,
+    onChange: () => {
+      if (GMScreenApp.instance?.rendered) GMScreenApp.instance.render();
+    }
+  });
+
+  // The notes HTML itself (world-scoped so it persists across the GM's clients).
+  game.settings.register(MODULE_ID, "sessionNotes", {
+    scope: "world",
+    config: false,
+    type: String,
+    default: "",
+    onChange: () => {
+      // Refresh the read-only view, but never while the editor is open.
+      const app = GMScreenApp.instance;
+      if (app?.rendered && !app.isNotesEditing) app.render();
+    }
+  });
+
   // Imported Drakkenheim quick-reference for its own GM Screen tab:
   // { conditions, travel, delerium, exploration, haze }. Populated by the
   // "Add Drakkenheim Reference" settings button.
@@ -113,7 +151,7 @@ Hooks.once("init", () => {
 
   registerEnricher();
 
-  foundry.applications.handlebars.loadTemplates([TEMPLATES.reference, TEMPLATES.drakkenheim, TEMPLATES.actorCard]);
+  foundry.applications.handlebars.loadTemplates([TEMPLATES.reference, TEMPLATES.drakkenheim, TEMPLATES.sessionNotes, TEMPLATES.actorCard]);
 });
 
 Hooks.once("ready", () => {
@@ -161,7 +199,9 @@ for (const hook of ["renderPlayers", "renderSceneNavigation", "renderSceneContro
 
 // Keep an open GM Screen current: HP and conditions on actor cards change often.
 const refreshScreen = foundry.utils.debounce(() => {
-  if (GMScreenApp.instance?.rendered) GMScreenApp.instance.render();
+  const app = GMScreenApp.instance;
+  // Don't clobber an open notes editor or interrupt typing in the quick-add bar.
+  if (app?.rendered && !app.isNotesEditing && !app.isQuickNoteFocused) app.render();
 }, 250);
 for (const hook of ["updateActor", "createActiveEffect", "updateActiveEffect", "deleteActiveEffect"]) {
   Hooks.on(hook, refreshScreen);

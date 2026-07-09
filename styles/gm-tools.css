@@ -116,6 +116,72 @@
   overflow: hidden;
 }
 
+/* Session Notes tab */
+.gm-tab-notes.active {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.gm-notes {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.gm-notes-toolbar {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 6px;
+  flex: 0 0 auto;
+}
+
+.gm-notes-btn {
+  width: auto;
+  padding: 4px 10px;
+  cursor: pointer;
+}
+
+.gm-notes-view {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 2px 4px;
+}
+
+.gm-notes-editor {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+}
+
+.gm-notes-editor prose-mirror {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Always-visible quick-add bar */
+.gm-notes-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+  padding: 5px 8px;
+  border-top: 1px solid var(--color-border, rgba(128, 128, 128, 0.5));
+  background: rgba(128, 128, 128, 0.08);
+}
+
+.gm-notes-bar i {
+  opacity: 0.6;
+}
+
+.gm-notes-bar .gm-notes-quickadd {
+  flex: 1;
+}
+
 /* Grid cells */
 .gm-screen-cell {
   display: flex;

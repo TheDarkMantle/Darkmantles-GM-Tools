@@ -14,6 +14,14 @@
       </button>
     </div>
     {{/if}}
+    {{#if sessionNotesEnabled}}
+    <div class="gm-tab {{#if sessionNotesActive}}active{{/if}}" data-tab="sessionNotes">
+      <button type="button" class="gm-tab-button" data-action="selectTab" data-tab="sessionNotes">
+        <i class="fa-solid fa-note-sticky"></i>
+        <span>{{localize "GMTOOLS.Screen.SessionNotesTab"}}</span>
+      </button>
+    </div>
+    {{/if}}
     {{#each tabs}}
     <div class="gm-tab {{#if this.active}}active{{/if}}" data-tab="{{this.id}}">
       <button type="button" class="gm-tab-button" data-action="selectTab" data-tab="{{this.id}}">
@@ -44,6 +52,12 @@
   {{#if hasDrakkenheim}}
   <section class="gm-screen-tab gm-tab-reference gm-tab-drakkenheim {{#if drakkenheimActive}}active{{/if}}" data-tab="drakkenheim">
     {{> "modules/gm-tools/templates/drakkenheim-tab.hbs" drakkenheim}}
+  </section>
+  {{/if}}
+
+  {{#if sessionNotesEnabled}}
+  <section class="gm-screen-tab gm-tab-notes {{#if sessionNotesActive}}active{{/if}}" data-tab="sessionNotes">
+    {{> "modules/gm-tools/templates/session-notes-tab.hbs"}}
   </section>
   {{/if}}
 
@@ -84,4 +98,11 @@
     {{/each}}
   </section>
   {{/each}}
+
+  {{#if sessionNotesBar}}
+  <div class="gm-notes-bar">
+    <i class="fa-solid fa-pen"></i>
+    <input type="text" class="gm-notes-quickadd" placeholder="{{localize 'GMTOOLS.Screen.QuickNotePlaceholder'}}" {{#if notesEditing}}disabled{{/if}}>
+  </div>
+  {{/if}}
 </div>

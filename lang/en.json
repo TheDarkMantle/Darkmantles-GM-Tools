@@ -19,6 +19,17 @@
       "CellMenu": "More…",
       "ShowPlayers": "Show to Players",
       "CollapseSections": "Collapse all sections",
+      "SessionNotesTab": "Session Notes",
+      "EditNotes": "Edit",
+      "SaveNotes": "Done",
+      "CancelNotes": "Cancel",
+      "SaveToJournal": "Save to Journal",
+      "SaveToJournalHint": "Create a journal entry from these notes",
+      "QuickNotePlaceholder": "Add a note… (Enter)",
+      "NotesExported": "Session notes saved to \"{name}\".",
+      "NotesEmpty": "There are no notes to save yet.",
+      "NotesEmptyHint": "No notes yet — use the quick-add bar below, or click Edit.",
+      "NotesJournalName": "Session Notes — {date}",
       "SharedWithPlayers": "Shared \"{name}\" with players.",
       "ShowPlayersFailed": "Couldn't share that with players.",
       "Roll": "Roll",
@@ -122,6 +133,14 @@
       "GlossaryEnabled": {
         "Name": "Enable Glossary Hover Tips",
         "Hint": "Turn the glossary feature on or off for yourself. When off, glossary buttons are hidden and hover tips no longer appear. This is a personal choice and does not affect other players."
+      },
+      "SessionNotesEnabled": {
+        "Name": "Enable Session Notes Tab",
+        "Hint": "Adds a Session Notes tab to the GM Screen — a persistent notepad with rich text, exportable to a journal. Turn off if you keep notes on paper or in a journal instead."
+      },
+      "SessionNotesBar": {
+        "Name": "Always-visible Note Bar",
+        "Hint": "Shows a small text field at the bottom of the GM Screen on every tab. Type a note and press Enter to append it to your session notes."
       },
       "LoadConditions": {
         "Name": "Default Status Conditions",
