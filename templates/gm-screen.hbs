@@ -61,6 +61,16 @@
       <header class="gm-cell-header">
         <img src="{{this.img}}" alt="">
         <a class="gm-cell-title" data-action="openDocument" data-uuid="{{this.uuid}}">{{this.name}}</a>
+        {{#if this.canShare}}
+        <details class="gm-cell-menu">
+          <summary class="gm-cell-menu-btn" data-tooltip="{{localize 'GMTOOLS.Screen.CellMenu'}}"><i class="fa-solid fa-ellipsis-vertical"></i></summary>
+          <div class="gm-cell-menu-items">
+            <button type="button" data-action="showPlayers" data-uuid="{{this.uuid}}">
+              <i class="fa-solid fa-eye"></i> {{localize "GMTOOLS.Screen.ShowPlayers"}}
+            </button>
+          </div>
+        </details>
+        {{/if}}
         <i class="fa-solid fa-xmark gm-cell-clear" data-action="clearSection" data-tooltip="{{localize 'GMTOOLS.Screen.ClearSection'}}"></i>
       </header>
       <div class="gm-section-content">{{{this.html}}}</div>

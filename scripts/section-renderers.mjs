@@ -41,7 +41,9 @@ export async function renderSection(uuid) {
   const base = {
     uuid: doc.uuid,
     name: doc.name,
-    img: doc.img ?? doc.thumb ?? "icons/svg/book.svg"
+    img: doc.img ?? doc.thumb ?? "icons/svg/book.svg",
+    // Journals/images/PDFs can be pushed to players via the cell ⋮ menu.
+    canShare: ["JournalEntry", "JournalEntryPage"].includes(doc.documentName)
   };
 
   let html;
@@ -55,6 +57,9 @@ export async function renderSection(uuid) {
         break;
       case "JournalEntryPage":
         html = await renderJournalPage(doc);
+        break;
+      case "RollTable":
+        html = await renderRollTable(doc);
         break;
       default:
         html = await embedOrLink(doc);
@@ -82,6 +87,30 @@ async function embedOrLink(doc) {
     console.warn(`${MODULE_ID} | toEmbed failed for ${doc.uuid}`, err);
   }
   return enrich(`@UUID[${doc.uuid}]{${doc.name}}`, doc);
+}
+
+/**
+ * A rollable RollTable cell: a Roll button (with the table's formula), an inline
+ * last-result area, and a collapsible list of the table's rows. RollTable#toEmbed
+ * throws in this system, so we build the view ourselves.
+ */
+async function renderRollTable(table) {
+  const formula = table.formula ? esc(table.formula) : "";
+  const results = [...table.results].sort((a, b) => (a.range?.[0] ?? 0) - (b.range?.[0] ?? 0));
+  const rows = results.map(r => {
+    const range = r.range ? (r.range[0] === r.range[1] ? `${r.range[0]}` : `${r.range[0]}–${r.range[1]}`) : "";
+    return `<li><span class="gm-roll-range">${esc(range)}</span> <span class="gm-roll-text">${r.description ?? r.text ?? ""}</span></li>`;
+  }).join("");
+  const rollLabel = esc(game.i18n.localize("GMTOOLS.Screen.Roll"));
+  const showLabel = esc(game.i18n.format("GMTOOLS.Screen.RollShowTable", { count: results.length }));
+  return `
+    <div class="gm-rolltable">
+      <button type="button" class="gm-roll-btn" data-action="rollTable" data-uuid="${esc(table.uuid)}">
+        <i class="fa-solid fa-dice-d20"></i> ${rollLabel}${formula ? ` <span class="gm-roll-formula">${formula}</span>` : ""}
+      </button>
+      <div class="gm-roll-result" aria-live="polite"></div>
+      ${results.length ? `<details class="gm-roll-rows"><summary>${showLabel}</summary><ol>${rows}</ol></details>` : ""}
+    </div>`;
 }
 
 async function renderJournalEntry(entry) {

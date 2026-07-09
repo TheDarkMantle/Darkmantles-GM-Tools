@@ -38,6 +38,8 @@ export class GMScreenApp extends HandlebarsApplicationMixin(ApplicationV2) {
       deleteTab: GMScreenApp.#onDeleteTab,
       clearSection: GMScreenApp.#onClearSection,
       openDocument: GMScreenApp.#onOpenDocument,
+      rollTable: GMScreenApp.#onRollTable,
+      showPlayers: GMScreenApp.#onShowPlayers,
       openGlossary: GMScreenApp.#onOpenGlossary
     }
   };
@@ -115,6 +117,10 @@ export class GMScreenApp extends HandlebarsApplicationMixin(ApplicationV2) {
     for (const content of this.element.querySelectorAll(".gm-section-content")) {
       applyGlossary(content);
     }
+
+    // Close open cell ⋮ menus when clicking elsewhere.
+    this.element.removeEventListener("click", this.#closeCellMenus);
+    this.element.addEventListener("click", this.#closeCellMenus);
   }
 
   /**
@@ -255,6 +261,51 @@ export class GMScreenApp extends HandlebarsApplicationMixin(ApplicationV2) {
     const doc = await fromUuid(uuid);
     doc?.sheet?.render(true);
   }
+
+  static async #onRollTable(event, target) {
+    const uuid = target.closest("[data-uuid]")?.dataset.uuid;
+    const table = uuid ? await fromUuid(uuid) : null;
+    if (!table?.draw) return;
+    const area = target.closest(".gm-screen-cell")?.querySelector(".gm-roll-result");
+    try {
+      const { results } = await table.draw();               // also posts the result card to chat
+      const html = (results ?? []).map(r => r.description ?? r.text ?? "").join("<hr>");
+      if (area) area.innerHTML = html || `<span class="gm-empty">${game.i18n.localize("GMTOOLS.Screen.RollNoResult")}</span>`;
+    } catch (err) {
+      console.error(`${MODULE_ID} | Roll table draw failed`, err);
+      ui.notifications.warn(game.i18n.localize("GMTOOLS.Screen.RollNoResult"));
+    }
+  }
+
+  /** Push a journal / image / PDF to all players. */
+  static async #onShowPlayers(event, target) {
+    const uuid = target.closest("[data-uuid]")?.dataset.uuid;
+    target.closest("details.gm-cell-menu")?.removeAttribute("open");
+    const doc = uuid ? await fromUuid(uuid) : null;
+    if (!doc) return;
+    try {
+      if (doc.documentName === "JournalEntry") {
+        await doc.show();
+      } else if (doc.documentName === "JournalEntryPage") {
+        if (doc.type === "image" && doc.src) {
+          await new foundry.applications.apps.ImagePopout({ src: doc.src, window: { title: doc.name }, uuid: doc.uuid }).shareImage();
+        } else {
+          await doc.parent?.show?.();
+        }
+      }
+      ui.notifications.info(game.i18n.format("GMTOOLS.Screen.SharedWithPlayers", { name: doc.name }));
+    } catch (err) {
+      console.error(`${MODULE_ID} | Show to players failed`, err);
+      ui.notifications.warn(game.i18n.localize("GMTOOLS.Screen.ShowPlayersFailed"));
+    }
+  }
+
+  /** Close any open cell ⋮ menu when clicking elsewhere in the screen. */
+  #closeCellMenus = event => {
+    for (const menu of this.element.querySelectorAll("details.gm-cell-menu[open]")) {
+      if (!menu.contains(event.target)) menu.removeAttribute("open");
+    }
+  };
 
   static #onOpenGlossary() {
     GlossaryManagerApp.open();
