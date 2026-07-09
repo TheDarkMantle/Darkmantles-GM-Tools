@@ -136,10 +136,13 @@ export class GMScreenApp extends HandlebarsApplicationMixin(ApplicationV2) {
       }
       section.style.display = !query || sectionHasMatch ? "" : "none";
       // Hide any sub-heading (and its block) that has no visible rows left.
+      // The block may itself be the entry (an HTML block) or contain entries (a table).
       for (const subhead of section.querySelectorAll(".gm-ref-subhead")) {
         const block = subhead.nextElementSibling;
-        const blockHasMatch = !!block
-          && [...block.querySelectorAll(".gm-ref-entry")].some(e => e.style.display !== "none");
+        const entries = block
+          ? (block.matches(".gm-ref-entry") ? [block] : [...block.querySelectorAll(".gm-ref-entry")])
+          : [];
+        const blockHasMatch = entries.some(e => e.style.display !== "none");
         const show = !query || blockHasMatch;
         subhead.style.display = show ? "" : "none";
         if (block) block.style.display = show ? "" : "none";

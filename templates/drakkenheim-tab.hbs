@@ -17,24 +17,20 @@
         {{/each}}
       </tbody>
     </table>
-  </section>
-  {{/if}}
-
-  {{#if exploration.length}}
-  <section class="gm-ref-section">
-    <h2><i class="fa-solid fa-magnifying-glass-location"></i> {{localize "GMTOOLS.Drakkenheim.Exploration"}}</h2>
-    {{#each exploration}}
-    <div class="gm-ref-entry gm-drak-block">
-      <h3 class="gm-ref-subhead">{{this.heading}}</h3>
-      <p>{{this.text}}</p>
-    </div>
-    {{/each}}
+    {{#if streets}}
+    <h3 class="gm-ref-subhead">{{localize "GMTOOLS.Drakkenheim.Streets"}}</h3>
+    <div class="gm-ref-entry gm-drak-html">{{{streets}}}</div>
+    {{/if}}
   </section>
   {{/if}}
 
   {{#if delerium.length}}
   <section class="gm-ref-section">
     <h2><i class="fa-solid fa-gem"></i> {{localize "GMTOOLS.Drakkenheim.Delerium"}}</h2>
+    {{#if searching}}
+    <h3 class="gm-ref-subhead">{{localize "GMTOOLS.Drakkenheim.Searching"}}</h3>
+    <div class="gm-ref-entry gm-drak-html">{{{searching}}}</div>
+    {{/if}}
     {{#each delerium}}
     <h3 class="gm-ref-subhead">{{this.heading}}</h3>
     <table class="gm-ref-table">
@@ -52,10 +48,8 @@
   <section class="gm-ref-section">
     <h2><i class="fa-solid fa-smog"></i> {{localize "GMTOOLS.Drakkenheim.Haze"}}</h2>
     {{#each haze}}
-    <div class="gm-ref-entry gm-drak-block">
-      <h3 class="gm-ref-subhead">{{this.heading}}</h3>
-      <p>{{this.text}}</p>
-    </div>
+    <h3 class="gm-ref-subhead">{{this.heading}}</h3>
+    <div class="gm-ref-entry gm-drak-html">{{{this.html}}}</div>
     {{/each}}
   </section>
   {{/if}}
