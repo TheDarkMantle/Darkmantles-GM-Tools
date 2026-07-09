@@ -131,8 +131,9 @@
     },
     "Drakkenheim": {
       "Travel": "Getting to the City",
-      "Exploration": "Urban Exploration",
+      "Streets": "Moving through the Streets",
       "Delerium": "Finding Delerium",
+      "Searching": "Searching the Ruins",
       "Haze": "The Haze",
       "Conditions": "Conditions"
     }

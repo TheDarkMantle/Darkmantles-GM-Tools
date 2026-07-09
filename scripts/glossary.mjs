@@ -149,19 +149,36 @@ const drakBlockText = el => {
   return clone.textContent.replace(/\s+/g, " ").trim();
 };
 
-/** Text under a heading (matched by regex), excluding nested tables, trimmed. */
-function drakSectionText(div, nameRe, maxLen = 1000) {
+/**
+ * HTML of the prose block under a heading — consecutive P/UL/OL siblings
+ * (skipping BR/HR), stopping at the next heading of the same-or-higher level or
+ * at any structural container (e.g. the maps <div>). Preserves bulleted lists.
+ */
+function drakSectionListHTML(div, nameRe, { skipFirstP = false } = {}) {
   const h = [...div.querySelectorAll("h1,h2,h3,h4")].find(x => nameRe.test(x.textContent.trim()));
   if (!h) return "";
   const lvl = +h.tagName[1];
   const parts = [];
+  let skipped = false;
   for (let n = h.nextElementSibling; n; n = n.nextElementSibling) {
-    if (/^H[1-4]$/.test(n.tagName) && +n.tagName[1] <= lvl) break;
-    if (n.tagName === "TABLE") continue;
-    const t = drakBlockText(n);
-    if (t) parts.push(t);
+    const tag = n.tagName;
+    if (/^H[1-6]$/.test(tag) && +tag[1] <= lvl) break;
+    if (tag === "BR" || tag === "HR") continue;
+    if (!/^(P|UL|OL)$/.test(tag)) break; // structural element = end of the prose section
+    if (skipFirstP && !skipped && tag === "P") { skipped = true; continue; }
+    parts.push(n.outerHTML);
   }
-  return parts.join(" ").slice(0, maxLen).trim();
+  return parts.join("").trim();
+}
+
+/** Outer HTML of the first <p> under a heading (matched by regex). */
+function drakFirstP(div, nameRe) {
+  const h = [...div.querySelectorAll("h1,h2,h3,h4")].find(x => nameRe.test(x.textContent.trim()));
+  if (!h) return "";
+  for (let n = h.nextElementSibling; n && !/^H[1-6]$/.test(n.tagName); n = n.nextElementSibling) {
+    if (n.tagName === "P") return n.outerHTML;
+  }
+  return "";
 }
 
 /** Every table in document order, tagged with the nearest heading above it. */
@@ -228,20 +245,24 @@ async function parseDrakkenheimChapter() {
     const tables = drakTables(div);
     const travel = tables.find(t => /travel time/i.test(t.headers.join(" ")) || /getting to the city/i.test(t.heading));
     if (travel) content.travel = { headers: travel.headers, rows: travel.body };
+    // Moving through the Streets — keep the pace list, skip its intro paragraph.
+    const streets = drakSectionListHTML(div, /moving through the streets/i, { skipFirstP: true });
+    if (streets) content.streets = streets;
+    // Searching the Ruins — whole section, ending at its last bulleted list.
+    const searching = drakSectionListHTML(div, /searching the ruins/i);
+    if (searching) content.searching = searching;
     const delerium = tables.filter(t => /delerium deposits/i.test(t.heading)).map(t => ({ heading: t.heading, rows: t.all }));
     if (delerium.length) content.delerium = delerium;
-    const exploration = [];
-    for (const [re, label] of [[/^urban exploration$/i, "Urban Exploration"], [/searching the ruins/i, "Searching the Ruins"]]) {
-      const text = drakSectionText(div, re, 900);
-      if (text) exploration.push({ heading: label, text });
-    }
-    if (exploration.length) content.exploration = exploration;
   }
 
   const haze = [...chapter.pages].find(p => /^the haze$/i.test(p.name));
   if (haze) {
-    const text = drakSectionText(await drakEnrich(haze), /deep haze/i, 900);
-    if (text) content.haze = [{ heading: "Deep Haze", text }];
+    const div = await drakEnrich(haze);
+    const blocks = [
+      { heading: "Environmental Effects", html: drakFirstP(div, /environmental effects/i) },
+      { heading: "Deep Haze", html: drakSectionListHTML(div, /deep haze/i) }
+    ].filter(b => b.html);
+    if (blocks.length) content.haze = blocks;
   }
   return content;
 }
