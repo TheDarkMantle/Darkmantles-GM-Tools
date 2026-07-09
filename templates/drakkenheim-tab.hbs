@@ -1,0 +1,76 @@
+<div class="gm-reference">
+  <div class="gm-ref-toolbar">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <input type="search" class="gm-ref-filter" placeholder="{{localize 'GMTOOLS.Reference.Filter'}}">
+  </div>
+
+  {{#if travel.rows.length}}
+  <section class="gm-ref-section">
+    <h2><i class="fa-solid fa-person-walking"></i> {{localize "GMTOOLS.Drakkenheim.Travel"}}</h2>
+    <table class="gm-ref-table">
+      <thead>
+        <tr>{{#each travel.headers}}<th>{{this}}</th>{{/each}}</tr>
+      </thead>
+      <tbody>
+        {{#each travel.rows}}
+        <tr class="gm-ref-entry">{{#each this}}<td>{{this}}</td>{{/each}}</tr>
+        {{/each}}
+      </tbody>
+    </table>
+  </section>
+  {{/if}}
+
+  {{#if exploration.length}}
+  <section class="gm-ref-section">
+    <h2><i class="fa-solid fa-magnifying-glass-location"></i> {{localize "GMTOOLS.Drakkenheim.Exploration"}}</h2>
+    {{#each exploration}}
+    <div class="gm-ref-entry gm-drak-block">
+      <h3 class="gm-ref-subhead">{{this.heading}}</h3>
+      <p>{{this.text}}</p>
+    </div>
+    {{/each}}
+  </section>
+  {{/if}}
+
+  {{#if delerium.length}}
+  <section class="gm-ref-section">
+    <h2><i class="fa-solid fa-gem"></i> {{localize "GMTOOLS.Drakkenheim.Delerium"}}</h2>
+    {{#each delerium}}
+    <h3 class="gm-ref-subhead">{{this.heading}}</h3>
+    <table class="gm-ref-table">
+      <tbody>
+        {{#each this.rows}}
+        <tr class="gm-ref-entry">{{#each this}}<td>{{this}}</td>{{/each}}</tr>
+        {{/each}}
+      </tbody>
+    </table>
+    {{/each}}
+  </section>
+  {{/if}}
+
+  {{#if haze.length}}
+  <section class="gm-ref-section">
+    <h2><i class="fa-solid fa-smog"></i> {{localize "GMTOOLS.Drakkenheim.Haze"}}</h2>
+    {{#each haze}}
+    <div class="gm-ref-entry gm-drak-block">
+      <h3 class="gm-ref-subhead">{{this.heading}}</h3>
+      <p>{{this.text}}</p>
+    </div>
+    {{/each}}
+  </section>
+  {{/if}}
+
+  {{#if conditions.length}}
+  <section class="gm-ref-section">
+    <h2><i class="fa-solid fa-snowflake"></i> {{localize "GMTOOLS.Drakkenheim.Conditions"}}</h2>
+    <div class="gm-ref-conditions">
+      {{#each conditions}}
+      <div class="gm-ref-entry gm-condition">
+        <h3>{{this.name}}</h3>
+        <p>{{this.text}}</p>
+      </div>
+      {{/each}}
+    </div>
+  </section>
+  {{/if}}
+</div>

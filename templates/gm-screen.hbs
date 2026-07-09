@@ -6,6 +6,14 @@
         <span>{{localize "GMTOOLS.Screen.ReferenceTab"}}</span>
       </button>
     </div>
+    {{#if hasDrakkenheim}}
+    <div class="gm-tab {{#if drakkenheimActive}}active{{/if}}" data-tab="drakkenheim">
+      <button type="button" class="gm-tab-button" data-action="selectTab" data-tab="drakkenheim">
+        <i class="fa-solid fa-skull"></i>
+        <span>{{localize "GMTOOLS.Screen.DrakkenheimTab"}}</span>
+      </button>
+    </div>
+    {{/if}}
     {{#each tabs}}
     <div class="gm-tab {{#if this.active}}active{{/if}}" data-tab="{{this.id}}">
       <button type="button" class="gm-tab-button" data-action="selectTab" data-tab="{{this.id}}">
@@ -32,6 +40,12 @@
   <section class="gm-screen-tab gm-tab-reference {{#if referenceActive}}active{{/if}}" data-tab="reference">
     {{> "modules/gm-tools/templates/reference-tab.hbs" reference}}
   </section>
+
+  {{#if hasDrakkenheim}}
+  <section class="gm-screen-tab gm-tab-reference gm-tab-drakkenheim {{#if drakkenheimActive}}active{{/if}}" data-tab="drakkenheim">
+    {{> "modules/gm-tools/templates/drakkenheim-tab.hbs" drakkenheim}}
+  </section>
+  {{/if}}
 
   {{#each tabs}}
   <section class="gm-screen-tab gm-tab-grid {{#if this.active}}active{{/if}}" data-tab="{{this.id}}"

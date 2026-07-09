@@ -317,6 +317,16 @@
   opacity: 0.85;
 }
 
+.gm-drak-block {
+  margin-bottom: 8px;
+}
+
+.gm-drak-block p {
+  margin: 2px 0 0;
+  font-size: 0.95em;
+  opacity: 0.9;
+}
+
 .gm-ref-actions {
   display: flex;
   flex-direction: column;

@@ -1,5 +1,5 @@
 import { MODULE_ID } from "../constants.mjs";
-import { loadDefaultConditions, loadDrakkenheimConditions, refreshGlossaryManager } from "../glossary.mjs";
+import { loadDefaultConditions, loadDrakkenheimContent, refreshGlossaryManager } from "../glossary.mjs";
 
 const { ApplicationV2, DialogV2 } = foundry.applications.api;
 
@@ -12,6 +12,7 @@ const { ApplicationV2, DialogV2 } = foundry.applications.api;
 class GlossaryImportMenu extends ApplicationV2 {
   static titleKey = "";
   static confirmKey = "";
+  static resultKey = "GMTOOLS.Glossary.ImportResult";
   static async loader() {}
 
   async render() {
@@ -26,7 +27,7 @@ class GlossaryImportMenu extends ApplicationV2 {
 
     try {
       const res = await cls.loader();
-      ui.notifications.info(game.i18n.format("GMTOOLS.Glossary.ImportResult", res));
+      ui.notifications.info(game.i18n.format(cls.resultKey, res));
       refreshGlossaryManager();
     } catch (err) {
       console.error(`${MODULE_ID} | Glossary import menu failed`, err);
@@ -47,5 +48,6 @@ export class GlossaryDrakkenheimMenu extends GlossaryImportMenu {
   static DEFAULT_OPTIONS = { id: "gm-tools-load-drakkenheim", window: { title: "GMTOOLS.Settings.LoadDrakkenheim.Name" } };
   static titleKey = "GMTOOLS.Settings.LoadDrakkenheim.Name";
   static confirmKey = "GMTOOLS.Settings.LoadDrakkenheim.Confirm";
-  static loader = () => loadDrakkenheimConditions("merge");
+  static resultKey = "GMTOOLS.Settings.LoadDrakkenheim.Result";
+  static loader = () => loadDrakkenheimContent("merge");
 }
