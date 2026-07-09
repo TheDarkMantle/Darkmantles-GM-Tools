@@ -68,6 +68,11 @@
             <button type="button" data-action="showPlayers" data-uuid="{{this.uuid}}">
               <i class="fa-solid fa-eye"></i> {{localize "GMTOOLS.Screen.ShowPlayers"}}
             </button>
+            {{#if this.isJournal}}
+            <button type="button" data-action="collapseSections">
+              <i class="fa-solid fa-down-left-and-up-right-to-center"></i> {{localize "GMTOOLS.Screen.CollapseSections"}}
+            </button>
+            {{/if}}
           </div>
         </details>
         {{/if}}

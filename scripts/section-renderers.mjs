@@ -43,7 +43,9 @@ export async function renderSection(uuid) {
     name: doc.name,
     img: doc.img ?? doc.thumb ?? "icons/svg/book.svg",
     // Journals/images/PDFs can be pushed to players via the cell ⋮ menu.
-    canShare: ["JournalEntry", "JournalEntryPage"].includes(doc.documentName)
+    canShare: ["JournalEntry", "JournalEntryPage"].includes(doc.documentName),
+    // A multi-page journal can have all its sections collapsed at once.
+    isJournal: doc.documentName === "JournalEntry"
   };
 
   let html;
@@ -91,25 +93,30 @@ async function embedOrLink(doc) {
 
 /**
  * A rollable RollTable cell: a Roll button (with the table's formula), an inline
- * last-result area, and a collapsible list of the table's rows. RollTable#toEmbed
- * throws in this system, so we build the view ourselves.
+ * last-result area, and the table itself (Range → Result). RollTable#toEmbed
+ * throws in this system, so we build the view ourselves. Rendering the rows as a
+ * real table avoids an <ol>'s auto-numbering colliding with the range column.
  */
 async function renderRollTable(table) {
   const formula = table.formula ? esc(table.formula) : "";
   const results = [...table.results].sort((a, b) => (a.range?.[0] ?? 0) - (b.range?.[0] ?? 0));
   const rows = results.map(r => {
     const range = r.range ? (r.range[0] === r.range[1] ? `${r.range[0]}` : `${r.range[0]}–${r.range[1]}`) : "";
-    return `<li><span class="gm-roll-range">${esc(range)}</span> <span class="gm-roll-text">${r.description ?? r.text ?? ""}</span></li>`;
+    return `<tr><td class="gm-roll-range">${esc(range)}</td><td>${r.description ?? r.text ?? ""}</td></tr>`;
   }).join("");
   const rollLabel = esc(game.i18n.localize("GMTOOLS.Screen.Roll"));
-  const showLabel = esc(game.i18n.format("GMTOOLS.Screen.RollShowTable", { count: results.length }));
+  const rollHead = formula || esc(game.i18n.localize("GMTOOLS.Screen.RollRoll"));
+  const resultHead = esc(game.i18n.localize("GMTOOLS.Screen.RollResult"));
   return `
     <div class="gm-rolltable">
       <button type="button" class="gm-roll-btn" data-action="rollTable" data-uuid="${esc(table.uuid)}">
         <i class="fa-solid fa-dice-d20"></i> ${rollLabel}${formula ? ` <span class="gm-roll-formula">${formula}</span>` : ""}
       </button>
       <div class="gm-roll-result" aria-live="polite"></div>
-      ${results.length ? `<details class="gm-roll-rows"><summary>${showLabel}</summary><ol>${rows}</ol></details>` : ""}
+      ${results.length ? `<table class="gm-ref-table gm-roll-table">
+        <thead><tr><th>${rollHead}</th><th>${resultHead}</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>` : ""}
     </div>`;
 }
 

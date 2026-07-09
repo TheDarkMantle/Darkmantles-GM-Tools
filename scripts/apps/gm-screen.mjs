@@ -40,6 +40,7 @@ export class GMScreenApp extends HandlebarsApplicationMixin(ApplicationV2) {
       openDocument: GMScreenApp.#onOpenDocument,
       rollTable: GMScreenApp.#onRollTable,
       showPlayers: GMScreenApp.#onShowPlayers,
+      collapseSections: GMScreenApp.#onCollapseSections,
       openGlossary: GMScreenApp.#onOpenGlossary
     }
   };
@@ -297,6 +298,15 @@ export class GMScreenApp extends HandlebarsApplicationMixin(ApplicationV2) {
     } catch (err) {
       console.error(`${MODULE_ID} | Show to players failed`, err);
       ui.notifications.warn(game.i18n.localize("GMTOOLS.Screen.ShowPlayersFailed"));
+    }
+  }
+
+  /** Collapse every journal page section within this cell. */
+  static #onCollapseSections(event, target) {
+    target.closest("details.gm-cell-menu")?.removeAttribute("open");
+    const cell = target.closest(".gm-screen-cell");
+    for (const page of cell?.querySelectorAll("details.gm-journal-page") ?? []) {
+      page.removeAttribute("open");
     }
   }
 
