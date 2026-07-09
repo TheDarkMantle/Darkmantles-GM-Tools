@@ -5,6 +5,7 @@
     "Screen": {
       "Title": "GM Screen",
       "ReferenceTab": "Reference",
+      "DrakkenheimTab": "Drakkenheim",
       "AddTab": "Add Tab",
       "EditTab": "Edit Tab",
       "DeleteTab": "Delete Tab",
@@ -22,7 +23,6 @@
     "Reference": {
       "Filter": "Filter reference…",
       "Conditions": "Conditions",
-      "DrakkenheimConditions": "Drakkenheim Conditions",
       "Travel": "Travel Pace",
       "Light": "Light Sources",
       "Pace": "Pace",
@@ -121,12 +121,20 @@
         "Confirm": "Add the default status conditions and the Rules / NPCs / Places folders to your glossary? Entries with the same name are updated — nothing is duplicated."
       },
       "LoadDrakkenheim": {
-        "Name": "Drakkenheim Conditions",
-        "Label": "Add Drakkenheim Conditions",
-        "Hint": "Reads the new conditions from your installed Monsters of Drakkenheim module and adds them to your glossary in a \"Drakkenheim Conditions\" folder (player-visible). This button only appears when that module is installed; no content ships with GM Tools.",
-        "Confirm": "Add the Monsters of Drakkenheim conditions to your glossary (in a \"Drakkenheim Conditions\" folder)? Entries with the same name are updated — nothing is duplicated.",
-        "NotFound": "Couldn't find the Drakkenheim conditions. Make sure the Monsters of Drakkenheim module is installed and enabled."
+        "Name": "Drakkenheim Reference",
+        "Label": "Add Drakkenheim Reference",
+        "Hint": "Reads Drakkenheim quick-reference from your installed Drakkenheim modules — the new conditions (added to your glossary) plus travel, exploration, delerium, and Deep Haze notes shown on a dedicated GM Screen tab. This button only appears when a Drakkenheim module is installed; no content ships with GM Tools.",
+        "Confirm": "Add Drakkenheim quick-reference (conditions + a Drakkenheim GM Screen tab) from your installed modules? Existing entries with the same name are updated — nothing is duplicated.",
+        "Result": "Drakkenheim reference added: {conditions} conditions and {sections} reference sections.",
+        "NotFound": "Couldn't find Drakkenheim content. Make sure a Drakkenheim module (and its adventure, for travel/exploration) is installed and enabled."
       }
+    },
+    "Drakkenheim": {
+      "Travel": "Getting to the City",
+      "Exploration": "Urban Exploration",
+      "Delerium": "Finding Delerium",
+      "Haze": "The Haze",
+      "Conditions": "Conditions"
     }
   }
 }

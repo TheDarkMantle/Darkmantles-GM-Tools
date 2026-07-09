@@ -121,67 +121,161 @@ export async function loadDefaultConditions(mode = "merge") {
 }
 
 const DRAKKENHEIM = {
-  module: "drakkenheim-monsters",
-  pack: "drakkenheim-monsters.guide",
-  entry: "Appendix C: Contamination, Delerium & new Conditions",
-  page: "New Conditions",
+  modules: ["drakkenheim-monsters", "drakkenheim-core"],
+  conditionsPack: "drakkenheim-monsters.guide",
+  conditionsEntry: "Appendix C: Contamination, Delerium & new Conditions",
+  conditionsPage: "New Conditions",
   folder: "Drakkenheim Conditions"
 };
 
-/** True when the paid Monsters of Drakkenheim module is installed and active. */
+/** True when any installed Drakkenheim content module is active. */
 export function hasDrakkenheimModule() {
-  return game.modules.get(DRAKKENHEIM.module)?.active ?? false;
+  return DRAKKENHEIM.modules.some(id => game.modules.get(id)?.active);
 }
 
-/**
- * Read the "new conditions" from the installed Monsters of Drakkenheim compendium
- * and merge them into the glossary. Nothing paid ships with this module — the
- * content is read at runtime from the module the user owns.
- */
-export async function loadDrakkenheimConditions(mode = "merge") {
-  const notFound = () => new Error(game.i18n.localize("GMTOOLS.Settings.LoadDrakkenheim.NotFound"));
-  const pack = game.packs.get(DRAKKENHEIM.pack);
-  if (!pack) throw notFound();
-  const idx = [...(await pack.getIndex())].find(e => e.name === DRAKKENHEIM.entry);
-  const doc = idx ? await pack.getDocument(idx._id) : null;
-  const page = doc ? [...doc.pages].find(p => p.name === DRAKKENHEIM.page) : null;
-  if (!page?.text?.content) throw notFound();
-
+const drakEnrich = async page => {
   const TE = foundry.applications.ux.TextEditor.implementation ?? foundry.applications.ux.TextEditor;
-  const enriched = await TE.enrichHTML(page.text.content, { relativeTo: page, secrets: false });
   const div = document.createElement("div");
-  div.innerHTML = enriched;
+  div.innerHTML = await TE.enrichHTML(page.text.content, { relativeTo: page, secrets: false });
+  return div;
+};
 
-  // Extract readable text, inserting breaks at block boundaries so paragraphs
-  // pulled in via @Embed don't run together ("wound.Ongoing" -> "wound. Ongoing").
-  const blockText = el => {
-    const clone = el.cloneNode(true);
-    clone.querySelectorAll("p, div, li, br, section, tr, h1, h2, h3, h4, h5, h6")
-      .forEach(b => b.append(document.createTextNode(" \n ")));
-    return clone.textContent;
-  };
+// Readable text with breaks at block boundaries so embedded paragraphs don't
+// run together ("wound.Ongoing" -> "wound. Ongoing").
+const drakBlockText = el => {
+  const clone = el.cloneNode(true);
+  clone.querySelectorAll("p, div, li, br, section, tr, h1, h2, h3, h4, h5, h6")
+    .forEach(b => b.append(document.createTextNode(" \n ")));
+  return clone.textContent.replace(/\s+/g, " ").trim();
+};
 
-  // Each condition is an <h2>; its description follows until the next h1/h2.
+/** Text under a heading (matched by regex), excluding nested tables, trimmed. */
+function drakSectionText(div, nameRe, maxLen = 1000) {
+  const h = [...div.querySelectorAll("h1,h2,h3,h4")].find(x => nameRe.test(x.textContent.trim()));
+  if (!h) return "";
+  const lvl = +h.tagName[1];
+  const parts = [];
+  for (let n = h.nextElementSibling; n; n = n.nextElementSibling) {
+    if (/^H[1-4]$/.test(n.tagName) && +n.tagName[1] <= lvl) break;
+    if (n.tagName === "TABLE") continue;
+    const t = drakBlockText(n);
+    if (t) parts.push(t);
+  }
+  return parts.join(" ").slice(0, maxLen).trim();
+}
+
+/** Every table in document order, tagged with the nearest heading above it. */
+function drakTables(div) {
+  const out = [];
+  let heading = "";
+  const cells = tr => [...tr.children].map(c => drakBlockText(c));
+  for (const el of div.querySelectorAll("h1,h2,h3,h4,table")) {
+    if (el.tagName !== "TABLE") { heading = el.textContent.replace(/\s+/g, " ").trim(); continue; }
+    const trs = [...el.querySelectorAll("tr")];
+    out.push({ heading, headers: trs[0] ? cells(trs[0]) : [], body: trs.slice(1).map(cells), all: trs.map(cells) });
+  }
+  return out;
+}
+
+/** Parse the Drakkenheim conditions from the Monster Slaying Guide compendium. */
+async function parseDrakkenheimConditions() {
+  const pack = game.packs.get(DRAKKENHEIM.conditionsPack);
+  if (!pack) return [];
+  const idx = [...(await pack.getIndex())].find(e => e.name === DRAKKENHEIM.conditionsEntry);
+  const doc = idx ? await pack.getDocument(idx._id) : null;
+  const page = doc ? [...doc.pages].find(p => p.name === DRAKKENHEIM.conditionsPage) : null;
+  if (!page?.text?.content) return [];
+  const div = await drakEnrich(page);
   const entries = [];
   for (const h of div.querySelectorAll("h2")) {
     const term = h.textContent.trim().replace(/\s*\[[^\]]*\]\s*$/, "").trim(); // "Bleeding [X]" -> "Bleeding"
     if (!term) continue;
     const parts = [];
     for (let n = h.nextElementSibling; n && !/^H[12]$/.test(n.tagName); n = n.nextElementSibling) {
-      const t = blockText(n).replace(/\s+/g, " ").trim();
+      const t = drakBlockText(n);
       if (t) parts.push(t);
     }
-    const tip = parts.join(" ").replace(/\s+/g, " ").trim();
-    if (!tip) continue;
-    entries.push({ term, aliases: [], gmTip: tip, playerTip: tip, mirrorGM: true, folder: DRAKKENHEIM.folder });
+    const tip = parts.join(" ").trim();
+    if (tip) entries.push({ term, tip });
   }
-  if (!entries.length) throw notFound();
+  return entries;
+}
 
-  // Also feed the GM Screen Reference tab (its own "Drakkenheim Conditions" section).
-  await game.settings.set(MODULE_ID, "drakkenheimConditions",
-    entries.map(e => ({ name: e.term, text: e.gmTip })));
+/** Locate "Chapter 5 - Exploring Drakkenheim": world journal first, then the Adventure compendium. */
+async function findDrakkenheimChapter() {
+  const hasNav = j => [...j.pages].some(p => /navigating the ruins/i.test(p.name));
+  const world = game.journal.find(hasNav);
+  if (world) return world;
+  const pack = game.packs.find(p => p.metadata.type === "Adventure" && /drakkenheim/i.test(p.metadata.packageName));
+  if (!pack) return null;
+  for (const e of await pack.getIndex()) {
+    const adv = await pack.getDocument(e._id);
+    const je = [...(adv.journal ?? [])].find(hasNav);
+    if (je) return je;
+  }
+  return null;
+}
 
-  return importGlossary({ folders: [{ name: DRAKKENHEIM.folder, parent: null }], entries }, mode);
+/** Parse the travel / exploration / delerium / haze quick reference from the chapter. */
+async function parseDrakkenheimChapter() {
+  const chapter = await findDrakkenheimChapter();
+  if (!chapter) return {};
+  const content = {};
+
+  const nav = [...chapter.pages].find(p => /navigating the ruins/i.test(p.name));
+  if (nav) {
+    const div = await drakEnrich(nav);
+    const tables = drakTables(div);
+    const travel = tables.find(t => /travel time/i.test(t.headers.join(" ")) || /getting to the city/i.test(t.heading));
+    if (travel) content.travel = { headers: travel.headers, rows: travel.body };
+    const delerium = tables.filter(t => /delerium deposits/i.test(t.heading)).map(t => ({ heading: t.heading, rows: t.all }));
+    if (delerium.length) content.delerium = delerium;
+    const exploration = [];
+    for (const [re, label] of [[/^urban exploration$/i, "Urban Exploration"], [/searching the ruins/i, "Searching the Ruins"]]) {
+      const text = drakSectionText(div, re, 900);
+      if (text) exploration.push({ heading: label, text });
+    }
+    if (exploration.length) content.exploration = exploration;
+  }
+
+  const haze = [...chapter.pages].find(p => /^the haze$/i.test(p.name));
+  if (haze) {
+    const text = drakSectionText(await drakEnrich(haze), /deep haze/i, 900);
+    if (text) content.haze = [{ heading: "Deep Haze", text }];
+  }
+  return content;
+}
+
+/**
+ * Read Drakkenheim quick-reference from the installed modules and store it for the
+ * GM Screen's Drakkenheim tab (conditions also merge into the glossary). Nothing
+ * paid ships with this module — everything is read at runtime from modules the
+ * user owns.
+ */
+export async function loadDrakkenheimContent(mode = "merge") {
+  const conditions = await parseDrakkenheimConditions();
+  const content = await parseDrakkenheimChapter();
+  if (conditions.length) content.conditions = conditions.map(c => ({ name: c.term, text: c.tip }));
+
+  if (!conditions.length && !Object.keys(content).length) {
+    throw new Error(game.i18n.localize("GMTOOLS.Settings.LoadDrakkenheim.NotFound"));
+  }
+
+  await game.settings.set(MODULE_ID, "drakkenheimContent", content);
+
+  if (conditions.length) {
+    await importGlossary({
+      folders: [{ name: DRAKKENHEIM.folder, parent: null }],
+      entries: conditions.map(c => ({
+        term: c.term, aliases: [], gmTip: c.tip, playerTip: c.tip, mirrorGM: true, folder: DRAKKENHEIM.folder
+      }))
+    }, mode);
+  }
+
+  return {
+    conditions: conditions.length,
+    sections: Object.keys(content).filter(k => k !== "conditions").length
+  };
 }
 
 /** Re-render an open Glossary Manager (e.g. after an external import). */

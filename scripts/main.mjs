@@ -45,13 +45,14 @@ Hooks.once("init", () => {
     default: { tabs: [] }
   });
 
-  // Imported Drakkenheim conditions for the Reference tab: [{ name, text }].
-  // Populated by the "Add Drakkenheim Conditions" settings button.
-  game.settings.register(MODULE_ID, "drakkenheimConditions", {
+  // Imported Drakkenheim quick-reference for its own GM Screen tab:
+  // { conditions, travel, delerium, exploration, haze }. Populated by the
+  // "Add Drakkenheim Reference" settings button.
+  game.settings.register(MODULE_ID, "drakkenheimContent", {
     scope: "world",
     config: false,
-    type: Array,
-    default: [],
+    type: Object,
+    default: {},
     onChange: () => {
       if (GMScreenApp.instance?.rendered) GMScreenApp.instance.render();
     }
@@ -112,7 +113,7 @@ Hooks.once("init", () => {
 
   registerEnricher();
 
-  foundry.applications.handlebars.loadTemplates([TEMPLATES.reference, TEMPLATES.actorCard]);
+  foundry.applications.handlebars.loadTemplates([TEMPLATES.reference, TEMPLATES.drakkenheim, TEMPLATES.actorCard]);
 });
 
 Hooks.once("ready", () => {

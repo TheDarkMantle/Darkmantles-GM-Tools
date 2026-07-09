@@ -81,12 +81,16 @@ export class GMScreenApp extends HandlebarsApplicationMixin(ApplicationV2) {
     }));
 
     const reference = getReferenceData(game.settings.get(MODULE_ID, "rulesVersion"));
-    // Imported condition libraries (e.g. Drakkenheim) shown as their own section.
-    reference.drakkenheimConditions = game.settings.get(MODULE_ID, "drakkenheimConditions") ?? [];
+    const drakkenheim = game.settings.get(MODULE_ID, "drakkenheimContent") ?? {};
+    const hasDrakkenheim = Object.values(drakkenheim)
+      .some(v => Array.isArray(v) ? v.length : (v && Object.keys(v).length));
 
     return Object.assign(context, {
       referenceActive: this.tabGroups.primary === "reference",
       reference,
+      drakkenheim,
+      hasDrakkenheim,
+      drakkenheimActive: this.tabGroups.primary === "drakkenheim",
       tabs,
       glossaryEnabled: isGlossaryEnabled()
     });
@@ -101,8 +105,11 @@ export class GMScreenApp extends HandlebarsApplicationMixin(ApplicationV2) {
       callbacks: { drop: this.#onDrop.bind(this) }
     }).bind(this.element);
 
-    const filter = this.element.querySelector(".gm-ref-filter");
-    filter?.addEventListener("input", event => this.#filterReference(event.currentTarget.value));
+    // Each reference-style tab (Reference, Drakkenheim) has its own filter box.
+    for (const filter of this.element.querySelectorAll(".gm-ref-filter")) {
+      const scope = filter.closest(".gm-screen-tab") ?? this.element;
+      filter.addEventListener("input", event => this.#filterReference(event.currentTarget.value, scope));
+    }
 
     // Glossary hover tips inside screen sections (not the reference tab's own tables)
     for (const content of this.element.querySelectorAll(".gm-section-content")) {
@@ -116,9 +123,9 @@ export class GMScreenApp extends HandlebarsApplicationMixin(ApplicationV2) {
    * Study skill table even though its rows read Arcana/History/etc. Sections and
    * sub-blocks left with no visible rows are hidden so no empty headers linger.
    */
-  #filterReference(rawQuery) {
+  #filterReference(rawQuery, scope = this.element) {
     const query = rawQuery.trim().toLowerCase();
-    for (const section of this.element.querySelectorAll(".gm-ref-section")) {
+    for (const section of scope.querySelectorAll(".gm-ref-section")) {
       const h2 = section.querySelector("h2")?.textContent.toLowerCase() ?? "";
       let sectionHasMatch = false;
       for (const entry of section.querySelectorAll(".gm-ref-entry")) {
