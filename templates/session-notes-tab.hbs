@@ -1,0 +1,27 @@
+<div class="gm-notes">
+  <div class="gm-notes-toolbar">
+    {{#if notesEditing}}
+    <button type="button" class="gm-notes-btn" data-action="saveNotes">
+      <i class="fa-solid fa-check"></i> {{localize "GMTOOLS.Screen.SaveNotes"}}
+    </button>
+    <button type="button" class="gm-notes-btn" data-action="cancelNotes">
+      <i class="fa-solid fa-xmark"></i> {{localize "GMTOOLS.Screen.CancelNotes"}}
+    </button>
+    {{else}}
+    <button type="button" class="gm-notes-btn" data-action="editNotes">
+      <i class="fa-solid fa-pen-to-square"></i> {{localize "GMTOOLS.Screen.EditNotes"}}
+    </button>
+    <button type="button" class="gm-notes-btn" data-action="exportNotes" data-tooltip="{{localize 'GMTOOLS.Screen.SaveToJournalHint'}}">
+      <i class="fa-solid fa-book"></i> {{localize "GMTOOLS.Screen.SaveToJournal"}}
+    </button>
+    {{/if}}
+  </div>
+
+  {{#if notesEditing}}
+  <div class="gm-notes-editor"></div>
+  {{else}}
+  <div class="gm-notes-view">
+    {{#if enrichedNotes}}{{{enrichedNotes}}}{{else}}<p class="gm-empty">{{localize "GMTOOLS.Screen.NotesEmptyHint"}}</p>{{/if}}
+  </div>
+  {{/if}}
+</div>

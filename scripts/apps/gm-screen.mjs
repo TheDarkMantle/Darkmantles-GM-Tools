@@ -16,6 +16,17 @@ export class GMScreenApp extends HandlebarsApplicationMixin(ApplicationV2) {
   /** Singleton instance toggled by the UI button. */
   static instance = null;
 
+  /** True while the Session Notes tab is in edit (ProseMirror) mode. */
+  #editingNotes = false;
+
+  get isNotesEditing() {
+    return this.#editingNotes;
+  }
+
+  get isQuickNoteFocused() {
+    return this.element?.querySelector(".gm-notes-quickadd")?.matches(":focus") ?? false;
+  }
+
   static toggle() {
     this.instance ??= new this();
     if (this.instance.rendered) this.instance.close();
@@ -41,6 +52,10 @@ export class GMScreenApp extends HandlebarsApplicationMixin(ApplicationV2) {
       rollTable: GMScreenApp.#onRollTable,
       showPlayers: GMScreenApp.#onShowPlayers,
       collapseSections: GMScreenApp.#onCollapseSections,
+      editNotes: GMScreenApp.#onEditNotes,
+      saveNotes: GMScreenApp.#onSaveNotes,
+      cancelNotes: GMScreenApp.#onCancelNotes,
+      exportNotes: GMScreenApp.#onExportNotes,
       openGlossary: GMScreenApp.#onOpenGlossary
     }
   };
@@ -69,8 +84,9 @@ export class GMScreenApp extends HandlebarsApplicationMixin(ApplicationV2) {
     const data = this.#getData();
     data.tabs ??= [];
 
-    // If the active tab was deleted, fall back to the reference tab
-    const ids = ["reference", ...data.tabs.map(t => t.id)];
+    // If the active tab is gone, fall back to the reference tab. Built-in tabs
+    // (drakkenheim/sessionNotes) are always valid ids so switching to them sticks.
+    const ids = ["reference", "drakkenheim", "sessionNotes", ...data.tabs.map(t => t.id)];
     if (!ids.includes(this.tabGroups.primary)) this.tabGroups.primary = "reference";
 
     const tabs = await Promise.all(data.tabs.map(async tab => {
@@ -88,12 +104,21 @@ export class GMScreenApp extends HandlebarsApplicationMixin(ApplicationV2) {
     const hasDrakkenheim = Object.values(drakkenheim)
       .some(v => Array.isArray(v) ? v.length : (v && Object.keys(v).length));
 
+    const notes = game.settings.get(MODULE_ID, "sessionNotes") ?? "";
+    const TE = foundry.applications.ux.TextEditor.implementation ?? foundry.applications.ux.TextEditor;
+
     return Object.assign(context, {
       referenceActive: this.tabGroups.primary === "reference",
       reference,
       drakkenheim,
       hasDrakkenheim,
       drakkenheimActive: this.tabGroups.primary === "drakkenheim",
+      sessionNotesEnabled: game.settings.get(MODULE_ID, "sessionNotesEnabled"),
+      sessionNotesBar: game.settings.get(MODULE_ID, "sessionNotesBar"),
+      sessionNotesActive: this.tabGroups.primary === "sessionNotes",
+      notesEditing: this.#editingNotes,
+      notes,
+      enrichedNotes: await TE.enrichHTML(notes, { secrets: true }),
       tabs,
       glossaryEnabled: isGlossaryEnabled()
     });
@@ -122,6 +147,35 @@ export class GMScreenApp extends HandlebarsApplicationMixin(ApplicationV2) {
     // Close open cell ⋮ menus when clicking elsewhere.
     this.element.removeEventListener("click", this.#closeCellMenus);
     this.element.addEventListener("click", this.#closeCellMenus);
+
+    this.#bindSessionNotes();
+  }
+
+  /** Wire the Session Notes editor (edit mode) and the quick-add bar. */
+  #bindSessionNotes() {
+    // In edit mode, build a live ProseMirror editor seeded with the saved notes.
+    const container = this.element.querySelector(".gm-notes-editor");
+    if (container) {
+      container.replaceChildren();
+      const editor = foundry.applications.elements.HTMLProseMirrorElement.create({
+        name: "gm-tools-notes",
+        value: game.settings.get(MODULE_ID, "sessionNotes") ?? ""
+      });
+      container.append(editor);
+      editor.addEventListener("change", () => game.settings.set(MODULE_ID, "sessionNotes", editor.value));
+    }
+
+    const quick = this.element.querySelector(".gm-notes-quickadd");
+    quick?.addEventListener("keydown", async event => {
+      if (event.key !== "Enter" || event.shiftKey) return;
+      event.preventDefault();
+      const text = event.currentTarget.value.trim();
+      if (!text) return;
+      event.currentTarget.value = "";
+      const current = game.settings.get(MODULE_ID, "sessionNotes") ?? "";
+      const addition = `<hr><p>${esc(text)}</p>`;
+      await game.settings.set(MODULE_ID, "sessionNotes", current + addition);
+    });
   }
 
   /**
@@ -308,6 +362,43 @@ export class GMScreenApp extends HandlebarsApplicationMixin(ApplicationV2) {
     for (const page of cell?.querySelectorAll("details.gm-journal-page") ?? []) {
       page.removeAttribute("open");
     }
+  }
+
+  /* -------------------------------------------- */
+  /*  Session Notes                                */
+  /* -------------------------------------------- */
+
+  static #onEditNotes() {
+    this.#editingNotes = true;
+    this.render();
+  }
+
+  static async #onSaveNotes() {
+    const editor = this.element.querySelector("prose-mirror[name='gm-tools-notes']");
+    if (editor) await game.settings.set(MODULE_ID, "sessionNotes", editor.value);
+    this.#editingNotes = false;
+    this.render();
+  }
+
+  static #onCancelNotes() {
+    this.#editingNotes = false;
+    this.render();
+  }
+
+  static async #onExportNotes() {
+    const notes = game.settings.get(MODULE_ID, "sessionNotes") ?? "";
+    if (!notes.trim()) {
+      ui.notifications.warn(game.i18n.localize("GMTOOLS.Screen.NotesEmpty"));
+      return;
+    }
+    const stamp = new Date().toISOString().slice(0, 10);
+    const name = game.i18n.format("GMTOOLS.Screen.NotesJournalName", { date: stamp });
+    const entry = await JournalEntry.create({
+      name,
+      pages: [{ name: game.i18n.localize("GMTOOLS.Screen.SessionNotesTab"), type: "text", text: { content: notes } }]
+    });
+    ui.notifications.info(game.i18n.format("GMTOOLS.Screen.NotesExported", { name }));
+    entry?.sheet?.render(true);
   }
 
   /** Close any open cell ⋮ menu when clicking elsewhere in the screen. */
