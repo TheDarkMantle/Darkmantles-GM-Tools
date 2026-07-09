@@ -177,6 +177,10 @@ export async function loadDrakkenheimConditions(mode = "merge") {
   }
   if (!entries.length) throw notFound();
 
+  // Also feed the GM Screen Reference tab (its own "Drakkenheim Conditions" section).
+  await game.settings.set(MODULE_ID, "drakkenheimConditions",
+    entries.map(e => ({ name: e.term, text: e.gmTip })));
+
   return importGlossary({ folders: [{ name: DRAKKENHEIM.folder, parent: null }], entries }, mode);
 }
 

@@ -45,6 +45,18 @@ Hooks.once("init", () => {
     default: { tabs: [] }
   });
 
+  // Imported Drakkenheim conditions for the Reference tab: [{ name, text }].
+  // Populated by the "Add Drakkenheim Conditions" settings button.
+  game.settings.register(MODULE_ID, "drakkenheimConditions", {
+    scope: "world",
+    config: false,
+    type: Array,
+    default: [],
+    onChange: () => {
+      if (GMScreenApp.instance?.rendered) GMScreenApp.instance.render();
+    }
+  });
+
   game.settings.register(MODULE_ID, "glossary", {
     scope: "world",
     config: false,

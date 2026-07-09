@@ -80,9 +80,13 @@ export class GMScreenApp extends HandlebarsApplicationMixin(ApplicationV2) {
       return { ...tab, cells, active: this.tabGroups.primary === tab.id };
     }));
 
+    const reference = getReferenceData(game.settings.get(MODULE_ID, "rulesVersion"));
+    // Imported condition libraries (e.g. Drakkenheim) shown as their own section.
+    reference.drakkenheimConditions = game.settings.get(MODULE_ID, "drakkenheimConditions") ?? [];
+
     return Object.assign(context, {
       referenceActive: this.tabGroups.primary === "reference",
-      reference: getReferenceData(game.settings.get(MODULE_ID, "rulesVersion")),
+      reference,
       tabs,
       glossaryEnabled: isGlossaryEnabled()
     });
