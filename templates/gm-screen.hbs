@@ -99,10 +99,14 @@
   </section>
   {{/each}}
 
-  {{#if sessionNotesBar}}
-  <div class="gm-notes-bar">
-    <i class="fa-solid fa-pen"></i>
-    <input type="text" class="gm-notes-quickadd" placeholder="{{localize 'GMTOOLS.Screen.QuickNotePlaceholder'}}" {{#if notesEditing}}disabled{{/if}}>
+  {{#if sessionNotesEnabled}}
+  <div class="gm-notes-bar" {{#unless showNotesBar}}hidden{{/unless}}>
+    <div class="gm-notes-format">
+      <button type="button" data-note-format="bold" data-tooltip="{{localize 'GMTOOLS.Screen.Bold'}}" aria-label="{{localize 'GMTOOLS.Screen.Bold'}}"><i class="fa-solid fa-bold"></i></button>
+      <button type="button" data-note-format="italic" data-tooltip="{{localize 'GMTOOLS.Screen.Italic'}}" aria-label="{{localize 'GMTOOLS.Screen.Italic'}}"><i class="fa-solid fa-italic"></i></button>
+      <button type="button" data-note-format="underline" data-tooltip="{{localize 'GMTOOLS.Screen.Underline'}}" aria-label="{{localize 'GMTOOLS.Screen.Underline'}}"><i class="fa-solid fa-underline"></i></button>
+    </div>
+    <div class="gm-notes-quickadd {{#if notesEditing}}gm-disabled{{/if}}" contenteditable="{{#if notesEditing}}false{{else}}true{{/if}}" role="textbox" aria-multiline="true" data-placeholder="{{localize 'GMTOOLS.Screen.QuickNotePlaceholder'}}"></div>
   </div>
   {{/if}}
 </div>
