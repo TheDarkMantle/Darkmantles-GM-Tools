@@ -171,7 +171,8 @@ export class GMScreenApp extends HandlebarsApplicationMixin(ApplicationV2) {
     this.#updateNotesBar();
 
     // Quick-add: a compact ProseMirror editor whose full toolbar is revealed by a
-    // toggle beside it. Enter submits the note, Shift+Enter adds a line.
+    // toggle beside it. Enter behaves normally (new paragraph / next bullet); the note
+    // is submitted with the Send button or Ctrl/Cmd+Enter.
     const wrap = this.element.querySelector(".gm-notes-quickadd");
     if (wrap && !wrap.classList.contains("gm-disabled")) {
       this.#buildQuickAdd(wrap);
@@ -180,12 +181,28 @@ export class GMScreenApp extends HandlebarsApplicationMixin(ApplicationV2) {
         const on = wrap.classList.toggle("show-format");
         toggle.setAttribute("aria-pressed", String(on));
       });
+      const send = this.element.querySelector(".gm-notes-send");
+      send?.addEventListener("click", () => {
+        const editor = wrap.querySelector("prose-mirror");
+        if (editor) this.#submitQuickNote(editor, wrap);
+      });
     }
+  }
+
+  /** Append the quick-add editor's content to the session notes, then clear + refocus. */
+  async #submitQuickNote(editor, wrap) {
+    const value = editor.value ?? "";
+    const probe = document.createElement("div");
+    probe.innerHTML = value;
+    if (!probe.textContent.trim() && !probe.querySelector("img, table, hr")) return;
+    const current = game.settings.get(MODULE_ID, "sessionNotes") ?? "";
+    await game.settings.set(MODULE_ID, "sessionNotes", `${current}<hr>${value}`);
+    this.#buildQuickAdd(wrap, { focus: true });
   }
 
   /**
    * Build (or rebuild, to clear) the quick-add ProseMirror editor inside `wrap`.
-   * A capture-phase keydown hijacks plain Enter to append the note — the element
+   * A capture-phase keydown hijacks Ctrl/Cmd+Enter to append the note — the element
    * has no public clear API, so submitting rebuilds an empty editor.
    */
   #buildQuickAdd(wrap, { focus = false } = {}) {
@@ -213,17 +230,13 @@ export class GMScreenApp extends HandlebarsApplicationMixin(ApplicationV2) {
       const obs = new MutationObserver(() => { if (onReady()) obs.disconnect(); });
       obs.observe(editor, { childList: true, subtree: true });
     }
-    editor.addEventListener("keydown", async event => {
-      if (event.key !== "Enter" || event.shiftKey) return;
+    // Ctrl/Cmd+Enter submits; plain Enter and Shift+Enter fall through to ProseMirror
+    // (new paragraph, next bullet, or soft line break) so multi-line notes work.
+    editor.addEventListener("keydown", event => {
+      if (event.key !== "Enter" || !(event.ctrlKey || event.metaKey)) return;
       event.preventDefault();
       event.stopImmediatePropagation();
-      const value = editor.value ?? "";
-      const probe = document.createElement("div");
-      probe.innerHTML = value;
-      if (!probe.textContent.trim() && !probe.querySelector("img, table, hr")) return;
-      const current = game.settings.get(MODULE_ID, "sessionNotes") ?? "";
-      await game.settings.set(MODULE_ID, "sessionNotes", `${current}<hr>${value}`);
-      this.#buildQuickAdd(wrap, { focus: true });
+      this.#submitQuickNote(editor, wrap);
     }, true);
   }
 
