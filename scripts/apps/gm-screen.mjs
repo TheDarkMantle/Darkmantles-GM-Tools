@@ -116,6 +116,7 @@ export class GMScreenApp extends HandlebarsApplicationMixin(ApplicationV2) {
       sessionNotesEnabled: game.settings.get(MODULE_ID, "sessionNotesEnabled"),
       sessionNotesBar: game.settings.get(MODULE_ID, "sessionNotesBar"),
       sessionNotesActive: this.tabGroups.primary === "sessionNotes",
+      showNotesBar: game.settings.get(MODULE_ID, "sessionNotesBar") || this.tabGroups.primary === "sessionNotes",
       notesEditing: this.#editingNotes,
       notes,
       enrichedNotes: await TE.enrichHTML(notes, { secrets: true }),
@@ -165,17 +166,36 @@ export class GMScreenApp extends HandlebarsApplicationMixin(ApplicationV2) {
       editor.addEventListener("change", () => game.settings.set(MODULE_ID, "sessionNotes", editor.value));
     }
 
+    this.#updateNotesBar();
+
+    // Rich quick-add field: bold/italic/underline + multi-line, chat-style
+    // (Enter submits, Shift+Enter adds a line).
     const quick = this.element.querySelector(".gm-notes-quickadd");
-    quick?.addEventListener("keydown", async event => {
-      if (event.key !== "Enter" || event.shiftKey) return;
-      event.preventDefault();
-      const text = event.currentTarget.value.trim();
-      if (!text) return;
-      event.currentTarget.value = "";
-      const current = game.settings.get(MODULE_ID, "sessionNotes") ?? "";
-      const addition = `<hr><p>${esc(text)}</p>`;
-      await game.settings.set(MODULE_ID, "sessionNotes", current + addition);
-    });
+    if (quick) {
+      quick.addEventListener("keydown", async event => {
+        if (event.key !== "Enter" || event.shiftKey) return;
+        event.preventDefault();
+        // Normalize contenteditable line breaks to <br> inside a paragraph.
+        let html = quick.innerHTML
+          .replace(/<div><br><\/div>/gi, "<br>")
+          .replace(/<div>/gi, "<br>")
+          .replace(/<\/div>/gi, "")
+          .replace(/(<br\s*\/?>)+$/i, "")
+          .trim();
+        if (!html || !quick.textContent.trim()) return;
+        quick.innerHTML = "";
+        const current = game.settings.get(MODULE_ID, "sessionNotes") ?? "";
+        await game.settings.set(MODULE_ID, "sessionNotes", `${current}<hr><p>${html}</p>`);
+      });
+      // Format buttons keep the selection (mousedown + preventDefault avoids focus loss).
+      for (const btn of this.element.querySelectorAll("[data-note-format]")) {
+        btn.addEventListener("mousedown", event => {
+          event.preventDefault();
+          quick.focus();
+          document.execCommand(btn.dataset.noteFormat);
+        });
+      }
+    }
   }
 
   /**
@@ -252,6 +272,15 @@ export class GMScreenApp extends HandlebarsApplicationMixin(ApplicationV2) {
     for (const el of this.element.querySelectorAll(".gm-screen-tab, .gm-tab")) {
       el.classList.toggle("active", el.dataset.tab === tab);
     }
+    this.#updateNotesBar();
+  }
+
+  /** The quick-add bar is always shown on the Notes tab; elsewhere only if the setting is on. */
+  #updateNotesBar() {
+    const bar = this.element?.querySelector(".gm-notes-bar");
+    if (!bar) return;
+    const always = game.settings.get(MODULE_ID, "sessionNotesBar");
+    bar.hidden = !(always || this.tabGroups.primary === "sessionNotes");
   }
 
   static async #onAddTab() {
