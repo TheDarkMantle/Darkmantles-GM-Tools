@@ -163,7 +163,7 @@
   flex-direction: column;
 }
 
-/* Quick-add note bar (rich: bold/italic/underline + multi-line) */
+/* Quick-add note bar: a compact ProseMirror editor with a toggleable full toolbar */
 .gm-notes-bar {
   display: flex;
   align-items: flex-end;
@@ -174,39 +174,67 @@
   background: rgba(128, 128, 128, 0.08);
 }
 
-.gm-notes-format {
-  display: flex;
-  gap: 2px;
+.gm-notes-format-toggle {
   flex: 0 0 auto;
-}
-
-.gm-notes-format button {
   width: auto;
-  padding: 3px 6px;
+  padding: 4px 7px;
   border: none;
   background: transparent;
   cursor: pointer;
   opacity: 0.7;
 }
 
-.gm-notes-format button:hover {
+.gm-notes-format-toggle:hover,
+.gm-notes-format-toggle[aria-pressed="true"] {
   opacity: 1;
+}
+
+.gm-notes-format-toggle[aria-pressed="true"] {
+  color: var(--color-text-hyperlink, #8cf);
 }
 
 .gm-notes-quickadd {
   flex: 1;
-  min-height: 1.6em;
-  max-height: 120px;
+  min-width: 0;
+  max-height: 200px;
   overflow-y: auto;
-  padding: 4px 8px;
   border: 1px solid var(--color-border, rgba(128, 128, 128, 0.5));
   border-radius: 4px;
   background: var(--color-bg, rgba(0, 0, 0, 0.2));
-  line-height: 1.4;
 }
 
-.gm-notes-quickadd:empty::before {
+/* Foundry sizes a prose-mirror to fill (min-height ~150px); shrink it to a
+   compact, chat-style field that still grows with content. Keep Foundry's
+   internal flex layout intact — overriding it to display:block collapses it. */
+.gm-notes-quickadd prose-mirror {
+  min-height: 2.4em;
+}
+
+.gm-notes-quickadd .editor-content,
+.gm-notes-quickadd .ProseMirror {
+  line-height: 1.4;
+  padding: 4px 8px;
+}
+
+/* Full toolbar is hidden until the toggle turns it on. */
+.gm-notes-quickadd .menu-container {
+  display: none;
+}
+
+.gm-notes-quickadd.show-format .menu-container {
+  display: flex;
+}
+
+/* Placeholder shown while the editor is blank (emptiness tracked in JS via .is-empty). */
+.gm-notes-quickadd .ProseMirror {
+  position: relative;
+}
+
+.gm-notes-quickadd.is-empty .ProseMirror::before {
   content: attr(data-placeholder);
+  position: absolute;
+  top: 4px;
+  left: 8px;
   opacity: 0.5;
   pointer-events: none;
 }
