@@ -24,7 +24,9 @@ export class GMScreenApp extends HandlebarsApplicationMixin(ApplicationV2) {
   }
 
   get isQuickNoteFocused() {
-    return this.element?.querySelector(".gm-notes-quickadd")?.matches(":focus") ?? false;
+    // The quick-add is a ProseMirror editor; focus lives on its inner .ProseMirror
+    // node or a menu control, so test containment rather than :focus on the wrapper.
+    return this.element?.querySelector(".gm-notes-quickadd")?.contains(document.activeElement) ?? false;
   }
 
   static toggle() {
@@ -168,34 +170,61 @@ export class GMScreenApp extends HandlebarsApplicationMixin(ApplicationV2) {
 
     this.#updateNotesBar();
 
-    // Rich quick-add field: bold/italic/underline + multi-line, chat-style
-    // (Enter submits, Shift+Enter adds a line).
-    const quick = this.element.querySelector(".gm-notes-quickadd");
-    if (quick) {
-      quick.addEventListener("keydown", async event => {
-        if (event.key !== "Enter" || event.shiftKey) return;
-        event.preventDefault();
-        // Normalize contenteditable line breaks to <br> inside a paragraph.
-        let html = quick.innerHTML
-          .replace(/<div><br><\/div>/gi, "<br>")
-          .replace(/<div>/gi, "<br>")
-          .replace(/<\/div>/gi, "")
-          .replace(/(<br\s*\/?>)+$/i, "")
-          .trim();
-        if (!html || !quick.textContent.trim()) return;
-        quick.innerHTML = "";
-        const current = game.settings.get(MODULE_ID, "sessionNotes") ?? "";
-        await game.settings.set(MODULE_ID, "sessionNotes", `${current}<hr><p>${html}</p>`);
+    // Quick-add: a compact ProseMirror editor whose full toolbar is revealed by a
+    // toggle beside it. Enter submits the note, Shift+Enter adds a line.
+    const wrap = this.element.querySelector(".gm-notes-quickadd");
+    if (wrap && !wrap.classList.contains("gm-disabled")) {
+      this.#buildQuickAdd(wrap);
+      const toggle = this.element.querySelector(".gm-notes-format-toggle");
+      toggle?.addEventListener("click", () => {
+        const on = wrap.classList.toggle("show-format");
+        toggle.setAttribute("aria-pressed", String(on));
       });
-      // Format buttons keep the selection (mousedown + preventDefault avoids focus loss).
-      for (const btn of this.element.querySelectorAll("[data-note-format]")) {
-        btn.addEventListener("mousedown", event => {
-          event.preventDefault();
-          quick.focus();
-          document.execCommand(btn.dataset.noteFormat);
-        });
-      }
     }
+  }
+
+  /**
+   * Build (or rebuild, to clear) the quick-add ProseMirror editor inside `wrap`.
+   * A capture-phase keydown hijacks plain Enter to append the note — the element
+   * has no public clear API, so submitting rebuilds an empty editor.
+   */
+  #buildQuickAdd(wrap, { focus = false } = {}) {
+    wrap.querySelector("prose-mirror")?.remove();
+    const editor = foundry.applications.elements.HTMLProseMirrorElement.create({
+      name: "gm-tools-quicknote",
+      value: ""
+    });
+    wrap.append(editor);
+    // Placeholder: Foundry doesn't flag an empty editor, so track emptiness ourselves
+    // and show wrap[data-placeholder] via CSS while the field is blank. The inner
+    // .ProseMirror builds a tick after append, so wait for it via a MutationObserver
+    // (also where we restore focus after a submit rebuilds the editor).
+    const onReady = () => {
+      const pm = editor.querySelector(".ProseMirror");
+      if (!pm) return false;
+      if (wrap.dataset.placeholder) pm.dataset.placeholder = wrap.dataset.placeholder;
+      const syncEmpty = () => wrap.classList.toggle("is-empty", !pm.textContent.trim());
+      syncEmpty();
+      editor.addEventListener("input", syncEmpty);
+      if (focus) pm.focus();
+      return true;
+    };
+    if (!onReady()) {
+      const obs = new MutationObserver(() => { if (onReady()) obs.disconnect(); });
+      obs.observe(editor, { childList: true, subtree: true });
+    }
+    editor.addEventListener("keydown", async event => {
+      if (event.key !== "Enter" || event.shiftKey) return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      const value = editor.value ?? "";
+      const probe = document.createElement("div");
+      probe.innerHTML = value;
+      if (!probe.textContent.trim() && !probe.querySelector("img, table, hr")) return;
+      const current = game.settings.get(MODULE_ID, "sessionNotes") ?? "";
+      await game.settings.set(MODULE_ID, "sessionNotes", `${current}<hr>${value}`);
+      this.#buildQuickAdd(wrap, { focus: true });
+    }, true);
   }
 
   /**

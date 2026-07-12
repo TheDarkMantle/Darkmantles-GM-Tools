@@ -34,6 +34,13 @@ Central, reusable hover reminders for names and terms — write a tip once, and 
 - **Condition libraries (module settings)** — GM Tools' settings have **Add Default Status Conditions** (seeds a Rules folder with the core conditions, plus empty NPCs/Places folders). If you own **Monsters of Drakkenheim**, an **Add Drakkenheim Conditions** button also appears and imports that module's conditions — read from the module you own at runtime, so nothing paid ships with GM Tools and the button is hidden if the module isn't installed. Both merge idempotently (no duplicates).
 - **Explicit syntax** — type `@tip[term]` in any journal editor to force a tip where auto-matching can't reach.
 
+### Session Notes
+
+A persistent GM notepad, enabled in module settings.
+
+- **Notes tab** — your notes render like a journal entry (headings, links, formatting). Hit **Edit** for the full rich-text editor when you want to reorganize, or **Save to Journal** to spin the notes off into a new journal entry.
+- **Quick-add bar** — a chat-style field at the bottom of the tab (optionally shown on *every* tab via a setting). Type a note and press **Enter** to append it; **Shift+Enter** adds a line. A toggle beside the field reveals the **full formatting toolbar** (headings, lists, colors, links, and more) above the input when you want a note with more than plain text.
+
 ## Installation
 
 In Foundry, go to **Add-on Modules → Install Module** and paste this manifest URL:
