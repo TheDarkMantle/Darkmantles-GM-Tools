@@ -166,7 +166,7 @@
 /* Quick-add note bar: a compact ProseMirror editor with a toggleable full toolbar */
 .gm-notes-bar {
   display: flex;
-  align-items: flex-end;
+  align-items: flex-start;
   gap: 6px;
   flex: 0 0 auto;
   padding: 5px 8px;
@@ -196,8 +196,6 @@
 .gm-notes-quickadd {
   flex: 1;
   min-width: 0;
-  max-height: 200px;
-  overflow-y: auto;
   border: 1px solid var(--color-border, rgba(128, 128, 128, 0.5));
   border-radius: 4px;
   background: var(--color-bg, rgba(0, 0, 0, 0.2));
@@ -214,6 +212,16 @@
 .gm-notes-quickadd .ProseMirror {
   line-height: 1.4;
   padding: 4px 8px;
+}
+
+/* Drop the leading/trailing paragraph gap so typed text lands at the same top as
+   the placeholder (which sits at padding-top), for a consistent single-input feel. */
+.gm-notes-quickadd .ProseMirror > p:first-child {
+  margin-top: 0;
+}
+
+.gm-notes-quickadd .ProseMirror > p:last-child {
+  margin-bottom: 0;
 }
 
 /* Full toolbar is hidden until the toggle turns it on. */
