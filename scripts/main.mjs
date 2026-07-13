@@ -1,8 +1,9 @@
 import { MODULE_ID, TEMPLATES } from "./constants.mjs";
 import { GMScreenApp } from "./apps/gm-screen.mjs";
-import { GlossaryManagerApp } from "./apps/glossary-manager.mjs";
+import { GlossaryManagerApp, entryDialog } from "./apps/glossary-manager.mjs";
 import { GlossaryDefaultsMenu, GlossaryDrakkenheimMenu } from "./apps/glossary-import-menu.mjs";
-import { applyGlossary, rebuildMatcher, registerEnricher, refreshJournalWindows, isGlossaryEnabled, hasDrakkenheimModule } from "./glossary.mjs";
+import { applyGlossary, rebuildMatcher, registerEnricher, refreshJournalWindows, isGlossaryEnabled, hasDrakkenheimModule, getGlossary, saveGlossary } from "./glossary.mjs";
+import { applyGapDetection, refreshGapWindows, addGapIgnore, isGapDetectionEnabled } from "./gap-detection.mjs";
 
 const BUTTON_LOCATIONS = ["players", "nav", "controls"];
 
@@ -105,6 +106,7 @@ Hooks.once("init", () => {
       if (!game.ready) return;
       rebuildMatcher();
       refreshJournalWindows();
+      refreshGapWindows();                                     // a new entry stops being a gap suggestion
       if (GMScreenApp.instance?.rendered) GMScreenApp.instance.render();
     }
   });
@@ -145,7 +147,37 @@ Hooks.once("init", () => {
       if (!enabled && GlossaryManagerApp.instance?.rendered) GlossaryManagerApp.instance.close();
       ui.journal?.render();                                    // add/remove the sidebar button
       refreshJournalWindows();                                 // apply or strip tips in open journals
+      refreshGapWindows();                                     // gap detection rides on the glossary
       if (GMScreenApp.instance?.rendered) GMScreenApp.instance.render(); // tab-bar button + section tips
+    }
+  });
+
+  // GM-only hint layer: highlight likely names missing from the glossary;
+  // clicking one opens the entry editor prefilled.
+  game.settings.register(MODULE_ID, "glossaryGapDetection", {
+    name: "GMTOOLS.Settings.GapDetection.Name",
+    hint: "GMTOOLS.Settings.GapDetection.Hint",
+    scope: "client",
+    config: true,
+    type: Boolean,
+    default: false,
+    onChange: () => {
+      if (!game.ready) return;
+      refreshGapWindows();                                     // add or strip highlights in open journals
+      if (GMScreenApp.instance?.rendered) GMScreenApp.instance.render();
+    }
+  });
+
+  // Terms the GM dismissed from gap suggestions (lowercased).
+  game.settings.register(MODULE_ID, "glossaryGapIgnore", {
+    scope: "world",
+    config: false,
+    type: Array,
+    default: [],
+    onChange: () => {
+      if (!game.ready) return;
+      refreshGapWindows();
+      if (GMScreenApp.instance?.rendered) GMScreenApp.instance.render();
     }
   });
 
@@ -167,12 +199,35 @@ Hooks.once("ready", () => {
     if (doc?.sheet) doc.sheet.render(true);
     else ui.notifications.warn(game.i18n.localize("GMTOOLS.Glossary.LinkMissing"));
   });
+
+  // Gap suggestions: click a highlighted name to create its glossary entry.
+  document.addEventListener("click", async event => {
+    const gap = event.target.closest?.(".gm-tools-gap[data-gap-term]");
+    if (!gap || !isGapDetectionEnabled()) return;
+    event.preventDefault();
+    const term = gap.dataset.gapTerm;
+    // Auto-link: an Actor or JournalEntry with exactly this name.
+    const match = game.actors.find(a => a.name?.toLowerCase() === term.toLowerCase())
+      ?? game.journal.find(j => j.name?.toLowerCase() === term.toLowerCase());
+    const data = await entryDialog({ term, link: match?.uuid ?? "" }, { gapMode: true });
+    if (!data) return;
+    if (data === "ignore") {
+      await addGapIgnore(term);
+      return;
+    }
+    const { folders, entries } = getGlossary();
+    entries.push({ id: foundry.utils.randomID(8), ...data });
+    await saveGlossary({ folders, entries }); // onChange refreshes tips + gap highlights
+    ui.notifications.info(game.i18n.format("GMTOOLS.Glossary.GapAdded", { term: data.term }));
+  });
 });
 
 // Auto-match glossary terms in rendered journal pages (fires for every page
 // sheet subclass — core text/ProseMirror sheets, dnd5e, importer sheets, etc.)
 Hooks.on("renderJournalEntryPageSheet", (app, element) => {
-  if (game.ready) applyGlossary(element);
+  if (!game.ready) return;
+  applyGlossary(element);
+  applyGapDetection(element); // after applyGlossary, so known terms are excluded
 });
 
 // GM-only "Glossary" button in the journal sidebar header

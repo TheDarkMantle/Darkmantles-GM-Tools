@@ -2,6 +2,7 @@ import { MODULE_ID, TEMPLATES } from "../constants.mjs";
 import { getReferenceData } from "../reference-data.mjs";
 import { renderSection } from "../section-renderers.mjs";
 import { applyGlossary, isGlossaryEnabled } from "../glossary.mjs";
+import { applyGapDetection } from "../gap-detection.mjs";
 import { GlossaryManagerApp } from "./glossary-manager.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin, DialogV2 } = foundry.applications.api;
@@ -142,9 +143,11 @@ export class GMScreenApp extends HandlebarsApplicationMixin(ApplicationV2) {
       filter.addEventListener("input", event => this.#filterReference(event.currentTarget.value, scope));
     }
 
-    // Glossary hover tips inside screen sections (not the reference tab's own tables)
+    // Glossary hover tips inside screen sections (not the reference tab's own tables),
+    // then gap suggestions on the same content (after, so known terms are excluded).
     for (const content of this.element.querySelectorAll(".gm-section-content")) {
       applyGlossary(content);
+      applyGapDetection(content);
     }
 
     // Close open cell ⋮ menus when clicking elsewhere.
