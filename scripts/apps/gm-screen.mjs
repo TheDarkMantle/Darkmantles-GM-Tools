@@ -143,11 +143,11 @@ export class GMScreenApp extends HandlebarsApplicationMixin(ApplicationV2) {
       filter.addEventListener("input", event => this.#filterReference(event.currentTarget.value, scope));
     }
 
-    // Gap suggestions first, then glossary hover tips on the same content: glossary
-    // skips gap spans, so a term that's both never nests (and stays a tip after adds).
+    // Glossary tips first (clears stale gaps, wraps full multi-word terms in intact
+    // text), then gap suggestions on the same content, skipping tips.
     for (const content of this.element.querySelectorAll(".gm-section-content")) {
-      applyGapDetection(content);
       applyGlossary(content);
+      applyGapDetection(content);
     }
 
     // Close open cell ⋮ menus when clicking elsewhere.

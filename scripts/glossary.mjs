@@ -379,7 +379,6 @@ const SKIP_SELECTOR = [
   "input",
   "button",
   ".gm-tools-tip",
-  ".gm-tools-gap", // never wrap a tip inside a gap highlight (gap detection runs first)
   "[contenteditable='true']",
   ".editor-content.ProseMirror[contenteditable]"
 ].join(", ");
@@ -393,7 +392,11 @@ export function applyGlossary(root) {
   if (root && !(root instanceof HTMLElement)) root = root?.[0]; // tolerate jQuery
   if (!root) return;
 
-  for (const old of root.querySelectorAll("span.gm-tools-tip")) {
+  // Clear both our span types first: tips (to refresh) and gap highlights (so a
+  // multi-word term isn't split across gap spans, and a new tip can't be nested in
+  // a stale gap that the gap pass would later unwrap and destroy). Gap detection
+  // re-applies right after, skipping tips.
+  for (const old of root.querySelectorAll("span.gm-tools-tip, span.gm-tools-gap")) {
     old.replaceWith(document.createTextNode(old.textContent));
   }
   root.normalize();

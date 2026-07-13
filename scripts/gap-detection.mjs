@@ -92,6 +92,11 @@ function unpossess(word) {
 const CAP_WORD = /^[A-Z][\w'’-]*$/;
 const cleanWord = w => (w ?? "").replace(/^[^A-Za-z0-9'’]+|[^A-Za-z0-9'’]+$/g, "");
 
+// Tokens that join two capitalized words into one name, e.g. "Skull & Sword".
+// Only the "&" symbol — spelled-out "and" wrongly joins separate names
+// ("Kord and Melora"), so names with "and" are completed by hand in the editor.
+const CONNECTORS = new Set(["&"]);
+
 /**
  * Detect candidate names in the text blocks under `root`.
  * Returns a Set of phrase strings that pass the heuristics.
@@ -114,7 +119,14 @@ function detectCandidates(root, excluded) {
           while (i < words.length && phrase.length < 4 && CAP_WORD.test(cleanWord(words[i]))) {
             phrase.push(unpossess(cleanWord(words[i])));
             i++;
+            // Step over a connector ("&") that joins two capitalized words.
+            if (i < words.length && CONNECTORS.has(words[i]) && CAP_WORD.test(cleanWord(words[i + 1] ?? ""))) {
+              phrase.push(words[i]);
+              i++;
+            }
           }
+          // Drop a dangling connector if the run hit the length cap right after one.
+          while (phrase.length && CONNECTORS.has(phrase[phrase.length - 1])) phrase.pop();
           // A 4-word run followed by more capitals is a run-in header, not a name.
           if (i < words.length && CAP_WORD.test(cleanWord(words[i]))) {
             while (i < words.length && CAP_WORD.test(cleanWord(words[i]))) i++;

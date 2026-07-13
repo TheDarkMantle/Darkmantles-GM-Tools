@@ -105,11 +105,10 @@ Hooks.once("init", () => {
     onChange: () => {
       if (!game.ready) return;
       rebuildMatcher();
-      // Gap detection first, then glossary: clearing a newly-added term's stale gap
-      // span before applyGlossary wraps it as a tip (otherwise the gap unwrap destroys
-      // the freshly-nested tip and the term shows plain until reload).
-      refreshGapWindows();                                     // a new entry stops being a gap suggestion
+      // Glossary first (it now clears stale gap spans and wraps full multi-word terms
+      // in intact text), then gap detection re-applies, skipping tips.
       refreshJournalWindows();
+      refreshGapWindows();                                     // a new entry stops being a gap suggestion
       refreshGlossaryManager();                                // reflect entries added outside the manager (e.g. gap clicks)
       if (GMScreenApp.instance?.rendered) GMScreenApp.instance.render();
     }
@@ -150,8 +149,8 @@ Hooks.once("init", () => {
       if (!game.ready) return;
       if (!enabled && GlossaryManagerApp.instance?.rendered) GlossaryManagerApp.instance.close();
       ui.journal?.render();                                    // add/remove the sidebar button
-      refreshGapWindows();                                     // gap detection rides on the glossary; runs first
-      refreshJournalWindows();                                 // apply or strip tips in open journals
+      refreshJournalWindows();                                 // apply or strip tips in open journals (runs first)
+      refreshGapWindows();                                     // gap detection rides on the glossary
       if (GMScreenApp.instance?.rendered) GMScreenApp.instance.render(); // tab-bar button + section tips
     }
   });
@@ -230,8 +229,8 @@ Hooks.once("ready", () => {
 // sheet subclass — core text/ProseMirror sheets, dnd5e, importer sheets, etc.)
 Hooks.on("renderJournalEntryPageSheet", (app, element) => {
   if (!game.ready) return;
-  applyGapDetection(element); // gap detection first, then glossary (glossary skips gap spans)
-  applyGlossary(element);
+  applyGlossary(element);      // glossary first (clears stale gaps, wraps full terms)
+  applyGapDetection(element);  // then gap detection, skipping tips
 });
 
 // GM-only "Glossary" button in the journal sidebar header
