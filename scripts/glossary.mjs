@@ -379,6 +379,7 @@ const SKIP_SELECTOR = [
   "input",
   "button",
   ".gm-tools-tip",
+  ".gm-tools-gap", // never wrap a tip inside a gap highlight (gap detection runs first)
   "[contenteditable='true']",
   ".editor-content.ProseMirror[contenteditable]"
 ].join(", ");
