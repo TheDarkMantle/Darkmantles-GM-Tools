@@ -923,6 +923,25 @@
 }
 
 /* Drag-drop link zone in the entry dialog */
+/* Folder select + "open glossary" button, side by side in the entry dialog */
+.gm-folder-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.gm-folder-row select {
+  flex: 1;
+  min-width: 0;
+}
+
+.gm-folder-row .gm-open-glossary {
+  flex: 0 0 auto;
+  width: auto;
+  padding: 4px 8px;
+  cursor: pointer;
+}
+
 .gm-link-drop {
   display: flex;
   align-items: center;

@@ -379,7 +379,12 @@ export async function entryDialog(initial = null, { gapMode = false } = {}) {
       </div>
       <div class="form-group">
         <label>${i18n("Folder")}</label>
-        <select name="folder">${folderOptionsHTML(initial?.folder ?? "", { noneLabel: i18n("Uncategorized") })}</select>
+        <div class="gm-folder-row">
+          <select name="folder">${folderOptionsHTML(initial?.folder ?? "", { noneLabel: i18n("Uncategorized") })}</select>
+          <button type="button" class="gm-open-glossary" data-tooltip="${i18n("ManageFolders")}" aria-label="${i18n("ManageFolders")}">
+            <i class="fa-solid fa-folder-tree"></i>
+          </button>
+        </div>
       </div>
       <div class="form-group stacked">
         <label>${i18n("GMTip")}</label>
@@ -408,6 +413,7 @@ export async function entryDialog(initial = null, { gapMode = false } = {}) {
       </div>`;
 
     // DialogV2._onRender is a no-op, so bind interactive fields via the render hook.
+    let folderHookId = null;
     const bind = (dialog, element) => {
       const root = element instanceof HTMLElement ? element : element?.[0];
       const drop = root?.querySelector(".gm-link-drop");
@@ -415,6 +421,20 @@ export async function entryDialog(initial = null, { gapMode = false } = {}) {
       Hooks.off("renderDialogV2", bind);
       bindLinkDrop(root, drop);
       bindMirrorToggle(root);
+
+      // "Manage folders" button opens the glossary window (e.g. to add a folder)
+      // without leaving this dialog.
+      root.querySelector(".gm-open-glossary")?.addEventListener("click", () => GlossaryManagerApp.open());
+
+      // Keep the folder dropdown in sync if folders are added/renamed elsewhere
+      // (like via the button above) while this dialog stays open.
+      const select = root.querySelector('select[name="folder"]');
+      if (select) {
+        folderHookId = Hooks.on("updateSetting", setting => {
+          if (setting?.key !== `${MODULE_ID}.glossary`) return;
+          select.innerHTML = folderOptionsHTML(select.value, { noneLabel: i18n("Uncategorized") });
+        });
+      }
     };
     Hooks.on("renderDialogV2", bind);
 
@@ -451,6 +471,7 @@ export async function entryDialog(initial = null, { gapMode = false } = {}) {
       });
     } finally {
       Hooks.off("renderDialogV2", bind); // safety if dialog closed before binding
+      if (folderHookId) Hooks.off("updateSetting", folderHookId);
     }
     if (result === "ignore") return "ignore";
     if (!result || typeof result !== "object") return null;

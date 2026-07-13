@@ -103,6 +103,7 @@
       "LinkTypeWarning": "Only journal entries, journal pages, and actors can be linked.",
       "LinkMissing": "The linked document could not be found — it may have been deleted.",
       "Folder": "Folder",
+      "ManageFolders": "Open glossary to add or manage folders",
       "Uncategorized": "Uncategorized",
       "NewFolder": "New Folder",
       "NewSubfolder": "New Subfolder",
