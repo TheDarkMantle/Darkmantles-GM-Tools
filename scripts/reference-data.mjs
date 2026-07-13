@@ -1,8 +1,13 @@
 /**
  * Static reference content for the GM Screen's Reference tab.
- * Conditions carry separate text for the 2014 and 2024 D&D rules; the
- * `rulesVersion` module setting selects which variant is displayed.
+ * D&D 5e conditions carry separate text for the 2014 and 2024 rules; the
+ * `rulesVersion` module setting selects which variant is displayed. For other
+ * systems, conditions are read from the installed system at runtime and the
+ * travel/lighting tables below are used.
  */
+
+import { MODULE_ID } from "./constants.mjs";
+import { getSystemConditions } from "./reference/system-conditions.mjs";
 
 export const CONDITIONS = [
   {
@@ -335,22 +340,114 @@ export const ACTIONS = {
 };
 
 /**
- * Assemble the Reference tab data for the requested rules version ("2014" or "2024").
+ * Pathfinder 2e travel & lighting (Paizo ORC License). Numbers verified against
+ * the pf2e system's own equipment/spell compendia. Conditions come from the
+ * system at runtime, so they are not duplicated here. Starfinder 2e reuses these.
  */
-export function getReferenceData(rulesVersion) {
+export const PF2E_TRAVEL = {
+  headers: ["Speed", "Feet / Minute", "Miles / Hour", "Miles / Day"],
+  rows: [
+    ["10 ft", "100 ft", "1 mile", "8 miles"],
+    ["15 ft", "150 ft", "1½ miles", "12 miles"],
+    ["20 ft", "200 ft", "2 miles", "16 miles"],
+    ["25 ft", "250 ft", "2½ miles", "20 miles"],
+    ["30 ft", "300 ft", "3 miles", "24 miles"],
+    ["35 ft", "350 ft", "3½ miles", "28 miles"],
+    ["40 ft", "400 ft", "4 miles", "32 miles"]
+  ],
+  notes: [
+    "A full day of travel assumes 8 hours on the move; pressing on longer risks fatigue.",
+    "Hustle: move at double your travel Speed for a number of minutes equal to 10 × your Constitution modifier (minimum 10), then rest before hustling again.",
+    "Difficult terrain slows overland travel — the GM sets the reduction."
+  ]
+};
+
+export const PF2E_LIGHT = {
+  headers: ["Source", "Bright", "Dim", "Duration"],
+  rows: [
+    ["Candle", "—", "10 ft", "8 hours"],
+    ["Torch", "20 ft", "+20 ft", "1 hour"],
+    ["Lantern (Hooded)", "30 ft", "+30 ft", "6 hours per pint of oil; shutters dim or close it"],
+    ["Lantern (Bull's-Eye)", "60-ft cone", "+60 ft", "6 hours per pint of oil"],
+    ["Light (cantrip)", "20 ft", "+20 ft", "Until next daily preparations"]
+  ]
+};
+
+const t = key => game.i18n.localize(`GMTOOLS.Reference.${key}`);
+
+// Section "blocks" — the template renders each by its boolean flag. Keeping the
+// .gm-ref-* classes on rendered nodes preserves the filter (#filterReference).
+const conditionsBlock = entries => ({ isConditions: true, entries });
+const tableBlock = (headers, rows, notes = []) => ({ isTable: true, headers, rows, notes });
+const deflistBlock = entries => ({ isDeflist: true, entries });
+const subheadBlock = text => ({ isSubhead: true, text });
+const noteBlock = text => ({ isNote: true, text });
+
+function dnd5eSections(rulesVersion) {
   const version = ACTIONS[rulesVersion] ? rulesVersion : "2024";
-  return {
-    conditions: CONDITIONS.map(c => ({
-      name: c.name,
-      icon: c.icon,
-      effects: c.rules[rulesVersion] ?? c.rules["2024"]
-    })),
-    travel: TRAVEL,
-    movement: MOVEMENT,
-    actions: {
-      list: ACTIONS[version],
-      studyTable: version === "2024" ? ACTIONS.studyTable : null
-    },
-    light: LIGHT_SOURCES
-  };
+  const conditions = CONDITIONS.map(c => ({
+    name: c.name,
+    icon: c.icon,
+    effects: c.rules[rulesVersion] ?? c.rules["2024"]
+  }));
+  return [
+    { id: "conditions", icon: "fa-solid fa-heart-crack", title: t("Conditions"), blocks: [conditionsBlock(conditions)] },
+    { id: "travel", icon: "fa-solid fa-route", title: t("Travel"), blocks: [
+      tableBlock([t("Pace"), t("PerMinute"), t("PerHour"), t("PerDay"), t("Effect")],
+        TRAVEL.paces.map(p => [p.pace, p.minute, p.hour, p.day, p.effect]), TRAVEL.notes)
+    ] },
+    { id: "movement", icon: "fa-solid fa-person-running", title: t("Movement"), blocks: [
+      tableBlock([t("Jump"), t("RunningStart"), t("Standing")],
+        MOVEMENT.jumps.map(j => [j.type, j.running, j.standing]), MOVEMENT.notes)
+    ] },
+    { id: "actions", icon: "fa-solid fa-hand-fist", title: t("Actions"), blocks: [
+      deflistBlock(ACTIONS[version].map(a => ({ name: a.name, desc: a.desc }))),
+      ...(version === "2024"
+        ? [subheadBlock(t("StudyTable")), tableBlock([t("Skill"), t("UsedFor")], ACTIONS.studyTable.map(s => [s.skill, s.use]))]
+        : [])
+    ] },
+    { id: "light", icon: "fa-solid fa-fire", title: t("Light"), blocks: [
+      tableBlock([t("Source"), t("Bright"), t("Dim"), t("Duration")], LIGHT_SOURCES.map(l => [l.source, l.bright, l.dim, l.duration]))
+    ] }
+  ];
+}
+
+async function paizo2eSections() {
+  const conditions = await getSystemConditions();
+  return [
+    { id: "conditions", icon: "fa-solid fa-heart-crack", title: t("Conditions"), blocks: [conditionsBlock(conditions)] },
+    { id: "travel", icon: "fa-solid fa-route", title: t("Travel"), blocks: [
+      tableBlock(PF2E_TRAVEL.headers, PF2E_TRAVEL.rows, PF2E_TRAVEL.notes)
+    ] },
+    { id: "light", icon: "fa-solid fa-fire", title: t("Light"), blocks: [
+      tableBlock(PF2E_LIGHT.headers, PF2E_LIGHT.rows, PF2E_LIGHT.notes)
+    ] }
+  ];
+}
+
+async function fallbackSections() {
+  const conditions = await getSystemConditions();
+  const blocks = conditions.length ? [conditionsBlock(conditions)] : [];
+  blocks.push(noteBlock(t("SystemUnsupportedNote")));
+  return [{ id: "conditions", icon: "fa-solid fa-heart-crack", title: t("Conditions"), blocks }];
+}
+
+// System ids that use the Paizo 2e reference (conditions from system + PF2e tables).
+const PAIZO_2E = new Set(["pf2e", "sf2e", "starfinder-2e", "starfinder2e"]);
+
+/**
+ * Assemble the Reference tab as a list of sections for the active game system.
+ * dnd5e uses the curated bundle (with the 2014/2024 toggle); Paizo 2e systems
+ * read conditions from the system + the authored travel/light tables; any other
+ * system gets conditions from CONFIG.statusEffects plus a "not fully supported" note.
+ */
+export async function getReferenceData() {
+  const systemId = game.system?.id ?? "";
+  if (systemId === "dnd5e") {
+    return { systemId, sections: dnd5eSections(game.settings.get(MODULE_ID, "rulesVersion")) };
+  }
+  if (PAIZO_2E.has(systemId)) {
+    return { systemId, sections: await paizo2eSections() };
+  }
+  return { systemId, sections: await fallbackSections() };
 }

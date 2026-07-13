@@ -63,7 +63,8 @@
       "Actions": "Actions in Combat",
       "StudyTable": "Study — Which Skill Applies",
       "Skill": "Skill",
-      "UsedFor": "Used For"
+      "UsedFor": "Used For",
+      "SystemUnsupportedNote": "Conditions are read from your game system. Travel and lighting quick-reference isn't built in for this system yet."
     },
     "Actor": {
       "HP": "HP",
