@@ -2,7 +2,7 @@ import { MODULE_ID, TEMPLATES } from "./constants.mjs";
 import { GMScreenApp } from "./apps/gm-screen.mjs";
 import { GlossaryManagerApp, entryDialog } from "./apps/glossary-manager.mjs";
 import { GlossaryDefaultsMenu, GlossaryDrakkenheimMenu } from "./apps/glossary-import-menu.mjs";
-import { applyGlossary, rebuildMatcher, registerEnricher, refreshJournalWindows, isGlossaryEnabled, hasDrakkenheimModule, getGlossary, saveGlossary } from "./glossary.mjs";
+import { applyGlossary, rebuildMatcher, registerEnricher, refreshJournalWindows, refreshGlossaryManager, isGlossaryEnabled, hasDrakkenheimModule, getGlossary, saveGlossary } from "./glossary.mjs";
 import { applyGapDetection, refreshGapWindows, addGapIgnore, isGapDetectionEnabled } from "./gap-detection.mjs";
 
 const BUTTON_LOCATIONS = ["players", "nav", "controls"];
@@ -107,6 +107,7 @@ Hooks.once("init", () => {
       rebuildMatcher();
       refreshJournalWindows();
       refreshGapWindows();                                     // a new entry stops being a gap suggestion
+      refreshGlossaryManager();                                // reflect entries added outside the manager (e.g. gap clicks)
       if (GMScreenApp.instance?.rendered) GMScreenApp.instance.render();
     }
   });
