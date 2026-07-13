@@ -207,7 +207,7 @@ export class GlossaryManagerApp extends HandlebarsApplicationMixin(ApplicationV2
   }
 
   static async #onAddEntry() {
-    const data = await this.#entryDialog();
+    const data = await entryDialog();
     if (!data) return;
     const { entries } = getGlossary();
     entries.push({ id: foundry.utils.randomID(8), ...data });
@@ -219,7 +219,7 @@ export class GlossaryManagerApp extends HandlebarsApplicationMixin(ApplicationV2
     const { entries } = getGlossary();
     const entry = entries.find(e => e.id === id);
     if (!entry) return;
-    const data = await this.#entryDialog(entry);
+    const data = await entryDialog(entry);
     if (!data) return;
     Object.assign(entry, data);
     await this.#saveEntries(entries);
@@ -354,7 +354,14 @@ export class GlossaryManagerApp extends HandlebarsApplicationMixin(ApplicationV2
   /*  Entry editor dialog                          */
   /* -------------------------------------------- */
 
-  async #entryDialog(initial = null) {
+}
+
+/**
+ * The add/edit glossary entry dialog, shared by the manager and the gap-detection
+ * click flow. Resolves to the normalized entry data, null (cancelled), or the
+ * string "ignore" when opened with `gapMode` and the GM dismissed the term.
+ */
+export async function entryDialog(initial = null, { gapMode = false } = {}) {
     const i18n = key => game.i18n.localize(`GMTOOLS.Glossary.${key}`);
     const linkDoc = initial?.link ? fromUuidSync(initial.link) : null;
     const linkName = initial?.link
@@ -406,17 +413,33 @@ export class GlossaryManagerApp extends HandlebarsApplicationMixin(ApplicationV2
       const drop = root?.querySelector(".gm-link-drop");
       if (!drop) return; // not our dialog
       Hooks.off("renderDialogV2", bind);
-      this.#bindLinkDrop(root, drop);
-      this.#bindMirrorToggle(root);
+      bindLinkDrop(root, drop);
+      bindMirrorToggle(root);
     };
     Hooks.on("renderDialogV2", bind);
 
+    // gapMode ("add this suggested term?") gets an extra Ignore button that
+    // dismisses the term permanently; DialogV2.wait resolves to the button's
+    // callback result, or its action id ("ignore") when it has no callback.
+    const buttons = [{
+      action: "ok",
+      label: initial?.term && !gapMode ? "GMTOOLS.Save" : "GMTOOLS.Create",
+      icon: "fa-solid fa-check",
+      default: true,
+      callback: (event, button) => new foundry.applications.ux.FormDataExtended(button.form).object
+    }];
+    if (gapMode) buttons.push({
+      action: "ignore",
+      label: "GMTOOLS.Glossary.GapIgnore",
+      icon: "fa-solid fa-ban"
+    });
+
     let result;
     try {
-      result = await DialogV2.prompt({
+      result = await DialogV2.wait({
         classes: ["gm-tools-entry-dialog"],
         window: {
-          title: game.i18n.localize(initial ? "GMTOOLS.Glossary.EditEntry" : "GMTOOLS.Glossary.AddEntry"),
+          title: game.i18n.localize(initial && !gapMode ? "GMTOOLS.Glossary.EditEntry" : "GMTOOLS.Glossary.AddEntry"),
           icon: "fa-solid fa-tags"
         },
         content,
@@ -424,16 +447,13 @@ export class GlossaryManagerApp extends HandlebarsApplicationMixin(ApplicationV2
         // Non-modal: a modal dialog makes the sidebar inert, which blocks
         // dragging an actor/journal onto the link drop zone.
         modal: false,
-        ok: {
-          label: initial ? "GMTOOLS.Save" : "GMTOOLS.Create",
-          icon: "fa-solid fa-check",
-          callback: (event, button) => new foundry.applications.ux.FormDataExtended(button.form).object
-        }
+        buttons
       });
     } finally {
       Hooks.off("renderDialogV2", bind); // safety if dialog closed before binding
     }
-    if (!result) return null;
+    if (result === "ignore") return "ignore";
+    if (!result || typeof result !== "object") return null;
 
     const term = String(result.term ?? "").trim();
     if (!term) return null;
@@ -453,10 +473,10 @@ export class GlossaryManagerApp extends HandlebarsApplicationMixin(ApplicationV2
       link: String(result.link ?? "").trim(),
       folder: result.folder || null
     };
-  }
+}
 
-  /** Toggle the player-description field on/off with the "use DM description" checkbox. */
-  #bindMirrorToggle(root) {
+/** Toggle the player-description field on/off with the "use DM description" checkbox. */
+function bindMirrorToggle(root) {
     const checkbox = root.querySelector('input[name="mirrorGM"]');
     const textarea = root.querySelector('textarea[name="playerTip"]');
     if (!checkbox || !textarea) return;
@@ -468,10 +488,10 @@ export class GlossaryManagerApp extends HandlebarsApplicationMixin(ApplicationV2
     };
     checkbox.addEventListener("change", sync);
     sync();
-  }
+}
 
-  /** Wire the drag-drop link zone inside the entry dialog. */
-  #bindLinkDrop(root, drop) {
+/** Wire the drag-drop link zone inside the entry dialog. */
+function bindLinkDrop(root, drop) {
     const input = root.querySelector('input[name="link"]');
     const nameEl = drop.querySelector(".gm-link-name");
     const hint = game.i18n.localize("GMTOOLS.Glossary.LinkHint");
@@ -501,5 +521,4 @@ export class GlossaryManagerApp extends HandlebarsApplicationMixin(ApplicationV2
         }
       }
     }).bind(drop);
-  }
 }

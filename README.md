@@ -33,6 +33,7 @@ Central, reusable hover reminders for names and terms — write a tip once, and 
 - **Move by drag-and-drop** — drag an entry row onto a folder (or Uncategorized) to refile it.
 - **Condition libraries (module settings)** — GM Tools' settings have **Add Default Status Conditions** (seeds a Rules folder with the core conditions, plus empty NPCs/Places folders). If you own **Monsters of Drakkenheim**, an **Add Drakkenheim Conditions** button also appears and imports that module's conditions — read from the module you own at runtime, so nothing paid ships with GM Tools and the button is hidden if the module isn't installed. Both merge idempotently (no duplicates).
 - **Explicit syntax** — type `@tip[term]` in any journal editor to force a tip where auto-matching can't reach.
+- **Suggest Glossary Entries (optional, GM-only)** — enable it in settings and likely names of people, places, and organizations that *aren't* in your glossary yet get a subtle amber dashed underline in journals and GM Screen sections. Click one to create its entry on the spot (pre-linked to a matching actor or journal), or dismiss it permanently. Heuristic-based: it skips headings, links, stat-block jargon, and sentence-starting words unless the name also appears mid-sentence. Players never see these highlights.
 
 ### Session Notes
 

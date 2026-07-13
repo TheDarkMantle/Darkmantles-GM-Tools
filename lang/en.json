@@ -113,6 +113,9 @@
       "FolderName": "Folder Name",
       "ParentFolder": "Parent Folder",
       "TopLevel": "— Top level —",
+      "GapTooltip": "Not in your glossary — click to add",
+      "GapIgnore": "Never suggest this",
+      "GapAdded": "\"{term}\" added to the glossary.",
       "Import": "Import glossary (JSON)",
       "Export": "Export glossary (JSON)",
       "ImportResult": "Glossary import: {added} added, {updated} updated, {skipped} skipped, {foldersCreated} folders created.",
@@ -135,6 +138,10 @@
       "GlossaryEnabled": {
         "Name": "Enable Glossary Hover Tips",
         "Hint": "Turn the glossary feature on or off for yourself. When off, glossary buttons are hidden and hover tips no longer appear. This is a personal choice and does not affect other players."
+      },
+      "GapDetection": {
+        "Name": "Suggest Glossary Entries",
+        "Hint": "GM only: names of people, places, and organizations that aren't in your glossary get a subtle dashed underline in journals and the GM Screen. Click one to create its entry (or dismiss it permanently). Players never see these highlights."
       },
       "SessionNotesEnabled": {
         "Name": "Enable Session Notes Tab",

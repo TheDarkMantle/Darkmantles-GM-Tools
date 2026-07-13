@@ -910,6 +910,18 @@
   cursor: pointer;
 }
 
+/* Gap suggestions: a quiet amber dashed underline on names not yet in the
+   glossary (GM-only); click to create the entry. Distinct from real tips. */
+.gm-tools-gap {
+  border-bottom: 1px dashed rgba(212, 175, 55, 0.65);
+  cursor: pointer;
+}
+
+.gm-tools-gap:hover {
+  border-bottom-color: rgba(212, 175, 55, 1);
+  background: rgba(212, 175, 55, 0.12);
+}
+
 /* Drag-drop link zone in the entry dialog */
 .gm-link-drop {
   display: flex;
