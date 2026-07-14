@@ -27,7 +27,7 @@ Hooks.once("init", () => {
     name: "GMTOOLS.Settings.RulesVersion.Name",
     hint: "GMTOOLS.Settings.RulesVersion.Hint",
     scope: "world",
-    config: true,
+    config: game.system?.id === "dnd5e", // 2014/2024 is a D&D 5e concept only
     type: String,
     default: "2024",
     choices: {
