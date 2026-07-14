@@ -1,4 +1,8 @@
-export const MODULE_ID = "gm-tools";
+export const MODULE_ID = "darkmantles-codex";
+
+/** The module's pre-rename id ("GM Tools") — world data saved under this
+ *  namespace is migrated to MODULE_ID on ready. */
+export const LEGACY_MODULE_ID = "gm-tools";
 
 export const TEMPLATES = {
   screen: `modules/${MODULE_ID}/templates/gm-screen.hbs`,

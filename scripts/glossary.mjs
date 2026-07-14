@@ -365,7 +365,7 @@ export function toPortable() {
 export function exportGlossary() {
   const stamp = new Date().toISOString().slice(0, 10);
   foundry.utils.saveDataToFile(
-    JSON.stringify(toPortable(), null, 2), "application/json", `gm-tools-glossary-${stamp}.json`);
+    JSON.stringify(toPortable(), null, 2), "application/json", `${MODULE_ID}-glossary-${stamp}.json`);
 }
 
 /** The tip the current user should see for an entry (null = nothing, no highlight). */
