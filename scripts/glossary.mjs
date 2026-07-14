@@ -1,4 +1,5 @@
 import { MODULE_ID } from "./constants.mjs";
+import { getSystemConditions } from "./reference/system-conditions.mjs";
 
 function esc(value) {
   const div = document.createElement("div");
@@ -114,10 +115,46 @@ export async function importGlossary(data, mode = "merge") {
 }
 
 /** Fetch the bundled defaults JSON and merge it into the glossary. */
+/**
+ * Seed the glossary with the active game system's status conditions.
+ * D&D 5e uses the curated bundled defaults (nice 2014/2024 wording); every other
+ * system reads its own conditions at runtime, each entry linked to its condition
+ * document so a click opens the full rules, with a concise reminder as the tip.
+ */
 export async function loadDefaultConditions(mode = "merge") {
-  const resp = await fetch(`modules/${MODULE_ID}/data/glossary-defaults.json`);
-  if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-  return importGlossary(await resp.json(), mode);
+  if (game.system?.id === "dnd5e") {
+    const resp = await fetch(`modules/${MODULE_ID}/data/glossary-defaults.json`);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    return importGlossary(await resp.json(), mode);
+  }
+
+  const conditions = await getSystemConditions();
+  const entries = conditions
+    .filter(c => c.name)
+    .map(c => {
+      const tip = conciseSummary(c.html) || c.name;
+      return { term: c.name, aliases: [], gmTip: tip, playerTip: tip, mirrorGM: true, link: c.uuid ?? "", folder: "Rules" };
+    });
+  const data = {
+    folders: [{ name: "Rules", parent: null }, { name: "NPCs", parent: null }, { name: "Places", parent: null }],
+    entries
+  };
+  return importGlossary(data, mode);
+}
+
+/** First 1–2 sentences of an HTML description as plain text (≤ ~200 chars). */
+function conciseSummary(html) {
+  const tmp = document.createElement("div");
+  tmp.innerHTML = html ?? "";
+  const text = (tmp.textContent ?? "").replace(/\s+/g, " ").trim();
+  if (!text) return "";
+  let out = "";
+  for (const part of text.split(/(?<=[.!?])\s+/)) {
+    if (out && (out.length >= 50 || (out + " " + part).length > 200)) break;
+    out = out ? `${out} ${part}` : part;
+    if (out.length >= 200) break;
+  }
+  return out.length > 200 ? `${out.slice(0, 197).trimEnd()}…` : out;
 }
 
 const DRAKKENHEIM = {
