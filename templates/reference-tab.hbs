@@ -4,126 +4,62 @@
     <input type="search" class="gm-ref-filter" placeholder="{{localize 'GMTOOLS.Reference.Filter'}}">
   </div>
 
+  {{#each sections}}
   <section class="gm-ref-section">
-    <h2><i class="fa-solid fa-heart-crack"></i> {{localize "GMTOOLS.Reference.Conditions"}}</h2>
-    <div class="gm-ref-conditions">
-      {{#each conditions}}
-      <div class="gm-ref-entry gm-condition">
-        <h3><i class="{{this.icon}}"></i> {{this.name}}</h3>
-        <ul>
-          {{#each this.effects}}<li>{{this}}</li>{{/each}}
-        </ul>
+    <h2><i class="{{this.icon}}"></i> {{this.title}}</h2>
+    {{#each this.blocks}}
+
+      {{#if this.isConditions}}
+      <div class="gm-ref-conditions">
+        {{#each this.entries}}
+        <div class="gm-ref-entry gm-condition">
+          <h3>{{#if this.img}}<img class="gm-condition-icon" src="{{this.img}}" alt="">{{else}}<i class="{{this.icon}}"></i>{{/if}} {{this.name}}</h3>
+          {{#if this.html}}
+          <div class="gm-condition-desc">{{{this.html}}}</div>
+          {{else}}
+          <ul>{{#each this.effects}}<li>{{this}}</li>{{/each}}</ul>
+          {{/if}}
+        </div>
+        {{/each}}
       </div>
-      {{/each}}
-    </div>
-  </section>
+      {{/if}}
 
-  <section class="gm-ref-section">
-    <h2><i class="fa-solid fa-route"></i> {{localize "GMTOOLS.Reference.Travel"}}</h2>
-    <table class="gm-ref-table">
-      <thead>
-        <tr>
-          <th>{{localize "GMTOOLS.Reference.Pace"}}</th>
-          <th>{{localize "GMTOOLS.Reference.PerMinute"}}</th>
-          <th>{{localize "GMTOOLS.Reference.PerHour"}}</th>
-          <th>{{localize "GMTOOLS.Reference.PerDay"}}</th>
-          <th>{{localize "GMTOOLS.Reference.Effect"}}</th>
-        </tr>
-      </thead>
-      <tbody>
-        {{#each travel.paces}}
-        <tr class="gm-ref-entry">
-          <td class="gm-ref-name">{{this.pace}}</td>
-          <td>{{this.minute}}</td>
-          <td>{{this.hour}}</td>
-          <td>{{this.day}}</td>
-          <td>{{this.effect}}</td>
-        </tr>
+      {{#if this.isSubhead}}
+      <h3 class="gm-ref-subhead">{{this.text}}</h3>
+      {{/if}}
+
+      {{#if this.isTable}}
+      <table class="gm-ref-table">
+        <thead>
+          <tr>{{#each this.headers}}<th>{{this}}</th>{{/each}}</tr>
+        </thead>
+        <tbody>
+          {{#each this.rows}}
+          <tr class="gm-ref-entry">{{#each this}}<td {{#if @first}}class="gm-ref-name"{{/if}}>{{this}}</td>{{/each}}</tr>
+          {{/each}}
+        </tbody>
+      </table>
+      {{#if this.notes.length}}
+      <ul class="gm-ref-notes">{{#each this.notes}}<li class="gm-ref-entry">{{this}}</li>{{/each}}</ul>
+      {{/if}}
+      {{/if}}
+
+      {{#if this.isDeflist}}
+      <div class="gm-ref-actions">
+        {{#each this.entries}}
+        <div class="gm-ref-entry gm-ref-action">
+          <span class="gm-ref-name">{{this.name}}</span>
+          <span class="gm-ref-action-desc">{{this.desc}}</span>
+        </div>
         {{/each}}
-      </tbody>
-    </table>
-    <ul class="gm-ref-notes">
-      {{#each travel.notes}}<li class="gm-ref-entry">{{this}}</li>{{/each}}
-    </ul>
-  </section>
-
-  <section class="gm-ref-section">
-    <h2><i class="fa-solid fa-person-running"></i> {{localize "GMTOOLS.Reference.Movement"}}</h2>
-    <table class="gm-ref-table">
-      <thead>
-        <tr>
-          <th>{{localize "GMTOOLS.Reference.Jump"}}</th>
-          <th>{{localize "GMTOOLS.Reference.RunningStart"}}</th>
-          <th>{{localize "GMTOOLS.Reference.Standing"}}</th>
-        </tr>
-      </thead>
-      <tbody>
-        {{#each movement.jumps}}
-        <tr class="gm-ref-entry">
-          <td class="gm-ref-name">{{this.type}}</td>
-          <td>{{this.running}}</td>
-          <td>{{this.standing}}</td>
-        </tr>
-        {{/each}}
-      </tbody>
-    </table>
-    <ul class="gm-ref-notes">
-      {{#each movement.notes}}<li class="gm-ref-entry">{{this}}</li>{{/each}}
-    </ul>
-  </section>
-
-  <section class="gm-ref-section">
-    <h2><i class="fa-solid fa-hand-fist"></i> {{localize "GMTOOLS.Reference.Actions"}}</h2>
-    <div class="gm-ref-actions">
-      {{#each actions.list}}
-      <div class="gm-ref-entry gm-ref-action">
-        <span class="gm-ref-name">{{this.name}}</span>
-        <span class="gm-ref-action-desc">{{this.desc}}</span>
       </div>
-      {{/each}}
-    </div>
-    {{#if actions.studyTable}}
-    <h3 class="gm-ref-subhead">{{localize "GMTOOLS.Reference.StudyTable"}}</h3>
-    <table class="gm-ref-table">
-      <thead>
-        <tr>
-          <th>{{localize "GMTOOLS.Reference.Skill"}}</th>
-          <th>{{localize "GMTOOLS.Reference.UsedFor"}}</th>
-        </tr>
-      </thead>
-      <tbody>
-        {{#each actions.studyTable}}
-        <tr class="gm-ref-entry">
-          <td class="gm-ref-name">{{this.skill}}</td>
-          <td>{{this.use}}</td>
-        </tr>
-        {{/each}}
-      </tbody>
-    </table>
-    {{/if}}
-  </section>
+      {{/if}}
 
-  <section class="gm-ref-section">
-    <h2><i class="fa-solid fa-fire"></i> {{localize "GMTOOLS.Reference.Light"}}</h2>
-    <table class="gm-ref-table">
-      <thead>
-        <tr>
-          <th>{{localize "GMTOOLS.Reference.Source"}}</th>
-          <th>{{localize "GMTOOLS.Reference.Bright"}}</th>
-          <th>{{localize "GMTOOLS.Reference.Dim"}}</th>
-          <th>{{localize "GMTOOLS.Reference.Duration"}}</th>
-        </tr>
-      </thead>
-      <tbody>
-        {{#each light}}
-        <tr class="gm-ref-entry">
-          <td class="gm-ref-name">{{this.source}}</td>
-          <td>{{this.bright}}</td>
-          <td>{{this.dim}}</td>
-          <td>{{this.duration}}</td>
-        </tr>
-        {{/each}}
-      </tbody>
-    </table>
+      {{#if this.isNote}}
+      <p class="gm-ref-note gm-ref-entry">{{this.text}}</p>
+      {{/if}}
+
+    {{/each}}
   </section>
+  {{/each}}
 </div>

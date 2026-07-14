@@ -102,7 +102,7 @@ export class GMScreenApp extends HandlebarsApplicationMixin(ApplicationV2) {
       return { ...tab, cells, active: this.tabGroups.primary === tab.id };
     }));
 
-    const reference = getReferenceData(game.settings.get(MODULE_ID, "rulesVersion"));
+    const reference = await getReferenceData();
     const drakkenheim = game.settings.get(MODULE_ID, "drakkenheimContent") ?? {};
     const hasDrakkenheim = Object.values(drakkenheim)
       .some(v => Array.isArray(v) ? v.length : (v && Object.keys(v).length));

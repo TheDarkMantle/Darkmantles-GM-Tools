@@ -1,6 +1,6 @@
 # Darkmantle's GM Tools
 
-A suite of Game Master tools for [Foundry VTT](https://foundryvtt.com/) (v13–v14), built for the D&D 5e system.
+A suite of Game Master tools for [Foundry VTT](https://foundryvtt.com/) (v13–v14). Built first for **D&D 5e**, with growing multi-system support (**Pathfinder 2e** and **Starfinder 2e** reference; more to come).
 
 ## Features
 
@@ -8,10 +8,10 @@ A suite of Game Master tools for [Foundry VTT](https://foundryvtt.com/) (v13–v
 
 A tabbed, resizable, pop-out–capable window for keeping reference material and your prep at your fingertips.
 
-- **Reference tab** (static) — quick-reference cards for:
-  - **Conditions** — every D&D condition (Blinded → Unconscious), with rules text for either the **2014** or **2024** ruleset, selectable in module settings.
-  - **Travel pace** — distance per minute / hour / day at fast, normal, and slow pace, plus forced-march and terrain notes.
-  - **Light sources** — bright/dim radii and duration for candles, torches, lanterns, and light spells.
+- **Reference tab** (static) — quick-reference that adapts to your **game system**:
+  - **D&D 5e** — every condition (Blinded → Unconscious) with **2014** or **2024** rules text (selectable in settings), travel pace, jumping/movement, combat actions (+ the 2024 Study table), and light sources.
+  - **Pathfinder 2e / Starfinder 2e** — conditions read straight from your installed system (always accurate), plus travel-speed and lighting tables.
+  - **Other systems** — conditions are still listed from your system's own status effects.
   - A filter box to quickly find any entry.
 - **Custom tabs** — add your own tabs (rename or resize them any time via the tab's edit button), each split into a grid of up to 4×4 sections. Drag any document into a section:
   - **Actors** (PCs & monsters) render as a **compact stat card**: portrait, HP, AC, passive Perception & Insight up top, active **conditions and status effects**, then ability scores, speeds, senses, and the full skill list — with a link to the full sheet. Cards refresh live as HP and conditions change.
