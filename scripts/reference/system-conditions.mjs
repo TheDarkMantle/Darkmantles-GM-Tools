@@ -43,7 +43,7 @@ async function fromPack(pack) {
   const list = conditions.length ? conditions : docs;
   const out = [];
   for (const doc of list) {
-    out.push({ name: doc.name, img: doc.img, html: await enrich(doc.system?.description?.value ?? "", doc) });
+    out.push({ name: doc.name, img: doc.img, uuid: doc.uuid ?? "", html: await enrich(doc.system?.description?.value ?? "", doc) });
   }
   return out;
 }
@@ -62,7 +62,7 @@ async function fromStatusEffects() {
         if (page?.text?.content) html = await enrich(page.text.content, page);
       } catch { /* leave blank */ }
     }
-    out.push({ name, img: effect.img ?? effect.icon, html });
+    out.push({ name, img: effect.img ?? effect.icon, uuid: effect.reference ?? "", html });
   }
   return out;
 }

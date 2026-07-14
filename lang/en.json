@@ -156,8 +156,8 @@
       "LoadConditions": {
         "Name": "Default Status Conditions",
         "Label": "Add Default Status Conditions",
-        "Hint": "Adds all standard D&D status conditions to your glossary in a \"Rules\" folder (player-visible), plus empty \"NPCs\" and \"Places\" folders. Existing entries of the same name are updated, never duplicated.",
-        "Confirm": "Add the default status conditions and the Rules / NPCs / Places folders to your glossary? Entries with the same name are updated — nothing is duplicated."
+        "Hint": "Adds your game system's status conditions to your glossary in a \"Rules\" folder (player-visible) — each linked to its condition so a click opens the full rules — plus empty \"NPCs\" and \"Places\" folders. Existing entries of the same name are updated, never duplicated.",
+        "Confirm": "Add your game system's status conditions (linked to each condition) and the Rules / NPCs / Places folders to your glossary? Entries with the same name are updated — nothing is duplicated."
       },
       "LoadDrakkenheim": {
         "Name": "Drakkenheim Reference",
