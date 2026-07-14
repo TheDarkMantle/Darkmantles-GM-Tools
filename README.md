@@ -1,7 +1,5 @@
 # Darkmantle's Codex
 
-*Formerly "GM Tools" — renamed for its public release. Existing world data (glossary, session notes, screen layouts) migrates automatically on first load.*
-
 A suite of Game Master tools for [Foundry VTT](https://foundryvtt.com/) (v13–v14). Built first for **D&D 5e**, with growing multi-system support (**Pathfinder 2e** and **Starfinder 2e** reference; more to come).
 
 ## Features
@@ -57,12 +55,6 @@ A persistent GM notepad, enabled in module settings.
 4. Click **Install**. Foundry will show **Darkmantle's Codex** in the install list.
 5. Open your world, go to **Game Settings → Manage Modules**, check the box next to **Darkmantle's Codex**, and **Save Module Settings**.
 
-**Upgrading from "GM Tools" (≤ 0.13.x)?** The module id changed as part of this rename, so Foundry treats it as a new module — installing the manifest above adds Darkmantle's Codex *alongside* your existing GM Tools rather than updating it in place.
-
-1. Install Darkmantle's Codex using the steps above (same manifest URL you've always used).
-2. In each world, open **Manage Modules**: check **Darkmantle's Codex** and **uncheck GM Tools** (don't run both at once — you'll get duplicated buttons and hooks).
-3. Save, then reload/re-enter the world as GM. Your glossary, session notes, screen layouts, and settings are copied over automatically on that first load, with a confirmation notice.
-4. Once you've confirmed everything carried over, you can disable and uninstall the old **GM Tools** module — your data is safely under the new module now.
 
 ## Settings
 
