@@ -373,6 +373,16 @@ export const PF2E_LIGHT = {
   ]
 };
 
+/** Starfinder 2e light is sci-fi (flashlights, not torches). Values from the sf2e compendia. */
+export const SF2E_LIGHT = {
+  headers: ["Source", "Bright", "Dim", "Duration"],
+  rows: [
+    ["Flashlight (Commercial)", "30 ft", "+30 ft", "While powered"],
+    ["Flashlight (Tactical)", "60 ft", "+60 ft", "While powered; filters dim or block it"],
+    ["Light (cantrip)", "20 ft", "+20 ft", "Until next daily preparations"]
+  ]
+};
+
 const t = key => game.i18n.localize(`GMTOOLS.Reference.${key}`);
 
 // Section "blocks" — the template renders each by its boolean flag. Keeping the
@@ -412,15 +422,16 @@ function dnd5eSections(rulesVersion) {
   ];
 }
 
-async function paizo2eSections() {
+async function paizo2eSections(systemId) {
   const conditions = await getSystemConditions();
+  const light = systemId === "sf2e" ? SF2E_LIGHT : PF2E_LIGHT; // Starfinder is sci-fi
   return [
     { id: "conditions", icon: "fa-solid fa-heart-crack", title: t("Conditions"), blocks: [conditionsBlock(conditions)] },
     { id: "travel", icon: "fa-solid fa-route", title: t("Travel"), blocks: [
       tableBlock(PF2E_TRAVEL.headers, PF2E_TRAVEL.rows, PF2E_TRAVEL.notes)
     ] },
     { id: "light", icon: "fa-solid fa-fire", title: t("Light"), blocks: [
-      tableBlock(PF2E_LIGHT.headers, PF2E_LIGHT.rows, PF2E_LIGHT.notes)
+      tableBlock(light.headers, light.rows, light.notes)
     ] }
   ];
 }
@@ -447,7 +458,7 @@ export async function getReferenceData() {
     return { systemId, sections: dnd5eSections(game.settings.get(MODULE_ID, "rulesVersion")) };
   }
   if (PAIZO_2E.has(systemId)) {
-    return { systemId, sections: await paizo2eSections() };
+    return { systemId, sections: await paizo2eSections(systemId) };
   }
   return { systemId, sections: await fallbackSections() };
 }
