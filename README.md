@@ -1,4 +1,6 @@
-# Darkmantle's GM Tools
+# Darkmantle's Codex
+
+*Formerly "GM Tools" — renamed for its public release. Existing world data (glossary, session notes, screen layouts) migrates automatically on first load.*
 
 A suite of Game Master tools for [Foundry VTT](https://foundryvtt.com/) (v13–v14). Built first for **D&D 5e**, with growing multi-system support (**Pathfinder 2e** and **Starfinder 2e** reference; more to come).
 
@@ -31,7 +33,7 @@ Central, reusable hover reminders for names and terms — write a tip once, and 
 - **Link to full details** — optionally drag a journal entry or actor onto an entry; the highlighted term becomes clickable and opens that full write-up or statblock. Click-through respects Foundry permissions.
 - **Import / Export** — back up or share your glossary as a JSON file. Import merges by term (adds new, updates existing), creating any referenced folders.
 - **Move by drag-and-drop** — drag an entry row onto a folder (or Uncategorized) to refile it.
-- **Condition libraries (module settings)** — GM Tools' settings have **Add Default Status Conditions** (seeds a Rules folder with the core conditions, plus empty NPCs/Places folders). If you own **Monsters of Drakkenheim**, an **Add Drakkenheim Conditions** button also appears and imports that module's conditions — read from the module you own at runtime, so nothing paid ships with GM Tools and the button is hidden if the module isn't installed. Both merge idempotently (no duplicates).
+- **Condition libraries (module settings)** — the Codex's settings have **Add Default Status Conditions** (seeds a Rules folder with your game system's conditions, plus empty NPCs/Places folders). If you own **Monsters of Drakkenheim**, an **Add Drakkenheim Conditions** button also appears and imports that module's conditions — read from the module you own at runtime, so nothing paid ships with the Codex and the button is hidden if the module isn't installed. Both merge idempotently (no duplicates).
 - **Explicit syntax** — type `@tip[term]` in any journal editor to force a tip where auto-matching can't reach.
 - **Suggest Glossary Entries (optional, GM-only)** — enable it in settings and likely names of people, places, and organizations that *aren't* in your glossary yet get a subtle amber dashed underline in journals and GM Screen sections. Click one to create its entry on the spot (pre-linked to a matching actor or journal), or dismiss it permanently. Heuristic-based: it skips headings, links, stat-block jargon, and sentence-starting words unless the name also appears mid-sentence. Players never see these highlights.
 
@@ -50,7 +52,9 @@ In Foundry, go to **Add-on Modules → Install Module** and paste this manifest 
 https://raw.githubusercontent.com/TheDarkMantle/Darkmantles-GM-Tools/main/module.json
 ```
 
-Then enable **GM Tools** in your world's **Manage Modules**.
+Then enable **Darkmantle's Codex** in your world's **Manage Modules**.
+
+**Upgrading from "GM Tools" (≤ 0.13.x)?** Install Darkmantle's Codex, enable it, and your world data (glossary, session notes, screen layouts, settings) is copied over automatically the first time the world loads. The old GM Tools module can then be disabled and uninstalled.
 
 ## Settings
 

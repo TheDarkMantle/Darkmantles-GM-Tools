@@ -2,6 +2,7 @@
   "GMTOOLS": {
     "Save": "Save",
     "Create": "Create",
+    "Migrated": "Darkmantle's Codex: your GM Tools data (glossary, notes, screen layout) was migrated to the renamed module.",
     "Screen": {
       "Title": "GM Screen",
       "ReferenceTab": "Reference",
@@ -162,7 +163,7 @@
       "LoadDrakkenheim": {
         "Name": "Drakkenheim Reference",
         "Label": "Add Drakkenheim Reference",
-        "Hint": "Reads Drakkenheim quick-reference from your installed Drakkenheim modules — the new conditions (added to your glossary) plus travel, exploration, delerium, and Deep Haze notes shown on a dedicated GM Screen tab. This button only appears when a Drakkenheim module is installed; no content ships with GM Tools.",
+        "Hint": "Reads Drakkenheim quick-reference from your installed Drakkenheim modules — the new conditions (added to your glossary) plus travel, exploration, delerium, and Deep Haze notes shown on a dedicated GM Screen tab. This button only appears when a Drakkenheim module is installed; no content ships with this module.",
         "Confirm": "Add Drakkenheim quick-reference (conditions + a Drakkenheim GM Screen tab) from your installed modules? Existing entries with the same name are updated — nothing is duplicated.",
         "Result": "Drakkenheim reference added: {conditions} conditions and {sections} reference sections.",
         "NotFound": "Couldn't find Drakkenheim content. Make sure a Drakkenheim module (and its adventure, for travel/exploration) is installed and enabled."

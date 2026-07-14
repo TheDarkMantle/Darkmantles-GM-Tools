@@ -4,6 +4,7 @@ import { GlossaryManagerApp, entryDialog } from "./apps/glossary-manager.mjs";
 import { GlossaryDefaultsMenu, GlossaryDrakkenheimMenu } from "./apps/glossary-import-menu.mjs";
 import { applyGlossary, rebuildMatcher, registerEnricher, refreshJournalWindows, refreshGlossaryManager, isGlossaryEnabled, hasDrakkenheimModule, getGlossary, saveGlossary } from "./glossary.mjs";
 import { applyGapDetection, refreshGapWindows, addGapIgnore, isGapDetectionEnabled } from "./gap-detection.mjs";
+import { migrateLegacyData } from "./migrate-legacy.mjs";
 
 const BUTTON_LOCATIONS = ["players", "nav", "controls"];
 
@@ -189,7 +190,11 @@ Hooks.once("init", () => {
   foundry.applications.handlebars.loadTemplates([TEMPLATES.reference, TEMPLATES.drakkenheim, TEMPLATES.sessionNotes, TEMPLATES.actorCard]);
 });
 
-Hooks.once("ready", () => {
+Hooks.once("ready", async () => {
+  // Copy any pre-rename ("GM Tools" / gm-tools) world + client data into this
+  // module's namespace before anything reads settings. Idempotent, one-time cost.
+  await migrateLegacyData();
+
   rebuildMatcher();
   injectButton();
 
