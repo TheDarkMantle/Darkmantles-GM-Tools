@@ -2,7 +2,7 @@
   "id": "darkmantles-codex",
   "title": "Darkmantle's Codex",
   "description": "A Game Master's codex — everything at your fingertips. A tabbed GM Screen with a system-aware rules reference (D&D 5e, Pathfinder 2e, Starfinder 2e), customizable drag-and-drop layout tabs, glossary hover-tips with gap detection, and session notes.",
-  "version": "0.14.0",
+  "version": "0.14.1",
   "authors": [
     {
       "name": "Shawn Rudolph"

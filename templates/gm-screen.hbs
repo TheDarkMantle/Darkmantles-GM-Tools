@@ -46,18 +46,18 @@
   </nav>
 
   <section class="gm-screen-tab gm-tab-reference {{#if referenceActive}}active{{/if}}" data-tab="reference">
-    {{> "modules/gm-tools/templates/reference-tab.hbs" reference}}
+    {{> "modules/darkmantles-codex/templates/reference-tab.hbs" reference}}
   </section>
 
   {{#if hasDrakkenheim}}
   <section class="gm-screen-tab gm-tab-reference gm-tab-drakkenheim {{#if drakkenheimActive}}active{{/if}}" data-tab="drakkenheim">
-    {{> "modules/gm-tools/templates/drakkenheim-tab.hbs" drakkenheim}}
+    {{> "modules/darkmantles-codex/templates/drakkenheim-tab.hbs" drakkenheim}}
   </section>
   {{/if}}
 
   {{#if sessionNotesEnabled}}
   <section class="gm-screen-tab gm-tab-notes {{#if sessionNotesActive}}active{{/if}}" data-tab="sessionNotes">
-    {{> "modules/gm-tools/templates/session-notes-tab.hbs"}}
+    {{> "modules/darkmantles-codex/templates/session-notes-tab.hbs"}}
   </section>
   {{/if}}
 
