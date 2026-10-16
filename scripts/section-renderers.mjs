@@ -1,14 +1,11 @@
+import { isPrivateStore } from "./private-data.mjs";
+import { escapeHTML as esc } from "./html.mjs";
 import { MODULE_ID, TEMPLATES } from "./constants.mjs";
 
 function textEditor() {
   return foundry.applications.ux.TextEditor.implementation ?? foundry.applications.ux.TextEditor;
 }
 
-function esc(value) {
-  const div = document.createElement("div");
-  div.textContent = String(value ?? "");
-  return div.innerHTML;
-}
 
 function formatMod(n) {
   if (n === null || n === undefined || Number.isNaN(Number(n))) return "—";
@@ -43,7 +40,8 @@ export async function renderSection(uuid) {
     name: doc.name,
     img: doc.img ?? doc.thumb ?? "icons/svg/book.svg",
     // Journals/images/PDFs can be pushed to players via the cell ⋮ menu.
-    canShare: ["JournalEntry", "JournalEntryPage"].includes(doc.documentName),
+    canShare: ["JournalEntry", "JournalEntryPage"].includes(doc.documentName)
+      && !isPrivateStore(doc) && !isPrivateStore(doc.parent),
     // A multi-page journal can have all its sections collapsed at once.
     isJournal: doc.documentName === "JournalEntry"
   };

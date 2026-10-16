@@ -27,20 +27,25 @@ async function enrich(html, relativeTo) {
 }
 
 /** A compendium whose documents are condition Items, if the system ships one. */
-function findConditionsPack() {
-  const known = game.packs.get("pf2e.conditionitems");
-  if (known) return known;
-  for (const pack of game.packs) {
-    if (pack.metadata.type !== "Item") continue;
-    if (/conditions?/i.test(pack.metadata.name) || /conditions?/i.test(pack.metadata.label)) return pack;
-  }
-  return null;
+export function findConditionsPack() {
+  const systemId = game.system.id;
+  const explicit = {
+    pf2e: "pf2e.conditionitems",
+    sf2e: "sf2e.conditions"
+  };
+  const owned = pack => pack.metadata.type === "Item"
+    && pack.metadata.packageType === "system"
+    && pack.metadata.packageName === systemId;
+  const known = game.packs.get(explicit[systemId]);
+  if (known && owned(known)) return known;
+  return game.packs.find(pack => owned(pack)
+    && /conditions?/i.test(`${pack.metadata.name} ${pack.metadata.label}`)) ?? null;
 }
 
 async function fromPack(pack) {
   const docs = await pack.getDocuments();
   const conditions = docs.filter(d => /condition/i.test(d.type ?? ""));
-  const list = conditions.length ? conditions : docs;
+  const list = conditions;
   const out = [];
   for (const doc of list) {
     out.push({ name: doc.name, img: doc.img, uuid: doc.uuid ?? "", html: await enrich(doc.system?.description?.value ?? "", doc) });
