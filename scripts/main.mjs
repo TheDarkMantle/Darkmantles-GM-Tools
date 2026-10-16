@@ -1,3 +1,4 @@
+import { initializePrivateData, PRIVATE_DATA_CHANGED } from "./private-data.mjs";
 import { MODULE_ID, TEMPLATES } from "./constants.mjs";
 import { GMScreenApp } from "./apps/gm-screen.mjs";
 import { GlossaryManagerApp, entryDialog } from "./apps/glossary-manager.mjs";
@@ -36,7 +37,7 @@ Hooks.once("init", () => {
       2014: "GMTOOLS.Settings.RulesVersion.2014"
     },
     onChange: () => {
-      if (GMScreenApp.instance?.rendered) GMScreenApp.instance.render();
+      if (GMScreenApp.instance?.rendered) GMScreenApp.instance.refresh();
     }
   });
 
@@ -56,7 +57,7 @@ Hooks.once("init", () => {
     type: Boolean,
     default: false,
     onChange: () => {
-      if (GMScreenApp.instance?.rendered) GMScreenApp.instance.render();
+      if (GMScreenApp.instance?.rendered) GMScreenApp.instance.refresh();
     }
   });
 
@@ -68,11 +69,11 @@ Hooks.once("init", () => {
     type: Boolean,
     default: false,
     onChange: () => {
-      if (GMScreenApp.instance?.rendered) GMScreenApp.instance.render();
+      if (GMScreenApp.instance?.rendered) GMScreenApp.instance.refresh();
     }
   });
 
-  // The notes HTML itself (world-scoped so it persists across the GM's clients).
+  // Legacy migration source only. New notes live in the GM-only journal.
   game.settings.register(MODULE_ID, "sessionNotes", {
     scope: "world",
     config: false,
@@ -81,7 +82,7 @@ Hooks.once("init", () => {
     onChange: () => {
       // Refresh the read-only view, but never while the editor is open.
       const app = GMScreenApp.instance;
-      if (app?.rendered && !app.isNotesEditing) app.render();
+      if (app?.rendered && !app.isNotesEditing) app.refresh();
     }
   });
 
@@ -94,10 +95,11 @@ Hooks.once("init", () => {
     type: Object,
     default: {},
     onChange: () => {
-      if (GMScreenApp.instance?.rendered) GMScreenApp.instance.render();
+      if (GMScreenApp.instance?.rendered) GMScreenApp.instance.refresh();
     }
   });
 
+  // Player-safe projection only; GM descriptions and folder names stay private.
   game.settings.register(MODULE_ID, "glossary", {
     scope: "world",
     config: false,
@@ -111,7 +113,7 @@ Hooks.once("init", () => {
       refreshJournalWindows();
       refreshGapWindows();                                     // a new entry stops being a gap suggestion
       refreshGlossaryManager();                                // reflect entries added outside the manager (e.g. gap clicks)
-      if (GMScreenApp.instance?.rendered) GMScreenApp.instance.render();
+      if (GMScreenApp.instance?.rendered) GMScreenApp.instance.refresh();
     }
   });
 
@@ -152,7 +154,7 @@ Hooks.once("init", () => {
       ui.journal?.render();                                    // add/remove the sidebar button
       refreshJournalWindows();                                 // apply or strip tips in open journals (runs first)
       refreshGapWindows();                                     // gap detection rides on the glossary
-      if (GMScreenApp.instance?.rendered) GMScreenApp.instance.render(); // tab-bar button + section tips
+      if (GMScreenApp.instance?.rendered) GMScreenApp.instance.refresh(); // tab-bar button + section tips
     }
   });
 
@@ -168,7 +170,7 @@ Hooks.once("init", () => {
     onChange: () => {
       if (!game.ready) return;
       refreshGapWindows();                                     // add or strip highlights in open journals
-      if (GMScreenApp.instance?.rendered) GMScreenApp.instance.render();
+      if (GMScreenApp.instance?.rendered) GMScreenApp.instance.refresh();
     }
   });
 
@@ -181,7 +183,7 @@ Hooks.once("init", () => {
     onChange: () => {
       if (!game.ready) return;
       refreshGapWindows();
-      if (GMScreenApp.instance?.rendered) GMScreenApp.instance.render();
+      if (GMScreenApp.instance?.rendered) GMScreenApp.instance.refresh();
     }
   });
 
@@ -194,6 +196,7 @@ Hooks.once("ready", async () => {
   // Copy any pre-rename ("GM Tools" / gm-tools) world + client data into this
   // module's namespace before anything reads settings. Idempotent, one-time cost.
   await migrateLegacyData();
+  await initializePrivateData();
 
   rebuildMatcher();
   injectButton();
@@ -238,6 +241,16 @@ Hooks.on("renderJournalEntryPageSheet", (app, element) => {
   applyGapDetection(element);  // then gap detection, skipping tips
 });
 
+Hooks.on(PRIVATE_DATA_CHANGED, () => {
+  if (!game.ready) return;
+  rebuildMatcher();
+  refreshJournalWindows();
+  refreshGapWindows();
+  refreshGlossaryManager();
+  const app = GMScreenApp.instance;
+  if (app?.rendered) app.refresh();
+});
+
 // GM-only "Glossary" button in the journal sidebar header
 Hooks.on("renderJournalDirectory", (app, element) => {
   if (!game.user?.isGM || !isGlossaryEnabled()) return;
@@ -264,7 +277,7 @@ for (const hook of ["renderPlayers", "renderSceneNavigation", "renderSceneContro
 const refreshScreen = foundry.utils.debounce(() => {
   const app = GMScreenApp.instance;
   // Don't clobber an open notes editor or interrupt typing in the quick-add bar.
-  if (app?.rendered && !app.isNotesEditing && !app.isQuickNoteFocused) app.render();
+  if (app?.rendered) app.refresh();
 }, 250);
 for (const hook of ["updateActor", "createActiveEffect", "updateActiveEffect", "deleteActiveEffect"]) {
   Hooks.on(hook, refreshScreen);

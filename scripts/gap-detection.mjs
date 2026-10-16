@@ -1,3 +1,4 @@
+import { escapeHTML as esc } from "./html.mjs";
 import { MODULE_ID } from "./constants.mjs";
 import { getEntries, isGlossaryEnabled } from "./glossary.mjs";
 
@@ -59,11 +60,6 @@ function escapeRegExp(str) {
   return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-function esc(value) {
-  const div = document.createElement("div");
-  div.textContent = String(value ?? "");
-  return div.innerHTML;
-}
 
 export function isGapDetectionEnabled() {
   return !!game.user?.isGM

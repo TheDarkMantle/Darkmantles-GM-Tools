@@ -1,11 +1,8 @@
+import { readPrivateGlossary, writePrivateGlossary } from "./private-data.mjs";
+import { escapeHTML as esc } from "./html.mjs";
 import { MODULE_ID } from "./constants.mjs";
 import { getSystemConditions } from "./reference/system-conditions.mjs";
 
-function esc(value) {
-  const div = document.createElement("div");
-  div.textContent = String(value ?? "");
-  return div.innerHTML;
-}
 
 function escapeRegExp(str) {
   return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -18,7 +15,7 @@ export function isGlossaryEnabled() {
 
 /** The full stored glossary: folders + entries, with safe defaults for old data. */
 export function getGlossary() {
-  const data = game.settings.get(MODULE_ID, "glossary") ?? {};
+  const data = game.user.isGM ? readPrivateGlossary() : (game.settings.get(MODULE_ID, "glossary") ?? {});
   return {
     folders: foundry.utils.deepClone(data.folders ?? []),
     entries: foundry.utils.deepClone(data.entries ?? [])
@@ -26,7 +23,7 @@ export function getGlossary() {
 }
 
 export async function saveGlossary({ folders, entries }) {
-  await game.settings.set(MODULE_ID, "glossary", { folders: folders ?? [], entries: entries ?? [] });
+  await writePrivateGlossary({ folders: folders ?? [], entries: entries ?? [] });
 }
 
 export function getEntries() {
@@ -59,7 +56,7 @@ export async function deleteFolder(folderId) {
 
 /**
  * Merge a portable glossary object into the stored one. Folders are referenced
- * by name (created as needed); entries are matched by term (case-insensitive).
+ * by IDs in v2 files (legacy names remain supported); entries match by term.
  * mode: "merge" (add + update), "add" (skip existing), "replace" (wipe first).
  */
 export async function importGlossary(data, mode = "merge") {
@@ -68,20 +65,47 @@ export async function importGlossary(data, mode = "merge") {
   const entries = base.entries;
   const result = { added: 0, updated: 0, skipped: 0, foldersCreated: 0 };
 
-  const ensureFolder = (name, parentName = null) => {
+  if (!data || !Array.isArray(data.entries) || (data.folders != null && !Array.isArray(data.folders))) {
+    throw new Error("Invalid glossary file: expected entries and folders arrays.");
+  }
+  const ensureFolder = (name, parentId = null) => {
+    name = String(name ?? "").trim();
     if (!name) return null;
-    const parentId = parentName ? ensureFolder(parentName) : null;
-    let f = folders.find(x =>
-      x.name.toLowerCase() === String(name).toLowerCase() && (x.parent ?? null) === (parentId ?? null));
+    let f = folders.find(x => x.name.toLowerCase() === name.toLowerCase() && (x.parent ?? null) === parentId);
     if (!f) {
-      f = { id: foundry.utils.randomID(8), name: String(name), parent: parentId ?? null };
+      f = { id: foundry.utils.randomID(8), name, parent: parentId };
       folders.push(f);
       result.foldersCreated++;
     }
     return f.id;
   };
-
-  for (const f of data.folders ?? []) ensureFolder(f.name, f.parent ?? null);
+  const incoming = data.folders ?? [];
+  const mapped = new Map();
+  const visiting = new Set();
+  const modern = data.version === 2;
+  if (data.version != null && !modern) throw new Error("Unsupported glossary format version.");
+  const index = new Map();
+  for (const folder of incoming) {
+    const key = modern ? folder.id : folder.name;
+    if (typeof key !== "string" || !key || index.has(key)) throw new Error("Missing or duplicate folder identifier.");
+    index.set(key, folder);
+  }
+  const resolve = key => {
+    if (!key) return null;
+    if (mapped.has(key)) return mapped.get(key);
+    if (visiting.has(key)) throw new Error("Folder hierarchy contains a cycle.");
+    const folder = index.get(key);
+    if (!folder) {
+      if (modern) throw new Error("Unknown folder identifier.");
+      return ensureFolder(key);
+    }
+    visiting.add(key);
+    const id = ensureFolder(folder.name, resolve(folder.parent));
+    visiting.delete(key);
+    mapped.set(key, id);
+    return id;
+  };
+  for (const key of index.keys()) resolve(key);
 
   for (const raw of data.entries ?? []) {
     const term = String(raw.term ?? "").trim();
@@ -97,7 +121,7 @@ export async function importGlossary(data, mode = "merge") {
       playerTip: mirrorGM ? gmTip : String(raw.playerTip ?? "").trim(),
       mirrorGM,
       link: String(raw.link ?? "").trim(),
-      folder: raw.folder ? ensureFolder(raw.folder) : null
+      folder: resolve(raw.folder)
     };
     const existing = entries.find(e => e.term?.trim().toLowerCase() === term.toLowerCase());
     if (existing) {
@@ -343,12 +367,12 @@ export function refreshGlossaryManager() {
   }
 }
 
-/** A portable, name-based snapshot of the glossary for download/sharing. */
+/** A portable v2 snapshot preserving folder IDs and their complete hierarchy. */
 export function toPortable() {
   const { folders, entries } = getGlossary();
-  const nameById = new Map(folders.map(f => [f.id, f.name]));
   return {
-    folders: folders.map(f => ({ name: f.name, parent: f.parent ? (nameById.get(f.parent) ?? null) : null })),
+    version: 2,
+    folders: folders.map(f => ({ id: f.id, name: f.name, parent: f.parent ?? null })),
     entries: entries.map(e => ({
       term: e.term,
       aliases: e.aliases ?? [],
@@ -356,7 +380,7 @@ export function toPortable() {
       playerTip: e.playerTip ?? "",
       mirrorGM: !!e.mirrorGM,
       link: e.link ?? "",
-      folder: e.folder ? (nameById.get(e.folder) ?? null) : null
+      folder: e.folder ?? null
     }))
   };
 }

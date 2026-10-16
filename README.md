@@ -56,6 +56,26 @@ A persistent GM notepad, enabled in module settings.
 5. Open your world, go to **Game Settings → Manage Modules**, check the box next to **Darkmantle's Codex**, and **Save Module Settings**.
 
 
+## GM data storage and upgrades
+
+GM glossary descriptions, folder names, and session notes are stored in a world
+compendium named **Darkmantle's Codex — GM Data**, restricted to GMs. Keep this
+pack private and include it in world backups. Only entries with a player
+description are published to the player-facing glossary.
+
+On the first GM login after upgrading, the module copies existing glossary and
+notes settings into the private pack before clearing the old private text from
+settings (including the former `gm-tools` namespace). If migration fails, the
+original settings are retained. Once migrated, older module versions cannot read
+the private store; use a world backup if rolling back.
+
+## Development checks
+
+Run `node --test tests/regression.test.mjs` for the storage migration, folder
+import/export, escaping, condition selection, draft retention, and sharing checks.
+These use mocked Foundry APIs; multiplayer permissions and UI behavior also need
+verification in Foundry v14.
+
 ## Settings
 
 | Setting | Scope | Description |

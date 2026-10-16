@@ -1,16 +1,12 @@
+import { escapeHTML as esc } from "../html.mjs";
 import { MODULE_ID, TEMPLATES } from "../constants.mjs";
 import {
-  getGlossary, getFolders, saveFolders, deleteFolder,
+  getGlossary, getFolders, saveGlossary, saveFolders, deleteFolder,
   importGlossary, exportGlossary
 } from "../glossary.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin, DialogV2 } = foundry.applications.api;
 
-function esc(value) {
-  const div = document.createElement("div");
-  div.textContent = String(value ?? "");
-  return div.innerHTML;
-}
 
 /** Folders as a nested tree, sorted by name. */
 function folderTree(folders, parent = null) {
@@ -202,7 +198,7 @@ export class GlossaryManagerApp extends HandlebarsApplicationMixin(ApplicationV2
   /* -------------------------------------------- */
 
   async #saveEntries(entries) {
-    await game.settings.set(MODULE_ID, "glossary", { folders: getFolders(), entries });
+    await saveGlossary({ folders: getFolders(), entries });
     this.render();
   }
 
@@ -430,8 +426,7 @@ export async function entryDialog(initial = null, { gapMode = false } = {}) {
       // (like via the button above) while this dialog stays open.
       const select = root.querySelector('select[name="folder"]');
       if (select) {
-        folderHookId = Hooks.on("updateSetting", setting => {
-          if (setting?.key !== `${MODULE_ID}.glossary`) return;
+        folderHookId = Hooks.on(`${MODULE_ID}.privateDataChanged`, () => {
           select.innerHTML = folderOptionsHTML(select.value, { noneLabel: i18n("Uncategorized") });
         });
       }
@@ -471,7 +466,7 @@ export async function entryDialog(initial = null, { gapMode = false } = {}) {
       });
     } finally {
       Hooks.off("renderDialogV2", bind); // safety if dialog closed before binding
-      if (folderHookId) Hooks.off("updateSetting", folderHookId);
+      if (folderHookId) Hooks.off(`${MODULE_ID}.privateDataChanged`, folderHookId);
     }
     if (result === "ignore") return "ignore";
     if (!result || typeof result !== "object") return null;

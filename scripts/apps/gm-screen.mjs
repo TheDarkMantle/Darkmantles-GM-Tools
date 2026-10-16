@@ -1,3 +1,5 @@
+import { readSessionNotes, writeSessionNotes, appendSessionNote, isPrivateStore } from "../private-data.mjs";
+import { escapeHTML as esc } from "../html.mjs";
 import { MODULE_ID, TEMPLATES } from "../constants.mjs";
 import { getReferenceData } from "../reference-data.mjs";
 import { renderSection } from "../section-renderers.mjs";
@@ -7,11 +9,6 @@ import { GlossaryManagerApp } from "./glossary-manager.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin, DialogV2 } = foundry.applications.api;
 
-function esc(value) {
-  const div = document.createElement("div");
-  div.textContent = String(value ?? "");
-  return div.innerHTML;
-}
 
 export class GMScreenApp extends HandlebarsApplicationMixin(ApplicationV2) {
   /** Singleton instance toggled by the UI button. */
@@ -19,6 +16,24 @@ export class GMScreenApp extends HandlebarsApplicationMixin(ApplicationV2) {
 
   /** True while the Session Notes tab is in edit (ProseMirror) mode. */
   #editingNotes = false;
+  #quickDraft = "";
+  #notesDraft = null;
+  #formatVisible = false;
+  #submittingNote = false;
+  #restoreQuickFocus = false;
+
+  /** Background updates defer during deliberate editing; other renders retain drafts. */
+  refresh() {
+    if (!this.#editingNotes && !this.isQuickNoteFocused && !this.#submittingNote) return this.render();
+  }
+
+  #captureDrafts() {
+    const quick = this.element?.querySelector("prose-mirror[name=\"gm-tools-quicknote\"]");
+    if (quick) this.#quickDraft = quick.value ?? "";
+    const notes = this.element?.querySelector("prose-mirror[name=\"gm-tools-notes\"]");
+    if (notes && this.#editingNotes) this.#notesDraft = notes.value;
+  }
+
 
   get isNotesEditing() {
     return this.#editingNotes;
@@ -83,6 +98,7 @@ export class GMScreenApp extends HandlebarsApplicationMixin(ApplicationV2) {
   /* -------------------------------------------- */
 
   async _prepareContext(options) {
+    this.#captureDrafts();
     const context = await super._prepareContext(options);
     const data = this.#getData();
     data.tabs ??= [];
@@ -107,7 +123,7 @@ export class GMScreenApp extends HandlebarsApplicationMixin(ApplicationV2) {
     const hasDrakkenheim = Object.values(drakkenheim)
       .some(v => Array.isArray(v) ? v.length : (v && Object.keys(v).length));
 
-    const notes = game.settings.get(MODULE_ID, "sessionNotes") ?? "";
+    const notes = readSessionNotes();
     const TE = foundry.applications.ux.TextEditor.implementation ?? foundry.applications.ux.TextEditor;
 
     return Object.assign(context, {
@@ -165,10 +181,10 @@ export class GMScreenApp extends HandlebarsApplicationMixin(ApplicationV2) {
       container.replaceChildren();
       const editor = foundry.applications.elements.HTMLProseMirrorElement.create({
         name: "gm-tools-notes",
-        value: game.settings.get(MODULE_ID, "sessionNotes") ?? ""
+        value: this.#notesDraft ?? readSessionNotes()
       });
       container.append(editor);
-      editor.addEventListener("change", () => game.settings.set(MODULE_ID, "sessionNotes", editor.value));
+      editor.addEventListener("input", () => { this.#notesDraft = editor.value; });
     }
 
     this.#updateNotesBar();
@@ -178,29 +194,51 @@ export class GMScreenApp extends HandlebarsApplicationMixin(ApplicationV2) {
     // is submitted with the Send button or Ctrl/Cmd+Enter.
     const wrap = this.element.querySelector(".gm-notes-quickadd");
     if (wrap && !wrap.classList.contains("gm-disabled")) {
-      this.#buildQuickAdd(wrap);
+      wrap.classList.toggle("show-format", this.#formatVisible);
+      this.#buildQuickAdd(wrap, { focus: this.#restoreQuickFocus });
+      this.#restoreQuickFocus = false;
       const toggle = this.element.querySelector(".gm-notes-format-toggle");
+      toggle?.setAttribute("aria-pressed", String(this.#formatVisible));
       toggle?.addEventListener("click", () => {
-        const on = wrap.classList.toggle("show-format");
+        const on = this.#formatVisible = wrap.classList.toggle("show-format");
         toggle.setAttribute("aria-pressed", String(on));
       });
       const send = this.element.querySelector(".gm-notes-send");
+      if (send) send.disabled = this.#submittingNote;
       send?.addEventListener("click", () => {
         const editor = wrap.querySelector("prose-mirror");
-        if (editor) this.#submitQuickNote(editor, wrap);
+        if (editor) return this.#submitQuickNote(editor);
       });
     }
   }
 
   /** Append the quick-add editor's content to the session notes, then clear + refocus. */
-  async #submitQuickNote(editor, wrap) {
+  async #submitQuickNote(editor) {
+    if (this.#submittingNote) return;
     const value = editor.value ?? "";
     const probe = document.createElement("div");
     probe.innerHTML = value;
     if (!probe.textContent.trim() && !probe.querySelector("img, table, hr")) return;
-    const current = game.settings.get(MODULE_ID, "sessionNotes") ?? "";
-    await game.settings.set(MODULE_ID, "sessionNotes", `${current}<hr>${value}`);
-    this.#buildQuickAdd(wrap, { focus: true });
+    this.#submittingNote = true;
+    editor.disabled = true;
+    const send = this.element.querySelector(".gm-notes-send");
+    if (send) send.disabled = true;
+    try {
+      await appendSessionNote(value);
+      this.#quickDraft = "";
+      const currentWrap = this.element?.querySelector(".gm-notes-quickadd");
+      currentWrap?.querySelector("prose-mirror")?.remove();
+      this.#restoreQuickFocus = true;
+      await this.render();
+    } catch (err) {
+      console.error(`${MODULE_ID} | Note submission failed`, err);
+      ui.notifications.error(err.message);
+    } finally {
+      this.#submittingNote = false;
+      editor.disabled = false;
+      const currentSend = this.element?.querySelector(".gm-notes-send");
+      if (currentSend) currentSend.disabled = false;
+    }
   }
 
   /**
@@ -212,9 +250,10 @@ export class GMScreenApp extends HandlebarsApplicationMixin(ApplicationV2) {
     wrap.querySelector("prose-mirror")?.remove();
     const editor = foundry.applications.elements.HTMLProseMirrorElement.create({
       name: "gm-tools-quicknote",
-      value: ""
+      value: this.#quickDraft
     });
     wrap.append(editor);
+    editor.addEventListener("input", () => { this.#quickDraft = editor.value; });
     // Placeholder: Foundry doesn't flag an empty editor, so track emptiness ourselves
     // and show wrap[data-placeholder] via CSS while the field is blank. The inner
     // .ProseMirror builds a tick after append, so wait for it via a MutationObserver
@@ -239,7 +278,7 @@ export class GMScreenApp extends HandlebarsApplicationMixin(ApplicationV2) {
       if (event.key !== "Enter" || !(event.ctrlKey || event.metaKey)) return;
       event.preventDefault();
       event.stopImmediatePropagation();
-      this.#submitQuickNote(editor, wrap);
+      this.#submitQuickNote(editor);
     }, true);
   }
 
@@ -364,7 +403,7 @@ export class GMScreenApp extends HandlebarsApplicationMixin(ApplicationV2) {
     if (!tab) return;
     const confirmed = await DialogV2.confirm({
       window: { title: game.i18n.localize("GMTOOLS.Screen.DeleteTab") },
-      content: `<p>${game.i18n.format("GMTOOLS.Screen.DeleteTabConfirm", { name: tab.name })}</p>`,
+      content: `<p>${game.i18n.format("GMTOOLS.Screen.DeleteTabConfirm", { name: esc(tab.name) })}</p>`,
       rejectClose: false,
       modal: true
     });
@@ -413,16 +452,13 @@ export class GMScreenApp extends HandlebarsApplicationMixin(ApplicationV2) {
     const doc = uuid ? await fromUuid(uuid) : null;
     if (!doc) return;
     try {
-      if (doc.documentName === "JournalEntry") {
-        await doc.show();
-      } else if (doc.documentName === "JournalEntryPage") {
-        if (doc.type === "image" && doc.src) {
-          await new foundry.applications.apps.ImagePopout({ src: doc.src, window: { title: doc.name }, uuid: doc.uuid }).shareImage();
-        } else {
-          await doc.parent?.show?.();
-        }
+      if (isPrivateStore(doc) || isPrivateStore(doc.parent)) {
+        throw new Error("The Codex private data journal cannot be shared.");
       }
-      ui.notifications.info(game.i18n.format("GMTOOLS.Screen.SharedWithPlayers", { name: doc.name }));
+      if (["JournalEntry", "JournalEntryPage"].includes(doc.documentName)) {
+        await foundry.documents.collections.Journal.showDialog(doc, { parent: this });
+      }
+
     } catch (err) {
       console.error(`${MODULE_ID} | Show to players failed`, err);
       ui.notifications.warn(game.i18n.localize("GMTOOLS.Screen.ShowPlayersFailed"));
@@ -449,18 +485,20 @@ export class GMScreenApp extends HandlebarsApplicationMixin(ApplicationV2) {
 
   static async #onSaveNotes() {
     const editor = this.element.querySelector("prose-mirror[name='gm-tools-notes']");
-    if (editor) await game.settings.set(MODULE_ID, "sessionNotes", editor.value);
+    if (editor) await writeSessionNotes(editor.value);
     this.#editingNotes = false;
+    this.#notesDraft = null;
     this.render();
   }
 
   static #onCancelNotes() {
     this.#editingNotes = false;
+    this.#notesDraft = null;
     this.render();
   }
 
   static async #onExportNotes() {
-    const notes = game.settings.get(MODULE_ID, "sessionNotes") ?? "";
+    const notes = readSessionNotes();
     if (!notes.trim()) {
       ui.notifications.warn(game.i18n.localize("GMTOOLS.Screen.NotesEmpty"));
       return;
