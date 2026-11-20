@@ -3,7 +3,8 @@ import { MODULE_ID, TEMPLATES } from "./constants.mjs";
 import { GMScreenApp } from "./apps/gm-screen.mjs";
 import { GlossaryManagerApp, entryDialog } from "./apps/glossary-manager.mjs";
 import { GlossaryDefaultsMenu, GlossaryDrakkenheimMenu } from "./apps/glossary-import-menu.mjs";
-import { applyGlossary, rebuildMatcher, registerEnricher, refreshJournalWindows, refreshGlossaryManager, isGlossaryEnabled, hasDrakkenheimModule, getGlossary, saveGlossary } from "./glossary.mjs";
+import { applyGlossary, rebuildMatcher, registerEnricher, refreshJournalWindows, refreshGlossaryManager, isGlossaryEnabled, hasDrakkenheimModule, getGlossary, saveGlossary, hasOtherRulesetConditions } from "./glossary.mjs";
+import { getDnd5eRulesVersion } from "./rules-version.mjs";
 import { applyGapDetection, refreshGapWindows, addGapIgnore, isGapDetectionEnabled } from "./gap-detection.mjs";
 import { migrateLegacyData } from "./migrate-legacy.mjs";
 
@@ -25,21 +26,7 @@ Hooks.once("init", () => {
     onChange: () => injectButton()
   });
 
-  game.settings.register(MODULE_ID, "rulesVersion", {
-    name: "GMTOOLS.Settings.RulesVersion.Name",
-    hint: "GMTOOLS.Settings.RulesVersion.Hint",
-    scope: "world",
-    config: game.system?.id === "dnd5e", // 2014/2024 is a D&D 5e concept only
-    type: String,
-    default: "2024",
-    choices: {
-      2024: "GMTOOLS.Settings.RulesVersion.2024",
-      2014: "GMTOOLS.Settings.RulesVersion.2014"
-    },
-    onChange: () => {
-      if (GMScreenApp.instance?.rendered) GMScreenApp.instance.refresh();
-    }
-  });
+  // 2014 vs 2024 content follows the dnd5e system's own rules setting (see rules-version.mjs).
 
   game.settings.register(MODULE_ID, "screenData", {
     scope: "world",
@@ -200,6 +187,13 @@ Hooks.once("ready", async () => {
 
   rebuildMatcher();
   injectButton();
+
+  // The world's ruleset changed since the default conditions were added: say so once per load.
+  try {
+    if (isGlossaryEnabled() && hasOtherRulesetConditions()) {
+      ui.notifications.info(game.i18n.format("GMTOOLS.Glossary.OtherRuleset", { version: getDnd5eRulesVersion() }));
+    }
+  } catch (err) { console.warn(`${MODULE_ID} | Ruleset check skipped`, err); }
 
   // One delegated handler for every clickable glossary tip (journals, GM Screen, chat).
   document.addEventListener("click", async event => {

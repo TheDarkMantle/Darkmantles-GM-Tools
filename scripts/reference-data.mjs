@@ -1,13 +1,13 @@
 /**
  * Static reference content for the GM Screen's Reference tab.
- * D&D 5e conditions carry separate text for the 2014 and 2024 rules; the
- * `rulesVersion` module setting selects which variant is displayed. For other
+ * D&D 5e content carries separate 2014 and 2024 variants; the dnd5e system's
+ * own rules setting (see rules-version.mjs) selects which is displayed. For other
  * systems, conditions are read from the installed system at runtime and the
  * travel/lighting tables below are used.
  */
 
-import { MODULE_ID } from "./constants.mjs";
 import { getSystemConditions } from "./reference/system-conditions.mjs";
+import { getDnd5eRulesVersion } from "./rules-version.mjs";
 
 export const CONDITIONS = [
   {
@@ -243,33 +243,73 @@ export const CONDITIONS = [
   }
 ];
 
+/**
+ * Travel pace. Distances are the same in both rulesets; the pace effects changed
+ * in 2024, and 2024 caps pace by terrain instead of halving it. Checked against
+ * the dnd5e system's "Travel Pace" rules pages (rules + content24 packs).
+ */
+const TRAVEL_DISTANCES = {
+  Fast: { minute: "400 ft", hour: "4 miles", day: "30 miles" },
+  Normal: { minute: "300 ft", hour: "3 miles", day: "24 miles" },
+  Slow: { minute: "200 ft", hour: "2 miles", day: "18 miles" }
+};
+const travelPaces = effects => Object.entries(effects)
+  .map(([pace, effect]) => ({ pace, ...TRAVEL_DISTANCES[pace], effect }));
+const FORCED_MARCH = "Forced march: for each hour past 8, each creature makes a Constitution save (DC 10 + 1 per extra hour); on a failure it gains 1 level of Exhaustion.";
+
 export const TRAVEL = {
-  paces: [
-    { pace: "Fast", minute: "400 ft", hour: "4 miles", day: "30 miles", effect: "−5 penalty to passive Wisdom (Perception)" },
-    { pace: "Normal", minute: "300 ft", hour: "3 miles", day: "24 miles", effect: "—" },
-    { pace: "Slow", minute: "200 ft", hour: "2 miles", day: "18 miles", effect: "Able to use Stealth" }
-  ],
-  notes: [
-    "A travel day assumes 8 hours on the move.",
-    "Forced march: for each hour past 8, each creature makes a Constitution save (DC 10 + 1 per extra hour); on a failure it gains 1 level of Exhaustion.",
-    "Difficult terrain: travel at half pace.",
-    "Mounts: a mount can gallop at double the fast pace for about an hour."
-  ]
+  2014: {
+    paces: travelPaces({
+      Fast: "−5 penalty to passive Wisdom (Perception)",
+      Normal: "—",
+      Slow: "Able to use Stealth"
+    }),
+    notes: [
+      "A travel day assumes 8 hours on the move.",
+      FORCED_MARCH,
+      "Difficult terrain: travel at half pace.",
+      "Mounts: a mount can gallop at double the fast pace for about an hour."
+    ]
+  },
+  2024: {
+    paces: travelPaces({
+      Fast: "Disadvantage on Wisdom (Perception or Survival) and Dexterity (Stealth) checks",
+      Normal: "Disadvantage on Dexterity (Stealth) checks",
+      Slow: "Advantage on Wisdom (Perception or Survival) checks"
+    }),
+    notes: [
+      "A travel day assumes 8 hours on the move.",
+      FORCED_MARCH,
+      "Terrain sets the maximum pace (e.g. Mountain or Swamp: Slow; Grassland: Fast). A good road raises it one step.",
+      "Slower travelers: the group moves at a Slow pace if anyone's Speed is halved or worse.",
+      "Mounts: the group can move twice the distance for 1 hour; then the mounts need a Short or Long Rest."
+    ]
+  }
 };
 
-export const LIGHT_SOURCES = [
+/**
+ * Light sources. Only two rows differ between rulesets (checked against the
+ * dnd5e item/equipment24 and spells/spells24 packs): Produce Flame got brighter,
+ * and lowering a lantern's hood became a Bonus Action.
+ */
+const lightSources = ({ hood, produceFlame }) => [
   { source: "Candle", bright: "5 ft", dim: "+5 ft", duration: "1 hour" },
   { source: "Torch", bright: "20 ft", dim: "+20 ft", duration: "1 hour" },
   { source: "Lamp", bright: "15 ft", dim: "+30 ft", duration: "6 hours per flask of oil" },
-  { source: "Lantern, hooded", bright: "30 ft", dim: "+30 ft", duration: "6 hours (hood lowered: dim light in 5 ft only)" },
+  { source: "Lantern, hooded", bright: "30 ft", dim: "+30 ft", duration: `6 hours (${hood} to lower the hood: dim light in 5 ft only)` },
   { source: "Lantern, bullseye", bright: "60 ft cone", dim: "+60 ft cone", duration: "6 hours" },
   { source: "Campfire", bright: "20 ft", dim: "+20 ft", duration: "While fueled" },
   { source: "Light (cantrip)", bright: "20 ft", dim: "+20 ft", duration: "1 hour" },
   { source: "Dancing Lights (cantrip)", bright: "—", dim: "10 ft", duration: "1 minute (concentration)" },
-  { source: "Produce Flame (cantrip)", bright: "10 ft", dim: "+10 ft", duration: "10 minutes" },
+  { source: "Produce Flame (cantrip)", bright: produceFlame, dim: `+${produceFlame}`, duration: "10 minutes" },
   { source: "Continual Flame (2nd)", bright: "20 ft", dim: "+20 ft", duration: "Permanent" },
   { source: "Daylight (3rd)", bright: "60 ft", dim: "+60 ft", duration: "1 hour" }
 ];
+
+export const LIGHT_SOURCES = {
+  2014: lightSources({ hood: "an action", produceFlame: "10 ft" }),
+  2024: lightSources({ hood: "a Bonus Action", produceFlame: "20 ft" })
+};
 
 /**
  * Jumping and other tactical movement. Jump distances are unchanged between the
@@ -398,13 +438,14 @@ function dnd5eSections(rulesVersion) {
   const conditions = CONDITIONS.map(c => ({
     name: c.name,
     icon: c.icon,
-    effects: c.rules[rulesVersion] ?? c.rules["2024"]
+    effects: c.rules[version]
   }));
+  const travel = TRAVEL[version];
   return [
     { id: "conditions", icon: "fa-solid fa-heart-crack", title: t("Conditions"), blocks: [conditionsBlock(conditions)] },
     { id: "travel", icon: "fa-solid fa-route", title: t("Travel"), blocks: [
       tableBlock([t("Pace"), t("PerMinute"), t("PerHour"), t("PerDay"), t("Effect")],
-        TRAVEL.paces.map(p => [p.pace, p.minute, p.hour, p.day, p.effect]), TRAVEL.notes)
+        travel.paces.map(p => [p.pace, p.minute, p.hour, p.day, p.effect]), travel.notes)
     ] },
     { id: "movement", icon: "fa-solid fa-person-running", title: t("Movement"), blocks: [
       tableBlock([t("Jump"), t("RunningStart"), t("Standing")],
@@ -417,7 +458,7 @@ function dnd5eSections(rulesVersion) {
         : [])
     ] },
     { id: "light", icon: "fa-solid fa-fire", title: t("Light"), blocks: [
-      tableBlock([t("Source"), t("Bright"), t("Dim"), t("Duration")], LIGHT_SOURCES.map(l => [l.source, l.bright, l.dim, l.duration]))
+      tableBlock([t("Source"), t("Bright"), t("Dim"), t("Duration")], LIGHT_SOURCES[version].map(l => [l.source, l.bright, l.dim, l.duration]))
     ] }
   ];
 }
@@ -448,14 +489,15 @@ const PAIZO_2E = new Set(["pf2e", "sf2e", "starfinder-2e", "starfinder2e"]);
 
 /**
  * Assemble the Reference tab as a list of sections for the active game system.
- * dnd5e uses the curated bundle (with the 2014/2024 toggle); Paizo 2e systems
+ * dnd5e uses the curated bundle (2014 or 2024, following the world); Paizo 2e systems
  * read conditions from the system + the authored travel/light tables; any other
  * system gets conditions from CONFIG.statusEffects plus a "not fully supported" note.
  */
 export async function getReferenceData() {
   const systemId = game.system?.id ?? "";
   if (systemId === "dnd5e") {
-    return { systemId, sections: dnd5eSections(game.settings.get(MODULE_ID, "rulesVersion")) };
+    const version = getDnd5eRulesVersion();
+    return { systemId, rulesLabel: t(`Rules${version}`), sections: dnd5eSections(version) };
   }
   if (PAIZO_2E.has(systemId)) {
     return { systemId, sections: await paizo2eSections(systemId) };

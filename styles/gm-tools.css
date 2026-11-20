@@ -492,6 +492,13 @@
   outline: none;
 }
 
+.gm-ref-toolbar .gm-ref-rules {
+  flex: none;
+  font-size: 0.85em;
+  opacity: 0.75;
+  white-space: nowrap;
+}
+
 .gm-ref-section {
   margin-bottom: 16px;
 }
