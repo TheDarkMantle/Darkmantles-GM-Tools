@@ -52,7 +52,7 @@ A persistent GM notepad, turned on with the **Enable Session Notes Tab** setting
 3. Paste this manifest URL into the **Manifest URL** field at the bottom of the dialog:
 
    ```
-   https://raw.githubusercontent.com/TheDarkMantle/Darkmantles-GM-Tools/main/module.json
+   https://raw.githubusercontent.com/TheDarkMantle/darkmantles-codex/main/module.json
    ```
 
 4. Click **Install**. Foundry will show **Darkmantle's Codex** in the install list.
