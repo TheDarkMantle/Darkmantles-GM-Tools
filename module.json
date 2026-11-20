@@ -2,7 +2,7 @@
   "id": "darkmantles-codex",
   "title": "Darkmantle's Codex",
   "description": "A Game Master's codex — everything at your fingertips. A tabbed GM Screen with a system-aware rules reference (D&D 5e, Pathfinder 2e, Starfinder 2e), customizable drag-and-drop layout tabs, glossary hover-tips with gap detection, and session notes.",
-  "version": "0.16.0",
+  "version": "0.16.1",
   "authors": [
     {
       "name": "Shawn Rudolph"
@@ -12,11 +12,11 @@
     "minimum": "13",
     "verified": "14.364"
   },
-  "url": "https://github.com/TheDarkMantle/Darkmantles-GM-Tools",
-  "manifest": "https://raw.githubusercontent.com/TheDarkMantle/Darkmantles-GM-Tools/main/module.json",
-  "download": "https://github.com/TheDarkMantle/Darkmantles-GM-Tools/archive/refs/heads/main.zip",
-  "readme": "https://github.com/TheDarkMantle/Darkmantles-GM-Tools/blob/main/README.md",
-  "bugs": "https://github.com/TheDarkMantle/Darkmantles-GM-Tools/issues",
+  "url": "https://github.com/TheDarkMantle/darkmantles-codex",
+  "manifest": "https://raw.githubusercontent.com/TheDarkMantle/darkmantles-codex/main/module.json",
+  "download": "https://github.com/TheDarkMantle/darkmantles-codex/archive/refs/heads/main.zip",
+  "readme": "https://github.com/TheDarkMantle/darkmantles-codex/blob/main/README.md",
+  "bugs": "https://github.com/TheDarkMantle/darkmantles-codex/issues",
   "esmodules": ["scripts/main.mjs"],
   "styles": ["styles/gm-tools.css"],
   "languages": [
