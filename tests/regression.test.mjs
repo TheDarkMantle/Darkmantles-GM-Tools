@@ -195,7 +195,6 @@ test("unfocused drafts survive rerenders and Cancel leaves saved notes untouched
   app.element={querySelector:selector=>selector.includes("gm-tools-quicknote")?draft:selector===".gm-notes-quickadd"?wrap:null,
     querySelectorAll:()=>[],removeEventListener(){},addEventListener(){}};
   settings.set(`${MODULE_ID}.screenData`,{tabs:[]});
-  settings.set(`${MODULE_ID}.rulesVersion`,"2024");
   await app._prepareContext({});
   app._onRender({},{});
   assert.equal(createdEditors.at(-1).value,draft.value);
@@ -212,4 +211,45 @@ test("missing private pages abort cleanup instead of discarding legacy content",
   settings.set(`${MODULE_ID}.sessionNotes`,"legacy backup");
   await assert.rejects(privateData.initializePrivateData(),/page is missing/);
   assert.equal(settings.get(`${MODULE_ID}.sessionNotes`),"legacy backup");
+});
+
+test("D&D 5e content follows the world's dnd5e rules setting (2014 vs 2024)", async () => {
+  const { getReferenceData } = await import("../scripts/reference-data.mjs");
+  const section = (data, id) => data.sections.find(s => s.id === id);
+  const names = data => section(data, "actions").blocks[0].entries.map(a => a.name);
+
+  reset(); settings.set("dnd5e.rulesVersion", "legacy");
+  const legacy = await getReferenceData();
+  assert.equal(legacy.rulesLabel, "GMTOOLS.Reference.Rules2014");
+  assert.ok(names(legacy).includes("Cast a Spell") && !names(legacy).includes("Magic"));
+  assert.equal(section(legacy, "actions").blocks.length, 1); // no 2024 Study table
+  assert.match(section(legacy, "travel").blocks[0].rows[0][4], /passive Wisdom/);
+
+  reset(); settings.set("dnd5e.rulesVersion", "modern");
+  const modern = await getReferenceData();
+  assert.equal(modern.rulesLabel, "GMTOOLS.Reference.Rules2024");
+  assert.ok(names(modern).includes("Magic") && !names(modern).includes("Cast a Spell"));
+  assert.match(section(modern, "travel").blocks[0].rows[0][4], /Survival/);
+  const flame = rows => rows.find(r => r[0].startsWith("Produce Flame"))[1];
+  assert.equal(flame(section(legacy, "light").blocks[0].rows), "10 ft");
+  assert.equal(flame(section(modern, "light").blocks[0].rows), "20 ft");
+});
+
+test("default conditions use the world's ruleset, link the system rules page, and flag the other ruleset", async () => {
+  reset(); await privateData.initializePrivateData();
+  globalThis.CONFIG.DND5E = { conditionTypes: { grappled: { reference: "Compendium.dnd5e.rules.grappled" } } };
+  settings.set("dnd5e.rulesVersion", "modern");
+  await glossary.loadDefaultConditions("merge");
+  const grappled = () => glossary.getEntries().find(e => e.term === "Grappled");
+  assert.equal(grappled().link, "Compendium.dnd5e.rules.grappled");
+  const modernTip = grappled().gmTip;
+  assert.equal(glossary.hasOtherRulesetConditions(), false);
+
+  settings.set("dnd5e.rulesVersion", "legacy");            // world switched to 2014
+  assert.equal(glossary.hasOtherRulesetConditions(), true);
+  await glossary.loadDefaultConditions("merge");
+  assert.notEqual(grappled().gmTip, modernTip);
+  assert.equal(glossary.getEntries().filter(e => e.term === "Grappled").length, 1);
+  assert.equal(glossary.hasOtherRulesetConditions(), false);
+  delete globalThis.CONFIG.DND5E;
 });

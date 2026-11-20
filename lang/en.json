@@ -45,6 +45,9 @@
     },
     "Reference": {
       "Filter": "Filter reference…",
+      "Rules2014": "2014 rules",
+      "Rules2024": "2024 rules",
+      "RulesHint": "Follows the world's D&D 5e Rules Version setting (Configure Settings → the D&D Fifth Edition system tab).",
       "Conditions": "Conditions",
       "Travel": "Travel Pace",
       "Light": "Light Sources",
@@ -122,7 +125,8 @@
       "Import": "Import glossary (JSON)",
       "Export": "Export glossary (JSON)",
       "ImportResult": "Glossary import: {added} added, {updated} updated, {skipped} skipped, {foldersCreated} folders created.",
-      "ImportError": "Could not import the glossary file — check that it is valid JSON."
+      "ImportError": "Could not import the glossary file — check that it is valid JSON.",
+      "OtherRuleset": "Darkmantle's Codex: some glossary conditions use the other D&D ruleset's wording. This world uses {version} rules; use Add Default Status Conditions in the module settings to update them."
     },
     "Settings": {
       "ButtonLocation": {
@@ -131,12 +135,6 @@
         "Players": "Above the players list (bottom left)",
         "Nav": "Beside the scene selector (top left)",
         "Controls": "With the scene controls (left toolbar)"
-      },
-      "RulesVersion": {
-        "Name": "D&D Rules Version",
-        "Hint": "Which rules text the Reference tab displays for conditions and other rules reminders.",
-        "2024": "2024 (revised) rules",
-        "2014": "2014 (legacy) rules"
       },
       "GlossaryEnabled": {
         "Name": "Enable Glossary Hover Tips",
@@ -157,7 +155,7 @@
       "LoadConditions": {
         "Name": "Default Status Conditions",
         "Label": "Add Default Status Conditions",
-        "Hint": "Adds your game system's status conditions to your glossary in a \"Rules\" folder (player-visible) — each linked to its condition so a click opens the full rules — plus empty \"NPCs\" and \"Places\" folders. Existing entries of the same name are updated, never duplicated.",
+        "Hint": "Adds your game system's status conditions to your glossary in a \"Rules\" folder (player-visible), each linked to its condition so a click opens the full rules, plus empty \"NPCs\" and \"Places\" folders. In D&D 5e the wording and links follow the world's 2014 or 2024 rules setting. Existing entries of the same name are updated, never duplicated.",
         "Confirm": "Add your game system's status conditions (linked to each condition) and the Rules / NPCs / Places folders to your glossary? Entries with the same name are updated — nothing is duplicated."
       },
       "LoadDrakkenheim": {

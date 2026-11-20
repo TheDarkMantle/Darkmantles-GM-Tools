@@ -9,7 +9,7 @@ A suite of Game Master tools for [Foundry VTT](https://foundryvtt.com/) (v13–v
 A tabbed, resizable, pop-out–capable window for keeping reference material and your prep at your fingertips.
 
 - **Reference tab** (static) — quick-reference that adapts to your **game system**:
-  - **D&D 5e** — every condition (Blinded → Unconscious) with **2014** or **2024** rules text (selectable in settings), travel pace, jumping/movement, combat actions (+ the 2024 Study table), and light sources.
+  - **D&D 5e** — every condition (Blinded → Unconscious), travel pace, jumping/movement, combat actions (+ the 2024 Study table), and light sources. Everything follows your world's **D&D 5e Rules Version** setting automatically: **2014 (legacy)** or **2024 (modern)** wording, actions, travel pace effects, and light sources. The tab shows which ruleset it's using next to the filter box.
   - **Pathfinder 2e / Starfinder 2e** — conditions read straight from your installed system (always accurate), plus travel-speed and lighting tables.
   - **Other systems** — conditions are still listed from your system's own status effects.
   - A filter box to quickly find any entry.
@@ -33,7 +33,7 @@ Central, reusable hover reminders for names and terms — write a tip once, and 
 - **Link to full details** — optionally drag a journal entry, journal page, or actor onto an entry; the highlighted term becomes clickable and opens that full write-up or statblock. Click-through respects Foundry permissions.
 - **Import / Export** — back up or share your glossary as a JSON file. Import merges by term (adds new, updates existing), creating any referenced folders.
 - **Move by drag-and-drop** — drag an entry row onto a folder (or Uncategorized) to refile it.
-- **Condition libraries (module settings)** — the Codex's settings have **Add Default Status Conditions** (seeds a player-visible Rules folder with your game system's conditions, each linked to its rules, plus empty NPCs/Places folders). If a Drakkenheim module (**Monsters of Drakkenheim** or the Drakkenheim core module) is enabled in your world, an **Add Drakkenheim Reference** button also appears: it adds the Drakkenheim conditions to your glossary and fills the **Drakkenheim tab** on the GM Screen. Everything is read from the modules you own at runtime, so nothing paid ships with the Codex. Both buttons merge (no duplicates); re-running updates entries with the same name.
+- **Condition libraries (module settings)** — the Codex's settings have **Add Default Status Conditions** (seeds a player-visible Rules folder with your game system's conditions, each linked to its rules, plus empty NPCs/Places folders). In D&D 5e the wording and rule links match the world's 2014 or 2024 setting; if you switch rulesets later, the Codex reminds you on load to run it again so the tips update. If a Drakkenheim module (**Monsters of Drakkenheim** or the Drakkenheim core module) is enabled in your world, an **Add Drakkenheim Reference** button also appears: it adds the Drakkenheim conditions to your glossary and fills the **Drakkenheim tab** on the GM Screen. Everything is read from the modules you own at runtime, so nothing paid ships with the Codex. Both buttons merge (no duplicates); re-running updates entries with the same name.
 - **Explicit syntax** — type `@tip[term]` in any journal editor to force a tip where auto-matching can't reach.
 - **Suggest Glossary Entries (optional, GM-only)** — enable it in settings and likely names of people, places, and organizations that *aren't* in your glossary yet get a subtle amber dashed underline in journals and GM Screen sections. Click one to create its entry on the spot (pre-linked to a matching actor or journal), or dismiss it permanently. Heuristic-based: it skips headings, links, stat-block jargon, and sentence-starting words unless the name also appears mid-sentence. Players never see these highlights.
 
@@ -83,7 +83,6 @@ verification in Foundry v14.
 | Setting | Scope | Description |
 | --- | --- | --- |
 | GM Screen Button Location | Per-client | Where the toggle button appears (above the players list / beside the scene selector / with the scene controls). |
-| D&D Rules Version | Per-world | Whether the Reference tab shows 2014 or 2024 rules text. Only shown in D&D 5e worlds. |
 | Enable Glossary Hover Tips | Per-client | Personal on/off switch for the glossary. When off, glossary buttons are hidden and hover tips stop appearing — just for you. |
 | Suggest Glossary Entries | Per-client | GM-only amber underlines on likely names that aren't in the glossary yet. Off by default. |
 | Enable Session Notes Tab | Per-client | Adds the Session Notes tab to the GM Screen. Off by default. |

@@ -2,6 +2,8 @@ import { readPrivateGlossary, writePrivateGlossary } from "./private-data.mjs";
 import { escapeHTML as esc } from "./html.mjs";
 import { MODULE_ID } from "./constants.mjs";
 import { getSystemConditions } from "./reference/system-conditions.mjs";
+import { CONDITIONS } from "./reference-data.mjs";
+import { getDnd5eRulesVersion } from "./rules-version.mjs";
 
 
 function escapeRegExp(str) {
@@ -138,18 +140,28 @@ export async function importGlossary(data, mode = "merge") {
   return result;
 }
 
-/** Fetch the bundled defaults JSON and merge it into the glossary. */
+const DEFAULT_FOLDERS = [{ name: "Rules", parent: null }, { name: "NPCs", parent: null }, { name: "Places", parent: null }];
+
+/** The glossary tip for a D&D 5e condition in one ruleset (same text as the Reference tab). */
+const dnd5eConditionTip = (condition, version) => condition.rules[version].join(" • ");
+
 /**
  * Seed the glossary with the active game system's status conditions.
- * D&D 5e uses the curated bundled defaults (nice 2014/2024 wording); every other
+ * D&D 5e uses the curated condition text for the world's ruleset (2014 or 2024),
+ * linked to the dnd5e system's own rules page for that condition (the system
+ * points these at the 2014 or 2024 rulebook to match the world). Every other
  * system reads its own conditions at runtime, each entry linked to its condition
  * document so a click opens the full rules, with a concise reminder as the tip.
  */
 export async function loadDefaultConditions(mode = "merge") {
-  if (game.system?.id === "dnd5e") {
-    const resp = await fetch(`modules/${MODULE_ID}/data/glossary-defaults.json`);
-    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-    return importGlossary(await resp.json(), mode);
+  const version = getDnd5eRulesVersion();
+  if (version) {
+    const entries = CONDITIONS.map(c => {
+      const tip = dnd5eConditionTip(c, version);
+      const link = CONFIG.DND5E?.conditionTypes?.[c.name.toLowerCase()]?.reference ?? "";
+      return { term: c.name, aliases: [], gmTip: tip, playerTip: tip, mirrorGM: true, link, folder: "Rules" };
+    });
+    return importGlossary({ folders: DEFAULT_FOLDERS, entries }, mode);
   }
 
   const conditions = await getSystemConditions();
@@ -159,11 +171,24 @@ export async function loadDefaultConditions(mode = "merge") {
       const tip = conciseSummary(c.html) || c.name;
       return { term: c.name, aliases: [], gmTip: tip, playerTip: tip, mirrorGM: true, link: c.uuid ?? "", folder: "Rules" };
     });
-  const data = {
-    folders: [{ name: "Rules", parent: null }, { name: "NPCs", parent: null }, { name: "Places", parent: null }],
-    entries
-  };
-  return importGlossary(data, mode);
+  return importGlossary({ folders: DEFAULT_FOLDERS, entries }, mode);
+}
+
+/**
+ * D&D 5e only: true when the glossary holds default condition tips written for
+ * the OTHER ruleset (e.g. 2024 tips in a 2014 world), so the GM can re-add them.
+ * Only exact matches of our own text count; tips the GM edited are left alone.
+ */
+export function hasOtherRulesetConditions() {
+  const version = getDnd5eRulesVersion();
+  if (!version || !game.user.isGM) return false;
+  const other = version === "2024" ? "2014" : "2024";
+  const entries = getGlossary().entries;
+  return CONDITIONS.some(c => {
+    const otherTip = dnd5eConditionTip(c, other);
+    if (otherTip === dnd5eConditionTip(c, version)) return false; // unchanged between rulesets
+    return entries.some(e => e.term?.toLowerCase() === c.name.toLowerCase() && e.gmTip === otherTip);
+  });
 }
 
 /** First 1–2 sentences of an HTML description as plain text (≤ ~200 chars). */

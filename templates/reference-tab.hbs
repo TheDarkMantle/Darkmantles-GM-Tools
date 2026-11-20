@@ -2,6 +2,7 @@
   <div class="gm-ref-toolbar">
     <i class="fa-solid fa-magnifying-glass"></i>
     <input type="search" class="gm-ref-filter" placeholder="{{localize 'GMTOOLS.Reference.Filter'}}">
+    {{#if rulesLabel}}<span class="gm-ref-rules" data-tooltip="{{localize 'GMTOOLS.Reference.RulesHint'}}">{{rulesLabel}}</span>{{/if}}
   </div>
 
   {{#each sections}}
