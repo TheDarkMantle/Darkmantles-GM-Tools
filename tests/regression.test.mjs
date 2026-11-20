@@ -253,3 +253,26 @@ test("default conditions use the world's ruleset, link the system rules page, an
   assert.equal(glossary.hasOtherRulesetConditions(), false);
   delete globalThis.CONFIG.DND5E;
 });
+
+test("chat 'Private to Session Notes' diverts plain GM messages to notes and lets commands through", async () => {
+  const chatNotes = await import("../scripts/chat-notes.mjs");
+  reset(); await privateData.initializePrivateData(); await privateData.writeSessionNotes("<p>start</p>");
+  globalThis.document.getElementById ??= () => null;
+  const infos = []; globalThis.ui.notifications.info = message => infos.push(message);
+  settings.set(`${MODULE_ID}.sessionNotesEnabled`, true);
+
+  assert.equal(chatNotes.onChatMessage(null, "<p>hello</p>"), true);       // mode off: normal chat
+  chatNotes.setChatNotesMode(true);
+  assert.equal(chatNotes.onChatMessage(null, "<p>/r 1d20</p>"), true);     // commands still post
+  assert.equal(chatNotes.onChatMessage(null, "<p>The duke lied</p>"), false);
+  await new Promise(resolve => setTimeout(resolve, 0));
+  assert.equal(privateData.readSessionNotes(), "<p>start</p><hr><p>The duke lied</p>");
+  assert.equal(infos.length, 1);
+
+  settings.set(`${MODULE_ID}.sessionNotesEnabled`, false);                  // feature off: normal chat
+  assert.equal(chatNotes.onChatMessage(null, "<p>x</p>"), true);
+  settings.set(`${MODULE_ID}.sessionNotesEnabled`, true);
+  game.user = { id: "p", isGM: false };                                    // players never divert
+  assert.equal(chatNotes.onChatMessage(null, "<p>x</p>"), true);
+  chatNotes.setChatNotesMode(false);
+});

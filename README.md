@@ -43,6 +43,7 @@ A persistent GM notepad, turned on with the **Enable Session Notes Tab** setting
 
 - **Notes tab** — your notes render like a journal entry (headings, links, formatting). Hit **Edit** for the full rich-text editor when you want to reorganize, or **Save to Journal** to spin the notes off into a new journal entry.
 - **Quick-add bar** — a chat-style field at the bottom of the tab (optionally shown on *every* tab via a setting). Type a note and press **Ctrl+Enter** (**Cmd+Enter** on Mac) or click the **send** button to append it; plain **Enter** starts a new line, so multi-line notes and lists work. A toggle beside the field reveals the **full formatting toolbar** (headings, lists, colors, links, and more) above the input when you want a note with more than plain text.
+- **From the chat box** — GMs get a **Private to Session Notes** button (feather icon) beside Foundry's chat visibility buttons. While it's on, anything you type in chat is added to your session notes instead of being posted, so nobody sees it in chat. Slash commands like `/r 1d20` still post as normal. Pick any other visibility button to go back to normal chat; the toggle also resets when Foundry reloads. Requires Foundry v14.
 
 ## Installation
 

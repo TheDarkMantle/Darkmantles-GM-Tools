@@ -7,6 +7,7 @@ import { applyGlossary, rebuildMatcher, registerEnricher, refreshJournalWindows,
 import { getDnd5eRulesVersion } from "./rules-version.mjs";
 import { applyGapDetection, refreshGapWindows, addGapIgnore, isGapDetectionEnabled } from "./gap-detection.mjs";
 import { migrateLegacyData } from "./migrate-legacy.mjs";
+import { injectChatNotesButton, onChatMessage } from "./chat-notes.mjs";
 
 const BUTTON_LOCATIONS = ["players", "nav", "controls"];
 
@@ -45,6 +46,7 @@ Hooks.once("init", () => {
     default: false,
     onChange: () => {
       if (GMScreenApp.instance?.rendered) GMScreenApp.instance.refresh();
+      injectChatNotesButton();                                 // show/hide the chat "Session Notes" button
     }
   });
 
@@ -244,6 +246,12 @@ Hooks.on(PRIVATE_DATA_CHANGED, () => {
   const app = GMScreenApp.instance;
   if (app?.rendered) app.refresh();
 });
+
+// Chat: "Private to Session Notes" button beside the message-mode buttons (GM only).
+Hooks.on("renderChatInput", (app, parts) => {
+  injectChatNotesButton(parts["#message-modes"] ?? parts["#roll-privacy"]);
+});
+Hooks.on("chatMessage", onChatMessage);
 
 // GM-only "Glossary" button in the journal sidebar header
 Hooks.on("renderJournalDirectory", (app, element) => {
