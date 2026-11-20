@@ -43,6 +43,12 @@
       "MissingDocumentHint": "This document could not be found. It may have been deleted.",
       "EmptyJournal": "This journal has no pages."
     },
+    "Chat": {
+      "NotesMode": "Private to Session Notes",
+      "NotesPlaceholder": "Add to session notes…",
+      "NoteAdded": "Added to session notes.",
+      "NoteFailed": "Couldn't save to session notes. The note was kept as a chat message only you can see."
+    },
     "Reference": {
       "Filter": "Filter reference…",
       "Rules2014": "2014 rules",
