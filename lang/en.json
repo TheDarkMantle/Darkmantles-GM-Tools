@@ -152,7 +152,7 @@
       },
       "SessionNotesBar": {
         "Name": "Always-visible Note Bar",
-        "Hint": "Shows a small text field at the bottom of the GM Screen on every tab. Type a note and press Enter to append it to your session notes."
+        "Hint": "Shows a small text field at the bottom of the GM Screen on every tab. Type a note and press Ctrl+Enter (Cmd+Enter on Mac) to append it to your session notes."
       },
       "LoadConditions": {
         "Name": "Default Status Conditions",
